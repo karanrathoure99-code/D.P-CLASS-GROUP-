@@ -184,16 +184,17 @@
 
     .photo-preview-wrap {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 8px;
       margin-top: 10px;
     }
 
     .photo-preview {
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
+      width: 85px;
+      height: 120px; /* A4 aspect ratio representation */
+      border-radius: 8px;
       object-fit: cover;
       border: 2px solid #34d399;
       display: none;
@@ -331,7 +332,7 @@
 
         <div class="photo-upload-box" onclick="document.getElementById('profilePhoto').click()">
           <label style="color: #34d399; font-size: 0.9rem; font-weight: 600; cursor: pointer;">
-            📷 Upload Profile Picture (Clear Face Required)
+            📷 Upload Profile Picture (Auto A4 Crop & Compressed)
           </label>
           <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 3px;">Click to select face picture</p>
           <input type="file" id="profilePhoto" accept="image/*" style="display: none;" required />
@@ -385,9 +386,8 @@
       window.location.replace('login.html');
     }
 
-    // 2. DOUBLE-CLICK FULLSCREEN API (Supports Chrome, Safari, Firefox, Edge, Mobile)
+    // 2. DOUBLE-CLICK FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
-      // Input या Form fields पर डबल क्लिक से फुलस्क्रीन ट्रिगर न हो
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL'].includes(e.target.tagName)) {
         return;
       }
@@ -425,7 +425,6 @@
 
     // 4. COLORFUL MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
-      // Red & White Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(-30 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" />
@@ -433,7 +432,6 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" />
         </g>
       </svg>`,
-      // Black & Neon Green Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(25 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" />
@@ -441,16 +439,13 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" />
         </g>
       </svg>`,
-      // Heart Tablet (Pink)
       `<svg viewBox="0 0 32 32">
         <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" />
       </svg>`,
-      // Round Tablet (Cyan)
       `<svg viewBox="0 0 32 32">
         <circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" />
         <line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
       </svg>`,
-      // Syrup Bottle
       `<svg viewBox="0 0 32 32">
         <rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" />
         <path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" />
@@ -471,7 +466,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 5. PHOTO COMPRESSION TO BASE64
+    // 5. PHOTO AUTO A4-CROP & COMPRESSION (UPDATED)
     let compressedPhoto = '';
     document.getElementById('profilePhoto').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -481,32 +476,52 @@
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
-            const maxDim = 260;
-            let width = img.width;
-            let height = img.height;
+            const ctx = canvas.getContext('2d');
 
-            if (width > height) {
-              if (width > maxDim) {
-                height *= maxDim / width;
-                width = maxDim;
-              }
+            // A4 Portrait Aspect Ratio: 1 : 1.414
+            const targetRatio = 1 / 1.414;
+            const srcWidth = img.width;
+            const srcHeight = img.height;
+
+            let cropWidth, cropHeight, startX, startY;
+
+            // कैलकुलेशन: सेंटर से A4 में क्रॉप करना
+            if (srcWidth / srcHeight > targetRatio) {
+              cropHeight = srcHeight;
+              cropWidth = srcHeight * targetRatio;
+              startX = (srcWidth - cropWidth) / 2;
+              startY = 0;
             } else {
-              if (height > maxDim) {
-                width *= maxDim / height;
-                height = maxDim;
-              }
+              cropWidth = srcWidth;
+              cropHeight = srcWidth / targetRatio;
+              startX = 0;
+              startY = (srcHeight - cropHeight) / 2;
             }
 
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            compressedPhoto = canvas.toDataURL('image/jpeg', 0.72);
+            // ऑप्टिमाइज्ड रेजोल्यूशन (फेस बिल्कुल क्लियर रहेगा और साइज कम)
+            const finalWidth = 420;
+            const finalHeight = Math.round(finalWidth * 1.414); // ~594px
+
+            canvas.width = finalWidth;
+            canvas.height = finalHeight;
+
+            // सेंटर क्रॉप करके कैनवस पर ड्रा करना
+            ctx.drawImage(
+              img,
+              startX, startY, cropWidth, cropHeight,
+              0, 0, finalWidth, finalHeight
+            );
+
+            // 0.68 क्वालिटी पर JPEG कम्प्रेशन (साइज मात्र 20KB - 50KB के अंदर रहेगा)
+            compressedPhoto = canvas.toDataURL('image/jpeg', 0.68);
 
             const preview = document.getElementById('photoPreview');
             preview.src = compressedPhoto;
             preview.style.display = 'block';
-            document.getElementById('uploadHint').style.display = 'inline';
+
+            const hint = document.getElementById('uploadHint');
+            hint.style.display = 'inline';
+            hint.innerText = "A4 Cropped & Compressed ✓";
           };
           img.src = evt.target.result;
         };
