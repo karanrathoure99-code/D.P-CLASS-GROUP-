@@ -16,7 +16,7 @@
       background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
       color: #ffffff;
       min-height: 100vh;
-      padding-bottom: 80px;
+      padding-bottom: 90px;
       overflow-x: hidden;
       position: relative;
     }
@@ -55,13 +55,13 @@
       padding: 15px;
     }
 
-    /* Top Bar: Logo, Search, Profile */
+    /* Top Bar: Logo, Search, Real Profile Pic */
     .top-navbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      background: rgba(6, 43, 37, 0.7);
+      background: rgba(6, 43, 37, 0.75);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(52, 211, 153, 0.25);
@@ -104,13 +104,17 @@
     }
 
     .profile-nav-btn {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       border: 2px solid #34d399;
       overflow: hidden;
       cursor: pointer;
       box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+      background: #021a15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .profile-nav-btn img {
@@ -119,7 +123,7 @@
       object-fit: cover;
     }
 
-    /* Search Results Overlay Card */
+    /* Search Results */
     .search-results-box {
       display: none;
       background: rgba(6, 43, 37, 0.95);
@@ -145,7 +149,7 @@
     .user-info-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .user-avatar-sm {
@@ -154,6 +158,7 @@
       border-radius: 50%;
       object-fit: cover;
       border: 1.5px solid #34d399;
+      background: #031411;
     }
 
     .action-btns {
@@ -165,10 +170,18 @@
       background: rgba(16, 185, 129, 0.25);
       border: 1px solid #34d399;
       color: #ffffff;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 10px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-action:hover {
+      background: rgba(16, 185, 129, 0.45);
     }
 
     .btn-partner {
@@ -177,7 +190,7 @@
       color: #fbbf24;
     }
 
-    /* Notice Board */
+    /* Cards */
     .glass-card {
       background: rgba(6, 43, 37, 0.7);
       backdrop-filter: blur(20px);
@@ -208,22 +221,39 @@
 
     .notice-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 6px;
+      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+      gap: 8px;
       margin-top: 10px;
+    }
+
+    .notice-img-wrap {
+      position: relative;
     }
 
     .notice-gallery img {
       width: 100%;
-      height: 80px;
+      height: 85px;
       object-fit: cover;
       border-radius: 8px;
       border: 1px solid rgba(52, 211, 153, 0.3);
+      cursor: pointer;
     }
 
-    /* Post Creation Box (Only Developer / Teacher) */
+    .img-dl-btn {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #34d399;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-decoration: none;
+      border: 1px solid #34d399;
+    }
+
     #createNoticePanel {
-      display: none;
+      display: none; /* Only visible to Developer/Teacher */
       margin-bottom: 20px;
     }
 
@@ -239,7 +269,7 @@
       outline: none;
     }
 
-    /* Readonly Profile Modal */
+    /* Modal Overlay (Profile) */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -261,17 +291,18 @@
       border-radius: 24px;
       padding: 24px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       text-align: center;
     }
 
     .modal-photo {
-      width: 90px;
-      height: 90px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid #34d399;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      background: #021a15;
     }
 
     .profile-field {
@@ -289,14 +320,37 @@
       font-weight: 600;
     }
 
-    /* Bottom Navbar */
+    .modal-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.45);
+      color: #ffffff;
+    }
+
+    /* Fixed Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 60px;
-      background: rgba(3, 20, 17, 0.92);
+      height: 62px;
+      background: rgba(3, 20, 17, 0.95);
       backdrop-filter: blur(20px);
       border-top: 1px solid rgba(52, 211, 153, 0.3);
       display: flex;
@@ -312,7 +366,9 @@
       color: #94a3b8;
       text-decoration: none;
       font-size: 0.75rem;
+      font-weight: 700;
       cursor: pointer;
+      gap: 3px;
     }
 
     .nav-item.active, .nav-item:hover {
@@ -326,88 +382,100 @@
 </head>
 <body>
 
-  <!-- Falling Medicines Rain -->
+  <!-- Falling Medicines Background Animation -->
   <div class="rain-container" id="rainContainer"></div>
 
   <div class="app-wrapper">
-    <!-- Top Bar -->
+    <!-- Top Nav Bar -->
     <div class="top-navbar">
-      <div class="app-logo-badge">
+      <div class="app-logo-badge" onclick="window.location.reload()">
         <span>℞</span> D-PHARMA
       </div>
       <div class="search-container">
-        <input type="text" id="userSearchInput" class="search-input" placeholder="Search by Name or Enroll (e.g. 2626*)..." />
+        <input type="text" id="userSearchInput" class="search-input" placeholder="Search registered students (Name/Enroll)..." />
       </div>
       <div class="profile-nav-btn" onclick="openProfileModal()">
         <img id="navProfilePic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
       </div>
     </div>
 
-    <!-- Search Results Card -->
+    <!-- Search Results View -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">ALL MATCHING USERS:</div>
       <div id="usersList"></div>
     </div>
 
-    <!-- Notice Board Creation Area (Teacher & Developer Only) -->
+    <!-- Protected Notice Creation Area (Visible ONLY to Developer & Teachers) -->
     <div id="createNoticePanel" class="glass-card">
-      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post to Official Notice Board</h3>
+      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Auto-Expires in 24h)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
-      <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Enter full announcement / notes..."></textarea>
-      <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional link (https://...)" />
+      <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
+      <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
       
-      <!-- Multi Image Select (Limit 10) -->
       <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Images (Max 10):</label>
       <input type="file" id="noticeImages" class="input-field-custom" accept="image/*" multiple />
       
-      <button onclick="publishNotice()" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700;">Publish Notice to Board</button>
+      <button onclick="publishNotice()" id="btnPublishNotice" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
     </div>
 
-    <!-- Notice Board Section -->
+    <!-- Notice Board (Visible to EVERYONE) -->
     <div class="glass-card">
       <div class="board-header">
         <h2 style="font-size:1.1rem; color:#34d399; display:flex; align-items:center; gap:6px;">
           📌 D. PHARMA NOTICE BOARD
         </h2>
-        <span style="font-size:0.75rem; color:#94a3b8;">Official Updates</span>
+        <span style="font-size:0.75rem; color:#94a3b8;">Active (Last 24 Hours)</span>
       </div>
       <div id="noticesContainer">Loading official announcements...</div>
     </div>
   </div>
 
-  <!-- Read-Only Profile View Modal -->
+  <!-- Read-Only Profile View Modal with Logout -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal-content">
       <img id="modalProfileImg" class="modal-photo" src="" alt="Profile" />
       <h3 id="modalName" style="margin-bottom: 4px;">Student Name</h3>
-      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">STUDENT (READ ONLY)</p>
+      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">VERIFIED ID (READ ONLY)</p>
       
       <div class="profile-field"><span>Enrollment:</span> <span id="modalEnroll" style="color:#fff;">-</span></div>
       <div class="profile-field"><span>Email:</span> <span id="modalEmail" style="color:#fff;">-</span></div>
       <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
 
-      <button onclick="closeProfileModal()" class="btn-action" style="width:100%; margin-top:12px; padding:8px;">Close</button>
+      <div class="modal-btn-row">
+        <button onclick="closeProfileModal()" class="btn-action" style="flex:1; justify-content:center; padding:10px;">Close</button>
+        <button onclick="logoutUser()" class="btn-logout">Log Out</button>
+      </div>
     </div>
   </div>
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <div class="nav-item active">
-      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      Home
+      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      HOME
     </div>
     <div class="nav-item" onclick="window.location.href='dpg.html'">
-      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
       D.P.G
     </div>
     <div class="nav-item" onclick="window.location.href='chats.html'">
-      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-      Chats
+      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      CHATS
     </div>
   </div>
 
   <script>
-    // 1. FIREBASE INITIALIZATION
+    // 1. STRICT AUTH GUARD
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const loggedAccount = localStorage.getItem('userAccount');
+    const loggedRole = localStorage.getItem('userRole') || 'student';
+    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
+
+    if (isLoggedIn !== 'true' || !loggedAccount) {
+      window.location.replace('login.html');
+    }
+
+    // 2. FIREBASE INITIALIZATION
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -420,52 +488,48 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. USER AUTH STATE & ROLE CHECK
-    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
-    const loggedRole = localStorage.getItem('userRole') || 'student';
-    const loggedAccount = localStorage.getItem('userAccount') || '';
     let currentUserData = null;
 
-    async function loadCurrentUserInfo() {
-      if (!loggedAccount) {
-        window.location.replace('login.html');
-        return;
-      }
-
-      // Check developer role or student collection
-      if (loggedAccount === DEVELOPER_ID) {
+    // 3. LOAD PROFILE & ACCESS CHECK
+    async function initUserIdentity() {
+      if (loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
         currentUserData = {
           name: "Karan Rathoure (Dev)",
           email: DEVELOPER_ID,
           role: "developer",
-          enroll: "ADMIN-DEV",
-          phone: "Verified Dev"
+          enroll: "DEV-ROOT",
+          phone: "Verified Admin",
+          photo: ""
         };
         document.getElementById('createNoticePanel').style.display = 'block';
       } else {
-        const query = await db.collection('students').where('email', '==', loggedAccount.toLowerCase()).get();
-        if (!query.empty) {
-          currentUserData = query.docs[0].data();
-          currentUserData.id = query.docs[0].id;
+        const snapshot = await db.collection('students').where('email', '==', loggedAccount.toLowerCase()).get();
+        if (!snapshot.empty) {
+          currentUserData = snapshot.docs[0].data();
+          currentUserData.id = snapshot.docs[0].id;
+          
           if (currentUserData.photo) {
             document.getElementById('navProfilePic').src = currentUserData.photo;
+            document.getElementById('modalProfileImg').src = currentUserData.photo;
           }
-          if (currentUserData.role === 'teacher' || currentUserData.isMainPartner) {
+          if (currentUserData.role === 'teacher' || loggedRole === 'teacher') {
             document.getElementById('createNoticePanel').style.display = 'block';
           }
+        } else if (loggedRole === 'teacher') {
+          document.getElementById('createNoticePanel').style.display = 'block';
         }
       }
     }
-    loadCurrentUserInfo();
+    initUserIdentity();
 
-    // 3. SEARCH USER SYSTEM (Restricted: only Name & Photo visible)
+    // 4. GLOBAL SEARCH FOR REGISTERED USERS
     const searchInput = document.getElementById('userSearchInput');
     const searchResultsBox = document.getElementById('searchResultsBox');
     const usersList = document.getElementById('usersList');
 
     searchInput.addEventListener('input', async (e) => {
-      const val = e.target.value.trim().toLowerCase();
-      if (val.length < 2) {
+      const query = e.target.value.trim().toLowerCase();
+      if (query.length < 1) {
         searchResultsBox.style.display = 'none';
         return;
       }
@@ -479,20 +543,16 @@
         const name = (data.name || '').toLowerCase();
         const enroll = (data.enroll || '').toLowerCase();
 
-        if (name.includes(val) || enroll.includes(val)) {
+        if (name.includes(query) || enroll.includes(query)) {
           matches++;
           const card = document.createElement('div');
           card.className = 'user-card';
 
           const photo = data.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
-          // If developer or partner is searching, they can see extra details
-          const isDevOrPartner = loggedAccount === DEVELOPER_ID || (currentUserData && currentUserData.isMainPartner);
-
-          let extraInfo = isDevOrPartner ? `<div style="font-size:0.7rem; color:#94a3b8;">${data.enroll || ''} | ${data.email || ''}</div>` : '';
-
+          const isDev = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase();
           let partnerBtn = '';
-          if (loggedAccount === DEVELOPER_ID) {
+          if (isDev) {
             partnerBtn = `<button class="btn-action btn-partner" onclick="toggleMainPartner('${doc.id}', ${!data.isMainPartner})">
               ${data.isMainPartner ? 'Revoke Partner' : '★ Make Main Partner'}
             </button>`;
@@ -500,10 +560,9 @@
 
           card.innerHTML = `
             <div class="user-info-left">
-              <img class="user-avatar-sm" src="${photo}" alt="User Photo" />
+              <img class="user-avatar-sm" src="${photo}" alt="Student Photo" />
               <div>
                 <strong style="font-size:0.88rem;">${data.name}</strong>
-                ${extraInfo}
               </div>
             </div>
             <div class="action-btns">
@@ -518,12 +577,9 @@
       searchResultsBox.style.display = matches > 0 ? 'block' : 'none';
     });
 
-    // 4. CHAT REQUEST / DIRECT SEND
     async function sendChatRequest(targetUserId, targetName) {
-      const isSpecialPower = loggedAccount === DEVELOPER_ID || (currentUserData && currentUserData.isMainPartner);
-
-      if (isSpecialPower) {
-        alert(`Special Power Active: Direct Chat opened with ${targetName} without request!`);
+      const isSpecial = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || (currentUserData && currentUserData.isMainPartner);
+      if (isSpecial) {
         window.location.href = `chats.html?to=${targetUserId}`;
       } else {
         await db.collection('chatRequests').add({
@@ -533,72 +589,80 @@
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert(`Chat request successfully sent to ${targetName}!`);
+        alert(`Chat request sent to ${targetName}!`);
       }
     }
 
-    // 5. DEVELOPER: SET SPECIAL MAIN PARTNER POWER
-    async function toggleMainPartner(studentDocId, setPartner) {
-      if (loggedAccount !== DEVELOPER_ID) return;
-      await db.collection('students').doc(studentDocId).update({
-        isMainPartner: setPartner
-      });
-      alert(`User partner status set to: ${setPartner}`);
+    async function toggleMainPartner(docId, status) {
+      if (loggedAccount.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
+      await db.collection('students').doc(docId).update({ isMainPartner: status });
+      alert(`User partner status changed to: ${status}`);
     }
 
-    // 6. NOTICE BOARD SYSTEM (MAX 10 PHOTOS, SAFEGUARDED)
+    // 5. NOTICE PUBLISHING & 24-HOUR AUTO-EXPIRY LOGIC
     async function publishNotice() {
-      const isAllowed = loggedAccount === DEVELOPER_ID || loggedRole === 'teacher' || (currentUserData && currentUserData.isMainPartner);
+      const isAllowed = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || loggedRole === 'teacher';
       if (!isAllowed) {
-        alert("Unauthorized! Only verified Teachers or Developer can post notices.");
+        alert("Unauthorized! Only Verified Teachers & Developers can publish notices.");
         return;
       }
 
       const title = document.getElementById('noticeTitle').value.trim();
       const content = document.getElementById('noticeContent').value.trim();
       const link = document.getElementById('noticeLink').value.trim();
-      const imageFiles = document.getElementById('noticeImages').files;
+      const files = document.getElementById('noticeImages').files;
+      const btn = document.getElementById('btnPublishNotice');
 
       if (!title || !content) {
-        alert("Title and Details are required.");
+        alert("Please enter Title and Description.");
         return;
       }
 
-      if (imageFiles.length > 10) {
-        alert("Maximum 10 images allowed at one time!");
+      if (files.length > 10) {
+        alert("Limit reached: Only 10 images allowed!");
         return;
       }
 
-      // Convert images to Base64 (Compressed)
-      const base64Images = [];
-      for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        const b64 = await toBase64Compressed(file);
-        base64Images.push(b64);
+      btn.disabled = true;
+      btn.innerText = "Publishing to Board...";
+
+      try {
+        const compressedImages = [];
+        for (let i = 0; i < files.length; i++) {
+          const b64 = await toBase64Compressed(files[i]);
+          compressedImages.push(b64);
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        await db.collection('notices').add({
+          title,
+          content,
+          link,
+          images: compressedImages,
+          postedBy: currentUserData ? currentUserData.name : 'Authority',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
+        });
+
+        alert("Notice published successfully! It is now live for all users.");
+        document.getElementById('noticeTitle').value = '';
+        document.getElementById('noticeContent').value = '';
+        document.getElementById('noticeLink').value = '';
+        document.getElementById('noticeImages').value = '';
+      } catch (err) {
+        alert("Error publishing notice: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Publish Notice";
       }
-
-      await db.collection('notices').add({
-        title,
-        content,
-        link,
-        images: base64Images,
-        postedBy: currentUserData ? currentUserData.name : 'Authority',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      alert("Notice posted successfully!");
-      document.getElementById('noticeTitle').value = '';
-      document.getElementById('noticeContent').value = '';
-      document.getElementById('noticeLink').value = '';
-      document.getElementById('noticeImages').value = '';
-      loadNotices();
     }
 
-    // Compress attached notice images
     function toBase64Compressed(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
+      return new Promise((res) => {
+        const r = new FileReader();
+        r.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
@@ -606,37 +670,47 @@
             let w = img.width, h = img.height;
             if (w > h && w > max) { h *= max / w; w = max; }
             else if (h > max) { w *= max / h; h = max; }
-            canvas.width = w;
-            canvas.height = h;
+            canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.65));
+            res(canvas.toDataURL('image/jpeg', 0.65));
           };
           img.src = e.target.result;
         };
-        reader.readAsDataURL(file);
+        r.readAsDataURL(file);
       });
     }
 
-    // Realtime Load Notices
-    function loadNotices() {
+    // REALTIME LOAD ALL NOTICES FOR EVERY USER
+    function loadActiveNotices() {
       db.collection('notices').orderBy('createdAt', 'desc').onSnapshot((snap) => {
         const container = document.getElementById('noticesContainer');
-        if (snap.empty) {
-          container.innerHTML = "<p style='color:#94a3b8; font-size:0.85rem;'>No notices posted yet.</p>";
-          return;
-        }
-
+        const currentTime = new Date().getTime();
+        let count = 0;
         container.innerHTML = '';
+
         snap.forEach((doc) => {
           const n = doc.data();
+          
+          // Auto filter: Check if 24 hours have passed
+          if (n.expiresAt) {
+            const expTime = n.expiresAt.toDate().getTime();
+            if (currentTime > expTime) return; // Expired, skip display
+          }
+
+          count++;
           const item = document.createElement('div');
           item.className = 'notice-item';
 
           let galleryHtml = '';
           if (n.images && n.images.length > 0) {
             galleryHtml = '<div class="notice-gallery">' + 
-              n.images.map(img => `<img src="${img}" alt="Notice Image" onclick="window.open('${img}')" />`).join('') + 
+              n.images.map((img, idx) => `
+                <div class="notice-img-wrap">
+                  <img src="${img}" alt="Notice" onclick="window.open('${img}')" />
+                  <a href="${img}" download="Notice_Doc_${idx+1}.jpg" class="img-dl-btn">⬇ Save</a>
+                </div>
+              `).join('') + 
             '</div>';
           }
 
@@ -653,18 +727,26 @@
           `;
           container.appendChild(item);
         });
+
+        if (count === 0) {
+          container.innerHTML = "<p style='color:#94a3b8; font-size:0.85rem;'>No active notices in the last 24 hours.</p>";
+        }
+      }, (err) => {
+        console.error("Notice fetch error:", err);
       });
     }
-    loadNotices();
+    loadActiveNotices();
 
-    // 7. READ-ONLY PROFILE MODAL
+    // 6. READ-ONLY PROFILE MODAL & LOGOUT
     function openProfileModal() {
       if (!currentUserData) return;
-      document.getElementById('modalName').innerText = currentUserData.name || 'User';
+      document.getElementById('modalName').innerText = currentUserData.name || 'Student';
       document.getElementById('modalEnroll').innerText = currentUserData.enroll || 'N/A';
       document.getElementById('modalEmail').innerText = currentUserData.email || 'N/A';
       document.getElementById('modalPhone').innerText = currentUserData.phone || 'N/A';
-      document.getElementById('modalProfileImg').src = currentUserData.photo || document.getElementById('navProfilePic').src;
+      if (currentUserData.photo) {
+        document.getElementById('modalProfileImg').src = currentUserData.photo;
+      }
       document.getElementById('profileModal').style.display = 'flex';
     }
 
@@ -672,7 +754,13 @@
       document.getElementById('profileModal').style.display = 'none';
     }
 
-    // 8. MEDICINE RAIN BACKGROUND (SAME ANIMATION)
+    function logoutUser() {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace('login.html');
+    }
+
+    // 7. MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
@@ -694,20 +782,6 @@
       drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
       rainContainer.appendChild(drop);
     }
-
-    // 9. CROSS-BROWSER FULLSCREEN ON DOUBLE-CLICK
-    document.addEventListener('dblclick', function(e) {
-      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
-      const doc = window.document;
-      const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        if (req) req.call(docEl).catch(() => {});
-      } else {
-        if (exit) exit.call(doc);
-      }
-    });
   </script>
 </body>
 </html>
