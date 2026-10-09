@@ -129,7 +129,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      pointer-events: none; /* Prevents dragging & long-press download */
+      pointer-events: none;
       -webkit-touch-callout: none;
     }
 
@@ -505,7 +505,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body oncontextmenu="return false;"> <!-- Global anti-save/right-click block -->
+<body oncontextmenu="return false;">
 
   <!-- Falling Medicines Background Animation -->
   <div class="rain-container" id="rainContainer"></div>
@@ -545,10 +545,8 @@
 
     <!-- WHATSAPP STORY STYLE NOTICE SECTION -->
     <div class="story-card-wrapper" id="storyNoticeBox">
-      <!-- Story Segments Progress -->
       <div class="story-progress-bar" id="storyProgress"></div>
 
-      <!-- Story Header: Author Info & Dev Delete -->
       <div class="story-header">
         <div class="story-author">
           <img id="storyAuthorPhoto" class="story-avatar protected-img" src="" alt="Author" />
@@ -560,7 +558,6 @@
         <div id="devDeleteWrap"></div>
       </div>
 
-      <!-- Story Body: Content + Main Image -->
       <div class="story-content-body">
         <div class="story-title" id="storyTitle">Notice Title</div>
         <div class="story-desc" id="storyDesc">Loading announcement details...</div>
@@ -568,7 +565,6 @@
         <div id="storyLinkWrap" style="margin-top:10px;"></div>
       </div>
 
-      <!-- Story Footer: Left/Right Arrows -->
       <div class="story-footer-nav">
         <button class="arrow-btn" id="prevStoryBtn" onclick="navigateStory(-1)">◀</button>
         <span id="storyCounter" style="font-size:0.8rem; color:#94a3b8; font-weight:600;">1 / 1</span>
@@ -579,7 +575,7 @@
     <div class="fullscreen-hint">📱 Double tap / click anywhere on screen for Fullscreen mode</div>
   </div>
 
-  <!-- Read-Only Profile View Modal with Protected Image & Logout -->
+  <!-- Read-Only Profile View Modal -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal-content">
       <img id="modalProfileImg" class="modal-photo protected-img" src="" alt="Profile" />
@@ -616,7 +612,7 @@
   <script>
     // 1. STRICT AUTH GUARD
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const loggedAccount = localStorage.getItem('userAccount');
+    const loggedAccount = (localStorage.getItem('userAccount') || '').trim().toLowerCase();
     const loggedRole = localStorage.getItem('userRole') || 'student';
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
 
@@ -641,10 +637,10 @@
 
     // 3. LOAD CURRENT USER IDENTITY
     async function initUserIdentity() {
-      if (loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
+      if (loggedAccount === DEVELOPER_ID.toLowerCase()) {
         currentUserData = {
           name: "Karan Rathoure (Dev)",
-          email: DEVELOPER_ID,
+          email: DEVELOPER_ID.toLowerCase(),
           role: "developer",
           enroll: "DEV-ROOT",
           phone: "Verified Admin",
@@ -652,7 +648,7 @@
         };
         document.getElementById('createNoticePanel').style.display = 'block';
       } else {
-        const snapshot = await db.collection('students').where('email', '==', loggedAccount.toLowerCase()).get();
+        const snapshot = await db.collection('students').where('email', '==', loggedAccount).get();
         if (!snapshot.empty) {
           currentUserData = snapshot.docs[0].data();
           currentUserData.id = snapshot.docs[0].id;
@@ -669,7 +665,7 @@
     }
     initUserIdentity();
 
-    // 4. INSTANT SEARCH WITH AUTO-CLEAR WHEN EMPTY
+    // 4. SEARCH SYSTEM (FIXED EMAIL PASSING & REALTIME REQ)
     const searchInput = document.getElementById('userSearchInput');
     const searchResultsBox = document.getElementById('searchResultsBox');
     const usersList = document.getElementById('usersList');
@@ -677,7 +673,6 @@
     searchInput.addEventListener('input', async (e) => {
       const query = e.target.value.trim().toLowerCase();
       
-      // If search bar is cleared/empty, wipe out all results immediately
       if (query === '' || query.length === 0) {
         usersList.innerHTML = '';
         searchResultsBox.style.display = 'none';
@@ -692,6 +687,10 @@
         const data = doc.data();
         const name = (data.name || '').toLowerCase();
         const enroll = (data.enroll || '').toLowerCase();
+        const email = (data.email || '').toLowerCase();
+
+        // Apne aap ko search results se hide karein
+        if (email === loggedAccount) return;
 
         if (name.includes(query) || enroll.includes(query)) {
           matches++;
@@ -700,7 +699,7 @@
 
           const photo = data.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
-          const isDev = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase();
+          const isDev = loggedAccount === DEVELOPER_ID.toLowerCase();
           let partnerBtn = '';
           if (isDev) {
             partnerBtn = `<button class="btn-action btn-partner" onclick="toggleMainPartner('${doc.id}', ${!data.isMainPartner})">
@@ -708,6 +707,7 @@
             </button>`;
           }
 
+          // FIX: data.email aur data.name dono safely pass kiye ja rahe hain
           card.innerHTML = `
             <div class="user-info-left">
               <img class="user-avatar-sm protected-img" src="${photo}" alt="User Photo" />
@@ -716,7 +716,7 @@
               </div>
             </div>
             <div class="action-btns">
-              <button class="btn-action" onclick="sendChatRequest('${doc.id}', '${data.name}')">Chat Request</button>
+              <button class="btn-action" onclick="sendChatRequest('${doc.id}', '${data.name.replace(/'/g, "\\'")}', '${email}')">Chat Request</button>
               ${partnerBtn}
             </div>
           `;
@@ -727,31 +727,58 @@
       searchResultsBox.style.display = matches > 0 ? 'block' : 'none';
     });
 
-    async function sendChatRequest(targetUserId, targetName) {
-      const isSpecial = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || (currentUserData && currentUserData.isMainPartner);
+    // 100% WORKING CHAT REQUEST DISPATCHER
+    async function sendChatRequest(targetUserId, targetName, targetEmail) {
+      const isSpecial = loggedAccount === DEVELOPER_ID.toLowerCase() || (currentUserData && currentUserData.isMainPartner);
+      
       if (isSpecial) {
-        window.location.href = `chats.html?to=${targetUserId}`;
-      } else {
+        window.location.href = `chats.html?to=${encodeURIComponent(targetEmail)}`;
+        return;
+      }
+
+      const myName = currentUserData ? currentUserData.name : loggedAccount;
+
+      try {
+        // Pehle check karein kya request already pending hai
+        const existing = await db.collection('chatRequests')
+          .where('fromEmail', '==', loggedAccount)
+          .where('toEmail', '==', targetEmail.toLowerCase())
+          .where('status', '==', 'pending')
+          .get();
+
+        if (!existing.empty) {
+          alert(`You have already sent a pending request to ${targetName}!`);
+          return;
+        }
+
+        // Firestore me save (Email + Name + ID)
         await db.collection('chatRequests').add({
           from: loggedAccount,
+          fromEmail: loggedAccount,
+          fromName: myName,
           toId: targetUserId,
+          toEmail: targetEmail.toLowerCase(),
           toName: targetName,
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert(`Chat request sent to ${targetName}!`);
+
+        alert(`Chat request successfully sent to ${targetName}! They will receive it on their Chats page.`);
+      } catch (err) {
+        console.error("Error sending chat request:", err);
+        alert("Failed to send request: " + err.message);
       }
     }
 
     async function toggleMainPartner(docId, status) {
-      if (loggedAccount.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
+      if (loggedAccount !== DEVELOPER_ID.toLowerCase()) return;
       await db.collection('students').doc(docId).update({ isMainPartner: status });
       alert(`User partner status changed to: ${status}`);
     }
 
     // 5. POST NOTICE
     async function publishNotice() {
-      const isAllowed = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || loggedRole === 'teacher';
+      const isAllowed = loggedAccount === DEVELOPER_ID.toLowerCase() || loggedRole === 'teacher';
       if (!isAllowed) {
         alert("Unauthorized! Only Verified Teachers & Developers can publish notices.");
         return;
@@ -836,7 +863,7 @@
           
           if (data.expiresAt) {
             const expTime = data.expiresAt.toDate().getTime();
-            if (currentTime > expTime) return; // Expired, skip
+            if (currentTime > expTime) return;
           }
           activeNotices.push(data);
         });
@@ -850,7 +877,7 @@
     loadStoryNotices();
 
     function renderCurrentStory() {
-      const isDev = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase();
+      const isDev = loggedAccount === DEVELOPER_ID.toLowerCase();
 
       if (activeNotices.length === 0) {
         document.getElementById('storyProgress').innerHTML = '<div class="story-progress-segment active"></div>';
@@ -870,30 +897,25 @@
 
       const notice = activeNotices[currentStoryIndex];
 
-      // Story Progress Bars
       let bars = '';
       for (let i = 0; i < activeNotices.length; i++) {
         bars += `<div class="story-progress-segment ${i <= currentStoryIndex ? 'active' : ''}"></div>`;
       }
       document.getElementById('storyProgress').innerHTML = bars;
 
-      // Author Info
       document.getElementById('storyAuthorName').innerText = notice.postedBy || "Authority";
       document.getElementById('storyTime').innerText = "Official Update";
       document.getElementById('storyAuthorPhoto').src = notice.authorPhoto || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
-      // Developer Delete Button
       if (isDev) {
         document.getElementById('devDeleteWrap').innerHTML = `<button class="btn-delete-notice" onclick="deleteNoticeDirect('${notice.id}')">🗑 Delete Notice</button>`;
       } else {
         document.getElementById('devDeleteWrap').innerHTML = '';
       }
 
-      // Content
       document.getElementById('storyTitle').innerText = notice.title || "";
       document.getElementById('storyDesc').innerText = notice.content || "";
 
-      // Notice Images
       if (notice.images && notice.images.length > 0) {
         document.getElementById('storyImageWrap').innerHTML = `
           <img src="${notice.images[0]}" class="story-image-full" alt="Notice Image" onclick="window.open('${notice.images[0]}')" />
@@ -903,14 +925,12 @@
         document.getElementById('storyImageWrap').innerHTML = '';
       }
 
-      // Link
       if (notice.link) {
         document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:none;">🔗 Open Attached Link</a>`;
       } else {
         document.getElementById('storyLinkWrap').innerHTML = '';
       }
 
-      // Counter & Navigation
       document.getElementById('storyCounter').innerText = `${currentStoryIndex + 1} / ${activeNotices.length}`;
       document.getElementById('prevStoryBtn').disabled = currentStoryIndex === 0;
       document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
@@ -924,9 +944,8 @@
       }
     }
 
-    // DEVELOPER DIRECT NOTICE DELETION
     async function deleteNoticeDirect(noticeId) {
-      if (loggedAccount.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
+      if (loggedAccount !== DEVELOPER_ID.toLowerCase()) return;
       if (confirm("Are you sure you want to permanently remove this notice?")) {
         try {
           await db.collection('notices').doc(noticeId).delete();
