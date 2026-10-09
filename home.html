@@ -55,7 +55,7 @@
       padding: 15px;
     }
 
-    /* Top Bar: Logo, Search, Real Profile Pic */
+    /* Top Bar */
     .top-navbar {
       display: flex;
       align-items: center;
@@ -219,41 +219,31 @@
       margin-bottom: 14px;
     }
 
+    /* Thumbnail Gallery */
     .notice-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+      gap: 10px;
       margin-top: 10px;
     }
 
-    .notice-img-wrap {
-      position: relative;
-    }
-
-    .notice-gallery img {
+    .notice-thumb {
       width: 100%;
-      height: 85px;
+      height: 75px;
       object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 10px;
+      border: 1.5px solid rgba(52, 211, 153, 0.4);
       cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .img-dl-btn {
-      position: absolute;
-      bottom: 4px;
-      right: 4px;
-      background: rgba(0, 0, 0, 0.75);
-      color: #34d399;
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-decoration: none;
-      border: 1px solid #34d399;
+    .notice-thumb:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
     }
 
     #createNoticePanel {
-      display: none; /* Only visible to Developer/Teacher */
+      display: none;
       margin-bottom: 20px;
     }
 
@@ -269,15 +259,16 @@
       outline: none;
     }
 
-    /* Modal Overlay (Profile) */
+    /* Modals (Profile & Image Preview) */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -338,9 +329,26 @@
       flex: 1;
     }
 
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.45);
-      color: #ffffff;
+    /* Image Preview Modal (Big Window) */
+    .image-modal-content {
+      background: rgba(4, 25, 21, 0.95);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      border-radius: 20px;
+      padding: 16px;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    }
+
+    .image-modal-content img {
+      max-width: 100%;
+      max-height: 65vh;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 1px solid rgba(52, 211, 153, 0.3);
     }
 
     /* Fixed Bottom Nav */
@@ -374,9 +382,17 @@
     .nav-item.active, .nav-item:hover {
       color: #34d399;
     }
+
+    .fullscreen-hint {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
   </style>
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
@@ -405,7 +421,7 @@
       <div id="usersList"></div>
     </div>
 
-    <!-- Protected Notice Creation Area (Visible ONLY to Developer & Teachers) -->
+    <!-- Protected Notice Creation Area (ONLY Developer & Teachers can post) -->
     <div id="createNoticePanel" class="glass-card">
       <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Auto-Expires in 24h)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
@@ -415,10 +431,10 @@
       <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Images (Max 10):</label>
       <input type="file" id="noticeImages" class="input-field-custom" accept="image/*" multiple />
       
-      <button onclick="publishNotice()" id="btnPublishNotice" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
+      <button onclick="publishNotice()" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
     </div>
 
-    <!-- Notice Board (Visible to EVERYONE) -->
+    <!-- Notice Board (VISIBLE TO ALL LOGGED-IN USERS) -->
     <div class="glass-card">
       <div class="board-header">
         <h2 style="font-size:1.1rem; color:#34d399; display:flex; align-items:center; gap:6px;">
@@ -428,6 +444,8 @@
       </div>
       <div id="noticesContainer">Loading official announcements...</div>
     </div>
+
+    <div class="fullscreen-hint">📱 Double tap / click anywhere on screen for Fullscreen mode</div>
   </div>
 
   <!-- Read-Only Profile View Modal with Logout -->
@@ -444,6 +462,17 @@
       <div class="modal-btn-row">
         <button onclick="closeProfileModal()" class="btn-action" style="flex:1; justify-content:center; padding:10px;">Close</button>
         <button onclick="logoutUser()" class="btn-logout">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Big Image Preview Modal -->
+  <div class="modal-overlay" id="imagePreviewModal" onclick="closeImageModal(event)">
+    <div class="image-modal-content">
+      <img id="modalBigImg" src="" alt="Enlarged Image" />
+      <div style="display:flex; gap:12px; margin-top:14px; width:100%;">
+        <a id="modalDownloadBtn" href="" download="notice_image.jpg" class="btn-action" style="flex:1; justify-content:center; padding:10px;">⬇ Download Full Image</a>
+        <button onclick="document.getElementById('imagePreviewModal').style.display='none'" class="btn-action" style="background:rgba(239,68,68,0.25); border-color:#ef4444; color:#fca5a5; padding:10px 18px;">✕ Close</button>
       </div>
     </div>
   </div>
@@ -475,7 +504,7 @@
       window.location.replace('login.html');
     }
 
-    // 2. FIREBASE INITIALIZATION
+    // 2. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -490,7 +519,7 @@
 
     let currentUserData = null;
 
-    // 3. LOAD PROFILE & ACCESS CHECK
+    // 3. LOAD USER IDENTITY
     async function initUserIdentity() {
       if (loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
         currentUserData = {
@@ -515,14 +544,16 @@
           if (currentUserData.role === 'teacher' || loggedRole === 'teacher') {
             document.getElementById('createNoticePanel').style.display = 'block';
           }
-        } else if (loggedRole === 'teacher') {
-          document.getElementById('createNoticePanel').style.display = 'block';
+        } else {
+          if (loggedRole === 'teacher') {
+            document.getElementById('createNoticePanel').style.display = 'block';
+          }
         }
       }
     }
     initUserIdentity();
 
-    // 4. GLOBAL SEARCH FOR REGISTERED USERS
+    // 4. GLOBAL SEARCH FOR ALL USERS
     const searchInput = document.getElementById('userSearchInput');
     const searchResultsBox = document.getElementById('searchResultsBox');
     const usersList = document.getElementById('usersList');
@@ -599,7 +630,7 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // 5. NOTICE PUBLISHING & 24-HOUR AUTO-EXPIRY LOGIC
+    // 5. NOTICE PUBLISHING & 24-HOUR AUTO EXPIRY
     async function publishNotice() {
       const isAllowed = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || loggedRole === 'teacher';
       if (!isAllowed) {
@@ -611,7 +642,6 @@
       const content = document.getElementById('noticeContent').value.trim();
       const link = document.getElementById('noticeLink').value.trim();
       const files = document.getElementById('noticeImages').files;
-      const btn = document.getElementById('btnPublishNotice');
 
       if (!title || !content) {
         alert("Please enter Title and Description.");
@@ -623,40 +653,30 @@
         return;
       }
 
-      btn.disabled = true;
-      btn.innerText = "Publishing to Board...";
-
-      try {
-        const compressedImages = [];
-        for (let i = 0; i < files.length; i++) {
-          const b64 = await toBase64Compressed(files[i]);
-          compressedImages.push(b64);
-        }
-
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-        await db.collection('notices').add({
-          title,
-          content,
-          link,
-          images: compressedImages,
-          postedBy: currentUserData ? currentUserData.name : 'Authority',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
-        });
-
-        alert("Notice published successfully! It is now live for all users.");
-        document.getElementById('noticeTitle').value = '';
-        document.getElementById('noticeContent').value = '';
-        document.getElementById('noticeLink').value = '';
-        document.getElementById('noticeImages').value = '';
-      } catch (err) {
-        alert("Error publishing notice: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Publish Notice";
+      const compressedImages = [];
+      for (let i = 0; i < files.length; i++) {
+        const b64 = await toBase64Compressed(files[i]);
+        compressedImages.push(b64);
       }
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      await db.collection('notices').add({
+        title,
+        content,
+        link,
+        images: compressedImages,
+        postedBy: currentUserData ? currentUserData.name : 'Authority',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
+      });
+
+      alert("Notice posted! It will be visible to everyone and auto-expire after 24 hours.");
+      document.getElementById('noticeTitle').value = '';
+      document.getElementById('noticeContent').value = '';
+      document.getElementById('noticeLink').value = '';
+      document.getElementById('noticeImages').value = '';
     }
 
     function toBase64Compressed(file) {
@@ -666,14 +686,14 @@
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const max = 700;
+            const max = 800;
             let w = img.width, h = img.height;
             if (w > h && w > max) { h *= max / w; w = max; }
             else if (h > max) { w *= max / h; h = max; }
             canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            res(canvas.toDataURL('image/jpeg', 0.65));
+            res(canvas.toDataURL('image/jpeg', 0.72));
           };
           img.src = e.target.result;
         };
@@ -681,7 +701,7 @@
       });
     }
 
-    // REALTIME LOAD ALL NOTICES FOR EVERY USER
+    // REALTIME LOAD NOTICES (THUMBNAIL + CLICK TO ENLARGE)
     function loadActiveNotices() {
       db.collection('notices').orderBy('createdAt', 'desc').onSnapshot((snap) => {
         const container = document.getElementById('noticesContainer');
@@ -692,10 +712,9 @@
         snap.forEach((doc) => {
           const n = doc.data();
           
-          // Auto filter: Check if 24 hours have passed
           if (n.expiresAt) {
             const expTime = n.expiresAt.toDate().getTime();
-            if (currentTime > expTime) return; // Expired, skip display
+            if (currentTime > expTime) return;
           }
 
           count++;
@@ -705,16 +724,13 @@
           let galleryHtml = '';
           if (n.images && n.images.length > 0) {
             galleryHtml = '<div class="notice-gallery">' + 
-              n.images.map((img, idx) => `
-                <div class="notice-img-wrap">
-                  <img src="${img}" alt="Notice" onclick="window.open('${img}')" />
-                  <a href="${img}" download="Notice_Doc_${idx+1}.jpg" class="img-dl-btn">⬇ Save</a>
-                </div>
+              n.images.map((img) => `
+                <img src="${img}" class="notice-thumb" alt="Notice Thumbnail" onclick="openImageModal('${img}')" />
               `).join('') + 
             '</div>';
           }
 
-          let linkHtml = n.link ? `<div style="margin-top:6px;"><a href="${n.link}" target="_blank" style="color:#38bdf8; font-size:0.8rem;">🔗 Open Attached Link</a></div>` : '';
+          let linkHtml = n.link ? `<div style="margin-top:8px;"><a href="${n.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:none;">🔗 Open Attached Link</a></div>` : '';
 
           item.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -731,13 +747,24 @@
         if (count === 0) {
           container.innerHTML = "<p style='color:#94a3b8; font-size:0.85rem;'>No active notices in the last 24 hours.</p>";
         }
-      }, (err) => {
-        console.error("Notice fetch error:", err);
       });
     }
     loadActiveNotices();
 
-    // 6. READ-ONLY PROFILE MODAL & LOGOUT
+    // 6. ENLARGED IMAGE MODAL LOGIC
+    function openImageModal(imgSrc) {
+      document.getElementById('modalBigImg').src = imgSrc;
+      document.getElementById('modalDownloadBtn').href = imgSrc;
+      document.getElementById('imagePreviewModal').style.display = 'flex';
+    }
+
+    function closeImageModal(e) {
+      if (e.target.id === 'imagePreviewModal') {
+        document.getElementById('imagePreviewModal').style.display = 'none';
+      }
+    }
+
+    // 7. PROFILE MODAL & LOGOUT
     function openProfileModal() {
       if (!currentUserData) return;
       document.getElementById('modalName').innerText = currentUserData.name || 'Student';
@@ -760,7 +787,7 @@
       window.location.replace('login.html');
     }
 
-    // 7. MEDICINE RAIN ANIMATION
+    // 8. MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
@@ -782,6 +809,20 @@
       drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
       rainContainer.appendChild(drop);
     }
+
+    // 9. DOUBLE-CLICK FULLSCREEN API
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    });
   </script>
 </body>
 </html>
