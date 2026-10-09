@@ -258,6 +258,32 @@
       cursor: not-allowed;
     }
 
+    /* Delete Permanent Button */
+    .glass-btn-delete {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 13px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .glass-btn-delete:hover {
+      background: rgba(239, 68, 68, 0.45);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
+
+    .glass-btn-delete:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .status-msg {
       display: none;
       padding: 10px 14px;
@@ -372,6 +398,27 @@
       </form>
     </div>
 
+    <!-- SECTION 3: PERMANENT ID TERMINATION / DELETE CONSOLE -->
+    <div class="glass-card" style="border: 1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 25px rgba(239, 68, 68, 0.15);">
+      <h2 style="color: #ef4444; font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">🚫 Terminate / Delete Student ID Permanently</h2>
+      <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 18px;">
+        Agar koi user portal ya chat ka galat istemal kare, to uska Enrollment No. ya Gmail enter karke uska pura data cloud database se permanently delete karein.
+      </p>
+
+      <div id="deleteStatusBox" class="status-msg"></div>
+
+      <form id="deleteUserForm" class="form-grid">
+        <div class="input-group" style="grid-column: 1 / -1;">
+          <label for="deleteIdentifier" style="color: #fca5a5;">Enrollment No. or Gmail Address</label>
+          <input type="text" id="deleteIdentifier" class="input-field" style="border-color: rgba(239, 68, 68, 0.35);" placeholder="DP2026-001 or student@gmail.com" required />
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" id="btnDeleteUser" class="glass-btn-delete">⚠️ Permanently Delete ID from Database</button>
+        </div>
+      </form>
+    </div>
+
     <div class="fullscreen-hint">📱 Double tap / click anywhere on screen for Fullscreen mode</div>
   </div>
 
@@ -466,7 +513,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 5. PHOTO AUTO A4-CROP & COMPRESSION (UPDATED)
+    // 5. PHOTO AUTO A4-CROP & COMPRESSION
     let compressedPhoto = '';
     document.getElementById('profilePhoto').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -478,14 +525,12 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            // A4 Portrait Aspect Ratio: 1 : 1.414
             const targetRatio = 1 / 1.414;
             const srcWidth = img.width;
             const srcHeight = img.height;
 
             let cropWidth, cropHeight, startX, startY;
 
-            // कैलकुलेशन: सेंटर से A4 में क्रॉप करना
             if (srcWidth / srcHeight > targetRatio) {
               cropHeight = srcHeight;
               cropWidth = srcHeight * targetRatio;
@@ -498,21 +543,18 @@
               startY = (srcHeight - cropHeight) / 2;
             }
 
-            // ऑप्टिमाइज्ड रेजोल्यूशन (फेस बिल्कुल क्लियर रहेगा और साइज कम)
             const finalWidth = 420;
-            const finalHeight = Math.round(finalWidth * 1.414); // ~594px
+            const finalHeight = Math.round(finalWidth * 1.414);
 
             canvas.width = finalWidth;
             canvas.height = finalHeight;
 
-            // सेंटर क्रॉप करके कैनवस पर ड्रा करना
             ctx.drawImage(
               img,
               startX, startY, cropWidth, cropHeight,
               0, 0, finalWidth, finalHeight
             );
 
-            // 0.68 क्वालिटी पर JPEG कम्प्रेशन (साइज मात्र 20KB - 50KB के अंदर रहेगा)
             compressedPhoto = canvas.toDataURL('image/jpeg', 0.68);
 
             const preview = document.getElementById('photoPreview');
@@ -642,7 +684,57 @@
       }
     });
 
-    // 8. DEVELOPER LOGOUT
+    // 8. DIRECT PERMANENT ID TERMINATION / DELETION (FIRESTORE)
+    document.getElementById('deleteUserForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (localStorage.getItem('userAccount') !== DEVELOPER_ID) {
+        alert("Unauthorized! Only Developer Karan can perform this action.");
+        return;
+      }
+
+      const target = document.getElementById('deleteIdentifier').value.trim();
+      const btnDelete = document.getElementById('btnDeleteUser');
+      const deleteStatusBox = document.getElementById('deleteStatusBox');
+
+      const confirmDelete = confirm(`⚠️ DANGER ACTION ⚠️\n\nKya aap sach me "${target}" ko database se permanently delete karna chahte hain?\nIska account aur data kabhi wapas nahi aayega!`);
+      if (!confirmDelete) return;
+
+      deleteStatusBox.style.display = 'none';
+      btnDelete.disabled = true;
+      btnDelete.innerText = "Deleting permanently from Cloud Server...";
+
+      try {
+        let querySnapshot = await db.collection("students").where("enroll", "==", target.toUpperCase()).get();
+        if (querySnapshot.empty) {
+          querySnapshot = await db.collection("students").where("email", "==", target.toLowerCase()).get();
+        }
+
+        if (querySnapshot.empty) {
+          alert("Koi student is Enrollment No. ya Gmail address se nahi mila!");
+        } else {
+          querySnapshot.forEach(async (doc) => {
+            await db.collection("students").doc(doc.id).delete();
+          });
+
+          deleteStatusBox.style.display = 'block';
+          deleteStatusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          deleteStatusBox.style.color = '#fca5a5';
+          deleteStatusBox.style.border = '1px solid #ef4444';
+          deleteStatusBox.innerText = `✓ Student ${target} has been permanently terminated & removed from Cloud!`;
+
+          alert(`Success! Student ${target} ka account permanently terminate kar diya gaya hai.`);
+          this.reset();
+        }
+      } catch (err) {
+        alert("Error deleting user: " + err.message);
+      } finally {
+        btnDelete.disabled = false;
+        btnDelete.innerText = "⚠️ Permanently Delete ID from Database";
+      }
+    });
+
+    // 9. DEVELOPER LOGOUT
     function logoutDev() {
       localStorage.clear();
       window.location.replace('login.html');
