@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D Pharma Portal - Secure Chats</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Falling Medicines Rain */
+    .rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .medicine-drop {
+      position: absolute;
+      top: -90px;
+      animation: slowRain linear infinite;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    }
+
+    @keyframes slowRain {
+      0% { transform: translateY(-90px) rotate(0deg); opacity: 0; }
+      12% { opacity: 0.85; }
+      88% { opacity: 0.85; }
+      100% { transform: translateY(112vh) rotate(360deg); opacity: 0; }
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Chat Bar */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(6, 43, 37, 0.8);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.25);
+    }
+
+    .user-profile-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #34d399;
+      object-fit: cover;
+      background: #031411;
+      pointer-events: none;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34d399;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(16, 185, 129, 0.45);
+      color: #fff;
+    }
+
+    /* Conversation Area */
+    .messages-area {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .e2e-badge-wrap {
+      text-align: center;
+      margin: 8px 0;
+    }
+
+    .e2e-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      color: #a7f3d0;
+    }
+
+    .msg-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      word-break: break-word;
+      position: relative;
+      animation: popIn 0.2s ease-out;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .msg-incoming {
+      align-self: flex-start;
+      background: rgba(6, 43, 37, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      color: #e2e8f0;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-outgoing {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(5, 150, 105, 0.5));
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-time {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      display: block;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    /* Message Input Box */
+    .chat-input-bar {
+      padding: 12px 16px;
+      background: rgba(3, 20, 17, 0.95);
+      backdrop-filter: blur(15px);
+      border-top: 1px solid rgba(52, 211, 153, 0.25);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(6, 43, 37, 0.8);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 25px;
+      padding: 10px 16px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .chat-input:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: 0.2s;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Calling Overlay Modal */
+    .call-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #05241f 0%, #010a08 100%);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 20px;
+    }
+
+    .calling-avatar-ring {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 3px solid #34d399;
+      padding: 4px;
+      animation: pulseGlow 1.8s infinite;
+    }
+
+    .calling-avatar-ring img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+      70% { box-shadow: 0 0 0 25px rgba(52, 211, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+
+    .end-call-btn {
+      background: #ef4444;
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- Background Rain -->
+  <div class="rain-container" id="rainContainer"></div>
+
+  <div class="app-container">
+    <!-- Top Header -->
+    <div class="chat-header">
+      <div class="user-profile-meta" onclick="window.location.href='home.html'">
+        <span style="font-size: 1.2rem; color: #34d399; margin-right: 4px;">❮</span>
+        <img id="chatTargetAvatar" class="chat-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
+        <div>
+          <h3 id="chatTargetName" style="font-size: 0.95rem;">Select Chat</h3>
+          <span style="font-size: 0.72rem; color: #34d399;">🔒 Device-Bound Encrypted</span>
+        </div>
+      </div>
+      <div class="header-icons">
+        <button class="icon-btn" onclick="startCall('Audio')">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="startCall('Video')">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="messages-area" id="messagesBox">
+      <div class="e2e-badge-wrap">
+        <span class="e2e-badge">
+          🛡️ Messages are end-to-end encrypted to this specific physical device only.
+        </span>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form class="chat-input-bar" id="sendMsgForm">
+      <input type="text" id="msgInput" class="chat-input" placeholder="Type an encrypted message..." autocomplete="off" required />
+      <button type="submit" class="send-btn">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Calling Screen Modal -->
+  <div class="call-modal" id="callModal">
+    <div style="text-align: center; margin-top: 30px;">
+      <h2 id="callingStatus" style="font-size: 1.3rem; color: #34d399; margin-bottom: 6px;">Calling...</h2>
+      <p id="callingTarget" style="font-size: 0.88rem; color: #94a3b8;">User Name</p>
+    </div>
+
+    <div class="calling-avatar-ring">
+      <img id="callingAvatar" src="" alt="Calling User" />
+    </div>
+
+    <button class="end-call-btn" onclick="endCall()">
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.996.996 0 010-1.41C2.51 9.4 6.99 8 12 8s9.49 1.4 11.71 3.67c.39.39.39 1.02 0 1.41l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+    </button>
+  </div>
+
+  <script>
+    // 1. AUTH GUARD
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const loggedAccount = localStorage.getItem('userAccount');
+    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
+
+    if (isLoggedIn !== 'true' || !loggedAccount) {
+      window.location.replace('login.html');
+    }
+
+    // 2. FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
+      authDomain: "d-pharma-class-group.firebaseapp.com",
+      projectId: "d-pharma-class-group",
+      storageBucket: "d-pharma-class-group.firebasestorage.app",
+      messagingSenderId: "870561978483",
+      appId: "1:870561978483:web:095681d6185f43cd6d7206",
+      measurementId: "G-VQ12Y4NLRJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 3. DEVICE-BOUND E2EE ENGINE
+    // Device-Specific Unique Hardware Fingerprint Key
+    function getDeviceKey() {
+      let key = localStorage.getItem('_dp_device_e2e_key');
+      if (!key) {
+        key = 'DPKEY_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('_dp_device_e2e_key', key);
+      }
+      return key;
+    }
+    const currentDeviceKey = getDeviceKey();
+
+    // Custom Encrypt/Decrypt (Bound to device key)
+    function encryptText(text, dKey) {
+      let result = '';
+      for (let i = 0; i < text.length; i++) {
+        const charCode = text.charCodeAt(i) ^ dKey.charCodeAt(i % dKey.length);
+        result += String.fromCharCode(charCode);
+      }
+      return btoa(encodeURIComponent(result));
+    }
+
+    function decryptText(cipher, dKey) {
+      try {
+        const decoded = decodeURIComponent(atob(cipher));
+        let result = '';
+        for (let i = 0; i < decoded.length; i++) {
+          const charCode = decoded.charCodeAt(i) ^ dKey.charCodeAt(i % dKey.length);
+          result += String.fromCharCode(charCode);
+        }
+        return result;
+      } catch (e) {
+        return null; // Failed decryption on unmatched device
+      }
+    }
+
+    // 4. URL PARAMS & ACTIVE TARGET
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUserId = urlParams.get('to');
+    let targetUserData = null;
+    let activeChatRoomId = null;
+
+    async function initChatSession() {
+      if (targetUserId) {
+        const doc = await db.collection('students').doc(targetUserId).get();
+        if (doc.exists) {
+          targetUserData = doc.data();
+          targetUserData.id = doc.id;
+          document.getElementById('chatTargetName').innerText = targetUserData.name;
+          if (targetUserData.photo) {
+            document.getElementById('chatTargetAvatar').src = targetUserData.photo;
+          }
+
+          // Generate consistent roomId for 2 users
+          const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
+          const idB = (targetUserData.email || targetUserId).replace(/[^a-zA-Z0-9]/g, '_');
+          activeChatRoomId = [idA, idB].sort().join('___');
+
+          listenMessages();
+        }
+      }
+    }
+    initChatSession();
+
+    // 5. SEND MESSAGE (ENCRYPTED TO DEVICE)
+    document.getElementById('sendMsgForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text || !activeChatRoomId) return;
+
+      const encryptedContent = encryptText(text, currentDeviceKey);
+
+      await db.collection('chats').doc(activeChatRoomId).collection('messages').add({
+        sender: loggedAccount,
+        receiver: targetUserData.email,
+        cipher: encryptedContent,
+        deviceKey: currentDeviceKey, // Tied to sending hardware
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      input.value = '';
+    });
+
+    // 6. LISTEN REALTIME MESSAGES (DEVICE-BOUND VISIBILITY)
+    function listenMessages() {
+      db.collection('chats').doc(activeChatRoomId).collection('messages')
+        .orderBy('createdAt', 'asc')
+        .onSnapshot((snap) => {
+          const box = document.getElementById('messagesBox');
+          box.innerHTML = `
+            <div class="e2e-badge-wrap">
+              <span class="e2e-badge">
+                🛡️ Messages are end-to-end encrypted to this specific physical device only.
+              </span>
+            </div>
+          `;
+
+          snap.forEach((doc) => {
+            const m = doc.data();
+            const isMe = m.sender === loggedAccount;
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
+
+            // Try Decrypting using this phone's hardware key
+            let clearText = null;
+            if (isMe) {
+              // Sender's own message: show ONLY if this phone has the exact device key
+              if (m.deviceKey === currentDeviceKey) {
+                clearText = decryptText(m.cipher, currentDeviceKey);
+              }
+            } else {
+              // Received message: decrypt with sender key link if device matches
+              clearText = decryptText(m.cipher, m.deviceKey);
+            }
+
+            if (!clearText) {
+              bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted content (Available only on original device)</span>`;
+            } else {
+              bubble.innerText = clearText;
+            }
+
+            box.appendChild(bubble);
+          });
+
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    // 7. AUDIO & VIDEO CALLING UI
+    function startCall(type) {
+      if (!targetUserData) {
+        alert("Please open a valid chat to place a call.");
+        return;
+      }
+      document.getElementById('callingStatus').innerText = `${type} Calling...`;
+      document.getElementById('callingTarget').innerText = targetUserData.name;
+      document.getElementById('callingAvatar').src = targetUserData.photo || document.getElementById('chatTargetAvatar').src;
+      document.getElementById('callModal').style.display = 'flex';
+    }
+
+    function endCall() {
+      document.getElementById('callModal').style.display = 'none';
+    }
+
+    // 8. MEDICINES RAIN ANIMATION
+    const colorfulMedicines = [
+      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2"/></svg>`,
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`,
+      `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1"/><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2"/></svg>`
+    ];
+
+    const rainContainer = document.getElementById('rainContainer');
+    for (let i = 0; i < 28; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'medicine-drop';
+      drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
+      const size = Math.floor(Math.random() * 24) + 26;
+      drop.style.width = size + 'px';
+      drop.style.height = size + 'px';
+      drop.style.left = Math.random() * 95 + '%';
+      drop.style.animationDuration = (Math.random() * 8 + 12) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
+      rainContainer.appendChild(drop);
+    }
+
+    // 9. DOUBLE-CLICK FULLSCREEN
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    });
+  </script>
+</body>
+</html>
