@@ -464,6 +464,7 @@
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body oncontextmenu="return false;">
@@ -565,15 +566,7 @@
   </div>
 
   <script>
-    // 1. STRICT AUTH
-    const loggedAccount = (localStorage.getItem('userAccount') || '').trim().toLowerCase();
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-
-    if (isLoggedIn !== 'true' || !loggedAccount) {
-      window.location.replace('login.html');
-    }
-
-    // 2. FIREBASE CONFIG
+    // 1. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -584,13 +577,34 @@
       measurementId: "G-VQ12Y4NLRJ"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
+    let currentUser = null;
+    let loggedAccount = '';
     let myStudentDocId = "";
-    db.collection('students').where('email', '==', loggedAccount).get().then(snap => {
-      if (!snap.empty) {
-        myStudentDocId = snap.docs[0].id;
+
+    // 2. STRICT FIREBASE AUTH GUARD (Unauthorized redirection)
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userAccount');
+        window.location.replace('login.html');
+        return;
       }
+
+      currentUser = user;
+      loggedAccount = (user.email || localStorage.getItem('userAccount') || '').trim().toLowerCase();
+
+      try {
+        const snap = await db.collection('students').where('email', '==', loggedAccount).get();
+        if (!snap.empty) {
+          myStudentDocId = snap.docs[0].id;
+        }
+      } catch (err) {
+        console.warn("Could not find student doc id:", err);
+      }
+
       listenIncomingRequests();
       loadConversations();
     });
@@ -604,7 +618,7 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
         osc.start();
@@ -656,6 +670,7 @@
 
     // 5. INCOMING REQUESTS LISTENER
     function listenIncomingRequests() {
+      if (!loggedAccount) return;
       db.collection('chatRequests')
         .where('status', '==', 'pending')
         .onSnapshot((snap) => {
@@ -673,6 +688,7 @@
               count++;
               const senderEmail = (req.fromEmail || req.from || '').toLowerCase();
               const senderName = req.fromName || senderEmail;
+              const senderUid = req.fromUid || '';
 
               const div = document.createElement('div');
               div.className = 'req-item';
@@ -681,17 +697,19 @@
                   <strong style="font-size:0.85rem; color:#fff;">${senderName}</strong>
                   <div style="font-size:0.7rem; color:#94a3b8;">${senderEmail} sent request</div>
                 </div>
-                <button class="btn-accept" onclick="acceptChatRequest('${doc.id}', '${senderEmail}')">Accept</button>
+                <button class="btn-accept" onclick="acceptChatRequest('${doc.id}', '${senderEmail}', '${senderUid}')">Accept</button>
               `;
               list.appendChild(div);
             }
           });
 
           wrap.style.display = count > 0 ? 'block' : 'none';
+        }, (err) => {
+          console.warn("Requests snapshot notice:", err.message);
         });
     }
 
-    async function acceptChatRequest(reqDocId, senderAccount) {
+    async function acceptChatRequest(reqDocId, senderAccount, senderUid) {
       try {
         await db.collection('chatRequests').doc(reqDocId).update({ status: 'accepted' });
 
@@ -699,11 +717,22 @@
         const cleanB = senderAccount.replace(/[^a-zA-Z0-9]/g, '_');
         const roomId = [cleanA, cleanB].sort().join('___');
 
+        const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
+        if (senderUid) participantsArray.push(senderUid);
+
+        // Save in friendships
         await db.collection('friendships').doc(roomId).set({
           user1: loggedAccount,
           user2: senderAccount,
           roomId: roomId,
+          participants: participantsArray,
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // Save in chats collection with participants for security rules
+        await db.collection('chats').doc(roomId).set({
+          participants: participantsArray,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
         alert("Chat Request Accepted! Room created permanently.");
@@ -713,75 +742,81 @@
       }
     }
 
-    // 6. LOAD ACCEPTED CONVERSATIONS & PERSISTENT SESSION RESTORE
+    // 6. LOAD ACCEPTED CONVERSATIONS
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
 
     async function loadConversations() {
       const friendsList = document.getElementById('friendsList');
+      if (!loggedAccount) return;
 
-      const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
-      const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
+      try {
+        const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
+        const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
 
-      const peerAccounts = new Set();
-      q1.forEach(d => peerAccounts.add(d.data().user2));
-      q2.forEach(d => peerAccounts.add(d.data().user1));
+        const peerAccounts = new Set();
+        q1.forEach(d => peerAccounts.add(d.data().user2));
+        q2.forEach(d => peerAccounts.add(d.data().user1));
 
-      // 1. URL Parameter check
-      const urlParams = new URLSearchParams(window.location.search);
-      const directTarget = urlParams.get('to');
-      if (directTarget) peerAccounts.add(directTarget.toLowerCase());
+        const urlParams = new URLSearchParams(window.location.search);
+        const directTarget = urlParams.get('to');
+        if (directTarget) peerAccounts.add(directTarget.toLowerCase());
 
-      // 2. Session Persistent Restore Check (Refresh hone par chat me hi rahega)
-      const savedActivePeer = sessionStorage.getItem('activeChatPeer');
-      if (savedActivePeer) peerAccounts.add(savedActivePeer.toLowerCase());
+        const savedActivePeer = sessionStorage.getItem('activeChatPeer');
+        if (savedActivePeer) peerAccounts.add(savedActivePeer.toLowerCase());
 
-      if (peerAccounts.size === 0) {
-        friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
-        return;
-      }
-
-      friendsList.innerHTML = '';
-      for (let peer of peerAccounts) {
-        let name = peer;
-        let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-
-        let sSnap = await db.collection('students').where('email', '==', peer).get();
-        if (!sSnap.empty) {
-          const sData = sSnap.docs[0].data();
-          name = sData.name || peer;
-          if (sData.photo) photo = sData.photo;
+        if (peerAccounts.size === 0) {
+          friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
+          return;
         }
 
-        const item = document.createElement('div');
-        item.className = 'chat-user-item';
-        item.onclick = () => openActiveChat(peer, name, photo);
-        item.innerHTML = `
-          <img src="${photo}" class="chat-avatar" alt="Avatar" />
-          <div style="flex:1;">
-            <strong style="font-size:0.92rem;">${name}</strong>
-            <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
-          </div>
-        `;
-        friendsList.appendChild(item);
+        friendsList.innerHTML = '';
+        for (let peer of peerAccounts) {
+          let name = peer;
+          let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+          let peerUid = "";
 
-        // Auto-open if matched session target
-        if ((savedActivePeer && savedActivePeer.toLowerCase() === peer.toLowerCase()) || 
-            (directTarget && directTarget.toLowerCase() === peer.toLowerCase())) {
-          openActiveChat(peer, name, photo);
+          let sSnap = await db.collection('students').where('email', '==', peer).get();
+          if (!sSnap.empty) {
+            const sData = sSnap.docs[0].data();
+            name = sData.name || peer;
+            peerUid = sData.uid || sSnap.docs[0].id;
+            if (sData.photo) photo = sData.photo;
+          }
+
+          const item = document.createElement('div');
+          item.className = 'chat-user-item';
+          item.onclick = () => openActiveChat(peer, name, photo, peerUid);
+          item.innerHTML = `
+            <img src="${photo}" class="chat-avatar" alt="Avatar" />
+            <div style="flex:1;">
+              <strong style="font-size:0.92rem;">${name}</strong>
+              <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
+            </div>
+          `;
+          friendsList.appendChild(item);
+
+          if ((savedActivePeer && savedActivePeer.toLowerCase() === peer.toLowerCase()) || 
+              (directTarget && directTarget.toLowerCase() === peer.toLowerCase())) {
+            openActiveChat(peer, name, photo, peerUid);
+          }
         }
+      } catch (err) {
+        console.error("loadConversations Error:", err);
+        friendsList.innerHTML = "<p style='color:#ef4444; font-size:0.8rem; padding:10px;'>Error loading conversations.</p>";
       }
     }
 
     // 7. OPEN CHAT & SESSION PERSISTENCE
-    function openActiveChat(peerAccount, peerName, peerPhoto) {
-      sessionStorage.setItem('activeChatPeer', peerAccount); // Page refresh hone par yaad rakhega
+    async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
+      sessionStorage.setItem('activeChatPeer', peerAccount);
 
       targetUserData = {
         email: peerAccount,
         name: peerName,
-        photo: peerPhoto
+        photo: peerPhoto,
+        uid: peerUid
       };
 
       const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
@@ -797,13 +832,21 @@
       document.getElementById('requestsWrap').style.display = 'none';
       document.getElementById('activeChatView').style.display = 'flex';
 
+      // Ensure room has participants setup for Firestore security rule matching
+      const participants = [currentUser.uid, loggedAccount, peerAccount];
+      if (peerUid) participants.push(peerUid);
+
+      await db.collection('chats').doc(activeChatRoomId).set({
+        participants: participants,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(() => {});
+
       listenMessages();
     }
 
-    // BACK ARROW TAB KARNE PAR HI BACK HOGA
     function handleHeaderNav() {
       if (activeChatRoomId) {
-        sessionStorage.removeItem('activeChatPeer'); // Session saaf karein
+        sessionStorage.removeItem('activeChatPeer');
         if (msgListenerUnsub) msgListenerUnsub();
         activeChatRoomId = null;
         targetUserData = null;
@@ -826,7 +869,6 @@
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    // A. Send Photo
     function handleSendImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -851,7 +893,6 @@
       reader.readAsDataURL(file);
     }
 
-    // B. Send Video
     function handleSendVideo(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -867,7 +908,6 @@
       reader.readAsDataURL(file);
     }
 
-    // C. Send Link
     function promptSendLink() {
       toggleAttachMenu();
       const link = prompt("Enter complete URL link (e.g. https://...):");
@@ -876,7 +916,6 @@
       }
     }
 
-    // D. Share Student ID Card
     async function promptShareStudentID() {
       toggleAttachMenu();
       const searchKey = prompt("Enter Student Enrollment No or Gmail to share:");
@@ -899,14 +938,14 @@
       sendEncryptedRecord('contact_card', payload);
     }
 
-    // Base Record Sender
     async function sendEncryptedRecord(type, dataContent) {
-      if (!activeChatRoomId || !targetUserData) return;
+      if (!activeChatRoomId || !targetUserData || !currentUser) return;
       const jsonPayload = JSON.stringify({ type: type, data: dataContent });
       const cipher = encryptPayload(jsonPayload, currentDeviceKey);
 
       await db.collection('chats').doc(activeChatRoomId).collection('messages').add({
         sender: loggedAccount,
+        senderId: currentUser.uid,
         receiver: targetUserData.email,
         cipher: cipher,
         deviceKey: currentDeviceKey,
@@ -914,7 +953,6 @@
       });
     }
 
-    // Regular Text Message Send
     document.getElementById('sendMsgForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('msgInput');
@@ -946,7 +984,7 @@
           let lastDoc = null;
           snap.forEach((doc) => {
             const m = doc.data();
-            const isMe = m.sender === loggedAccount;
+            const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
             lastDoc = m;
 
             const bubble = document.createElement('div');
@@ -993,16 +1031,17 @@
             box.appendChild(bubble);
           });
 
-          // Incoming notification trigger on new message
-          if (!isInitialLoad && lastDoc && lastDoc.sender !== loggedAccount) {
+          if (!isInitialLoad && lastDoc && lastDoc.sender !== loggedAccount && lastDoc.senderId !== currentUser?.uid) {
             showNotification(targetUserData ? targetUserData.name : 'Incoming', 'New Message / Attachment');
           }
           isInitialLoad = false;
           box.scrollTop = box.scrollHeight;
+        }, (err) => {
+          console.error("Messages snapshot error:", err);
         });
     }
 
-    // 10. REAL WEBRTC LIVE AUDIO & VIDEO CALLING ENGINE
+    // 10. WEBRTC LIVE CALLS
     let localStream = null;
     let peerConnection = null;
     let callSignalUnsub = null;
@@ -1015,7 +1054,7 @@
     };
 
     async function startWebRTCCall(callType) {
-      if (!targetUserData || !activeChatRoomId) return;
+      if (!targetUserData || !activeChatRoomId || !currentUser) return;
 
       document.getElementById('callModal').style.display = 'flex';
       document.getElementById('callingStatusLabel').innerText = `Calling (${callType})...`;
@@ -1041,6 +1080,7 @@
 
         await db.collection('liveCalls').doc(activeChatRoomId).set({
           caller: loggedAccount,
+          callerUid: currentUser.uid,
           receiver: targetUserData.email,
           type: callType,
           status: 'calling',
@@ -1048,7 +1088,6 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Listen for call acceptance
         callSignalUnsub = db.collection('liveCalls').doc(activeChatRoomId).onSnapshot(async (snap) => {
           if (!snap.exists) return;
           const data = snap.data();
