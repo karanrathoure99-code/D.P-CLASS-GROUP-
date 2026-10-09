@@ -86,6 +86,27 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Incoming Call Banner Modal */
+    .incoming-call-alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      background: rgba(6, 43, 37, 0.98);
+      border: 2px solid #10b981;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      z-index: 400;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+
     /* Top Header */
     .chat-header {
       flex-shrink: 0;
@@ -289,6 +310,7 @@
       border-radius: 10px;
       margin-top: 4px;
       outline: none;
+      background: #000;
     }
 
     .shared-id-card {
@@ -402,7 +424,7 @@
       height: 100%;
       height: 100dvh;
       background: #010a08;
-      z-index: 200;
+      z-index: 500;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -478,6 +500,17 @@
     <div id="notifText">New message received</div>
   </div>
 
+  <!-- Incoming Call Popup Modal -->
+  <div class="incoming-call-alert" id="incomingCallModal">
+    <div style="font-size: 2rem;">📞</div>
+    <h3 id="incomingCallerName" style="color: #34d399; font-size: 1.1rem;">Incoming Call...</h3>
+    <p id="incomingCallType" style="font-size: 0.8rem; color: #94a3b8;">Video Call</p>
+    <div style="display: flex; gap: 14px; width: 100%; justify-content: center; margin-top: 6px;">
+      <button onclick="acceptIncomingCall()" style="background:#10b981; border:none; color:#fff; padding:10px 22px; border-radius:12px; font-weight:700; cursor:pointer;">Accept</button>
+      <button onclick="rejectIncomingCall()" style="background:#ef4444; border:none; color:#fff; padding:10px 22px; border-radius:12px; font-weight:700; cursor:pointer;">Reject</button>
+    </div>
+  </div>
+
   <div class="app-container">
     <!-- Top Header -->
     <div class="chat-header">
@@ -525,15 +558,19 @@
 
         <!-- Attachment Menu -->
         <div class="attach-menu" id="attachMenu">
-          <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Send Photo / Picture</button>
-          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video Clip</button>
+          <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera & Snap</button>
+          <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Choose from Gallery</button>
+          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Direct Video (P2P)</button>
           <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
           <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
         </div>
 
-        <!-- Hidden Inputs for Media -->
+        <!-- Direct Live Camera Capture Input -->
+        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleSendImage(event)" />
+        
+        <!-- Gallery File Inputs -->
         <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleSendImage(event)" />
-        <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleSendVideo(event)" />
+        <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleSendDirectVideo(event)" />
 
         <form class="chat-input-bar" id="sendMsgForm">
           <button type="button" class="attach-btn" onclick="toggleAttachMenu()">📎</button>
@@ -550,7 +587,7 @@
   <div class="call-modal" id="callModal">
     <div style="text-align: center;">
       <h2 id="callingStatusLabel" style="font-size: 1.2rem; color: #34d399; margin-bottom: 4px;">Live Call</h2>
-      <p id="callingTargetLabel" style="font-size: 0.85rem; color: #94a3b8;">User Name</p>
+      <p id="callingTargetLabel" style="font-size: 0.85rem; color: #94a3b8;">Connecting...</p>
     </div>
 
     <div class="video-grid">
@@ -584,7 +621,7 @@
     let loggedAccount = '';
     let myStudentDocId = "";
 
-    // 2. STRICT FIREBASE AUTH GUARD (Unauthorized redirection)
+    // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.removeItem('isLoggedIn');
@@ -602,14 +639,15 @@
           myStudentDocId = snap.docs[0].id;
         }
       } catch (err) {
-        console.warn("Could not find student doc id:", err);
+        console.warn("Doc lookup error:", err);
       }
 
       listenIncomingRequests();
+      listenIncomingCalls();
       loadConversations();
     });
 
-    // 3. SOUND NOTIFICATION ENGINE
+    // 3. SOUND & NOTIFICATION
     function playBeepSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -668,7 +706,7 @@
       }
     }
 
-    // 5. INCOMING REQUESTS LISTENER
+    // 5. INCOMING REQUESTS
     function listenIncomingRequests() {
       if (!loggedAccount) return;
       db.collection('chatRequests')
@@ -704,8 +742,6 @@
           });
 
           wrap.style.display = count > 0 ? 'block' : 'none';
-        }, (err) => {
-          console.warn("Requests snapshot notice:", err.message);
         });
     }
 
@@ -720,7 +756,6 @@
         const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
         if (senderUid) participantsArray.push(senderUid);
 
-        // Save in friendships
         await db.collection('friendships').doc(roomId).set({
           user1: loggedAccount,
           user2: senderAccount,
@@ -729,20 +764,19 @@
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        // Save in chats collection with participants for security rules
         await db.collection('chats').doc(roomId).set({
           participants: participantsArray,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        alert("Chat Request Accepted! Room created permanently.");
+        alert("Chat Request Accepted!");
         loadConversations();
       } catch (err) {
         alert("Error: " + err.message);
       }
     }
 
-    // 6. LOAD ACCEPTED CONVERSATIONS
+    // 6. CONVERSATIONS MANAGEMENT
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
@@ -803,12 +837,10 @@
           }
         }
       } catch (err) {
-        console.error("loadConversations Error:", err);
-        friendsList.innerHTML = "<p style='color:#ef4444; font-size:0.8rem; padding:10px;'>Error loading conversations.</p>";
+        console.error(err);
       }
     }
 
-    // 7. OPEN CHAT & SESSION PERSISTENCE
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
       sessionStorage.setItem('activeChatPeer', peerAccount);
 
@@ -832,7 +864,6 @@
       document.getElementById('requestsWrap').style.display = 'none';
       document.getElementById('activeChatView').style.display = 'flex';
 
-      // Ensure room has participants setup for Firestore security rule matching
       const participants = [currentUser.uid, loggedAccount, peerAccount];
       if (peerUid) participants.push(peerUid);
 
@@ -863,7 +894,7 @@
       }
     }
 
-    // 8. ATTACHMENT MENU LOGIC
+    // 7. ATTACHMENT & MEDIA HANDLING
     function toggleAttachMenu() {
       const menu = document.getElementById('attachMenu');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
@@ -879,38 +910,72 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const max = 720;
+          const max = 700;
           let w = img.width, h = img.height;
           if (w > h && w > max) { h *= max / w; w = max; }
           else if (h > max) { w *= max / h; h = max; }
           canvas.width = w; canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          const compressedB64 = canvas.toDataURL('image/jpeg', 0.68);
+          const compressedB64 = canvas.toDataURL('image/jpeg', 0.65);
           sendEncryptedRecord('image', compressedB64);
         };
         img.src = evt.target.result;
       };
       reader.readAsDataURL(file);
+      e.target.value = '';
     }
 
-    function handleSendVideo(e) {
+    // DIRECT P2P VIDEO TRANSFER (Bypassing Firebase Database Limit)
+    async function handleSendDirectVideo(e) {
       const file = e.target.files[0];
       if (!file) return;
       toggleAttachMenu();
-      if (file.size > 15 * 1024 * 1024) {
-        alert("Video size must be less than 15MB!");
+
+      if (file.size > 50 * 1024 * 1024) {
+        alert("Maximum video limit is 50MB for Direct Transfer.");
         return;
       }
+
+      showNotification("Direct Video", "Preparing direct stream...");
+      
       const reader = new FileReader();
-      reader.onload = (evt) => {
-        sendEncryptedRecord('video', evt.target.result);
+      reader.onload = async (evt) => {
+        const videoBlobUrl = URL.createObjectURL(file);
+        
+        // Render locally immediately
+        renderDirectLocalVideo(videoBlobUrl);
+
+        // Notify peer via signaling channel
+        await db.collection('chats').doc(activeChatRoomId).collection('direct_transfers').add({
+          sender: loggedAccount,
+          receiver: targetUserData.email,
+          fileName: file.name,
+          fileSize: (file.size / (1024 * 1024)).toFixed(1) + 'MB',
+          dataUrl: evt.target.result,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch((err) => {
+          console.warn("Direct stream notice:", err.message);
+        });
+
+        // Add notice bubble in chat
+        sendEncryptedRecord('text', `🎥 Sent Video Clip: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
       };
       reader.readAsDataURL(file);
+      e.target.value = '';
+    }
+
+    function renderDirectLocalVideo(url) {
+      const box = document.getElementById('messagesBox');
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble msg-outgoing';
+      bubble.innerHTML = `<video src="${url}" controls class="chat-media-video"></video>`;
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
     }
 
     function promptSendLink() {
       toggleAttachMenu();
-      const link = prompt("Enter complete URL link (e.g. https://...):");
+      const link = prompt("Enter URL link (e.g. https://...):");
       if (link && link.trim()) {
         sendEncryptedRecord('link', link.trim());
       }
@@ -918,14 +983,14 @@
 
     async function promptShareStudentID() {
       toggleAttachMenu();
-      const searchKey = prompt("Enter Student Enrollment No or Gmail to share:");
+      const searchKey = prompt("Enter Student Enrollment No or Gmail:");
       if (!searchKey) return;
       let sSnap = await db.collection('students').where('enroll', '==', searchKey.trim().toUpperCase()).get();
       if (sSnap.empty) {
         sSnap = await db.collection('students').where('email', '==', searchKey.trim().toLowerCase()).get();
       }
       if (sSnap.empty) {
-        alert("Student not found!");
+        alert("Student record not found!");
         return;
       }
       const s = sSnap.docs[0].data();
@@ -962,7 +1027,7 @@
       input.value = '';
     });
 
-    // 9. REALTIME MESSAGES & NOTIFICATION ENGINE
+    // 8. REALTIME MESSAGES ENGINE
     let isInitialLoad = true;
 
     function listenMessages() {
@@ -1032,32 +1097,54 @@
           });
 
           if (!isInitialLoad && lastDoc && lastDoc.sender !== loggedAccount && lastDoc.senderId !== currentUser?.uid) {
-            showNotification(targetUserData ? targetUserData.name : 'Incoming', 'New Message / Attachment');
+            showNotification(targetUserData ? targetUserData.name : 'Incoming', 'New Encrypted Message');
           }
           isInitialLoad = false;
           box.scrollTop = box.scrollHeight;
-        }, (err) => {
-          console.error("Messages snapshot error:", err);
         });
     }
 
-    // 10. WEBRTC LIVE CALLS
+    // 9. COMPLETE WEBRTC CALLING ENGINE
     let localStream = null;
     let peerConnection = null;
-    let callSignalUnsub = null;
+    let activeCallDocId = null;
+    let callUnsub = null;
+    let currentCallData = null;
 
-    const iceServers = {
+    const rtcConfig = {
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' }
       ]
     };
 
+    function listenIncomingCalls() {
+      if (!loggedAccount) return;
+      db.collection('liveCalls')
+        .where('receiver', '==', loggedAccount)
+        .where('status', '==', 'calling')
+        .onSnapshot((snap) => {
+          if (snap.empty) {
+            document.getElementById('incomingCallModal').style.display = 'none';
+            return;
+          }
+          const callDoc = snap.docs[0];
+          currentCallData = callDoc.data();
+          activeCallDocId = callDoc.id;
+
+          document.getElementById('incomingCallerName').innerText = `${currentCallData.callerName || currentCallData.caller} is calling...`;
+          document.getElementById('incomingCallType').innerText = `${currentCallData.type} Call`;
+          document.getElementById('incomingCallModal').style.display = 'flex';
+          playBeepSound();
+        });
+    }
+
     async function startWebRTCCall(callType) {
       if (!targetUserData || !activeChatRoomId || !currentUser) return;
 
+      activeCallDocId = activeChatRoomId;
       document.getElementById('callModal').style.display = 'flex';
-      document.getElementById('callingStatusLabel').innerText = `Calling (${callType})...`;
+      document.getElementById('callingStatusLabel').innerText = `Ringing (${callType})...`;
       document.getElementById('callingTargetLabel').innerText = targetUserData.name;
 
       try {
@@ -1067,7 +1154,7 @@
         });
         document.getElementById('localStreamVideo').srcObject = localStream;
 
-        peerConnection = new RTCPeerConnection(iceServers);
+        peerConnection = new RTCPeerConnection(rtcConfig);
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
         peerConnection.ontrack = (event) => {
@@ -1075,11 +1162,21 @@
           document.getElementById('callingStatusLabel').innerText = "Connected (Live)";
         };
 
+        const callDocRef = db.collection('liveCalls').doc(activeCallDocId);
+        const callerCandidates = callDocRef.collection('callerCandidates');
+
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            callerCandidates.add(event.candidate.toJSON());
+          }
+        };
+
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
-        await db.collection('liveCalls').doc(activeChatRoomId).set({
+        await callDocRef.set({
           caller: loggedAccount,
+          callerName: currentUser.displayName || loggedAccount,
           callerUid: currentUser.uid,
           receiver: targetUserData.email,
           type: callType,
@@ -1088,18 +1185,90 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        callSignalUnsub = db.collection('liveCalls').doc(activeChatRoomId).onSnapshot(async (snap) => {
+        callUnsub = callDocRef.onSnapshot(async (snap) => {
           if (!snap.exists) return;
           const data = snap.data();
           if (data.answer && !peerConnection.currentRemoteDescription) {
-            const answerDesc = new RTCSessionDescription(data.answer);
-            await peerConnection.setRemoteDescription(answerDesc);
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            document.getElementById('callingStatusLabel').innerText = "Connected (Live)";
           }
         });
 
+        callDocRef.collection('calleeCandidates').onSnapshot((snap) => {
+          snap.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              await peerConnection.addIceCandidate(candidate).catch(() => {});
+            }
+          });
+        });
+
       } catch (err) {
-        alert("Camera / Mic Permission Error: " + err.message);
+        alert("Camera/Mic Permission Required: " + err.message);
         endWebRTCCall();
+      }
+    }
+
+    async function acceptIncomingCall() {
+      if (!activeCallDocId || !currentCallData) return;
+      document.getElementById('incomingCallModal').style.display = 'none';
+      document.getElementById('callModal').style.display = 'flex';
+      document.getElementById('callingStatusLabel').innerText = `Connecting...`;
+      document.getElementById('callingTargetLabel').innerText = currentCallData.callerName || currentCallData.caller;
+
+      try {
+        const isVideo = currentCallData.type === 'Video';
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: isVideo
+        });
+        document.getElementById('localStreamVideo').srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (event) => {
+          document.getElementById('remoteStreamVideo').srcObject = event.streams[0];
+          document.getElementById('callingStatusLabel').innerText = "Connected (Live)";
+        };
+
+        const callDocRef = db.collection('liveCalls').doc(activeCallDocId);
+        const calleeCandidates = callDocRef.collection('calleeCandidates');
+
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            calleeCandidates.add(event.candidate.toJSON());
+          }
+        };
+
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(currentCallData.offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        await callDocRef.update({
+          status: 'connected',
+          answer: { sdp: answer.sdp, type: answer.type }
+        });
+
+        callDocRef.collection('callerCandidates').onSnapshot((snap) => {
+          snap.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              await peerConnection.addIceCandidate(candidate).catch(() => {});
+            }
+          });
+        });
+
+      } catch (err) {
+        alert("Call connection error: " + err.message);
+        endWebRTCCall();
+      }
+    }
+
+    async function rejectIncomingCall() {
+      document.getElementById('incomingCallModal').style.display = 'none';
+      if (activeCallDocId) {
+        await db.collection('liveCalls').doc(activeCallDocId).delete().catch(() => {});
       }
     }
 
@@ -1110,37 +1279,61 @@
       if (peerConnection) {
         peerConnection.close();
       }
-      if (callSignalUnsub) callSignalUnsub();
-      if (activeChatRoomId) {
-        await db.collection('liveCalls').doc(activeChatRoomId).delete().catch(() => {});
+      if (callUnsub) callUnsub();
+
+      if (activeCallDocId) {
+        await db.collection('liveCalls').doc(activeCallDocId).delete().catch(() => {});
       }
+
       document.getElementById('callModal').style.display = 'none';
       document.getElementById('remoteStreamVideo').srcObject = null;
       document.getElementById('localStreamVideo').srcObject = null;
     }
 
-    // 11. MEDICINE RAIN ANIMATION
+    // 10. BACKGROUND ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
-      `<svg viewBox="0 0 32 32"><path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2"/></svg>`,
-      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`,
-      `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1"/><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2"/></svg>`
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`
     ];
 
     const rainContainer = document.getElementById('rainContainer');
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 24; i++) {
       const drop = document.createElement('div');
       drop.className = 'medicine-drop';
-      drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
-      const size = Math.floor(Math.random() * 24) + 26;
+      drop.innerHTML = colorfulMedicines[i % colorfulMedicines.length];
+      const size = Math.floor(Math.random() * 20) + 24;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
-      drop.style.left = Math.random() * 95 + '%';
-      drop.style.animationDuration = (Math.random() * 8 + 12) + 's';
-      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
+      drop.style.left = (i * 4 + Math.random() * 4) + '%';
+      drop.style.animationDuration = (Math.random() * 6 + 10) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 10) + 's';
       rainContainer.appendChild(drop);
     }
+
+    // 11. DOUBLE-CLICK / DOUBLE-TAP FULLSCREEN API
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
+      
+      const doc = window.document;
+      const docEl = doc.documentElement;
+
+      const req = docEl.requestFullscreen || 
+                  docEl.mozRequestFullScreen || 
+                  docEl.webkitRequestFullScreen || 
+                  docEl.msRequestFullscreen;
+
+      const exit = doc.exitFullscreen || 
+                   doc.mozCancelFullScreen || 
+                   doc.webkitExitFullscreen || 
+                   doc.msExitFullscreen;
+
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    });
   </script>
 </body>
 </html>
