@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D Pharma Portal - Home</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Falling Medicines Rain */
+    .rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .medicine-drop {
+      position: absolute;
+      top: -90px;
+      animation: slowRain linear infinite;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    }
+
+    @keyframes slowRain {
+      0% { transform: translateY(-90px) rotate(0deg); opacity: 0; }
+      12% { opacity: 0.85; }
+      88% { opacity: 0.85; }
+      100% { transform: translateY(112vh) rotate(360deg); opacity: 0; }
+    }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+
+    /* Top Bar: Logo, Search, Profile */
+    .top-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(6, 43, 37, 0.7);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 20px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #34d399;
+      cursor: pointer;
+    }
+
+    .search-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(3, 20, 17, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 30px;
+      padding: 8px 14px;
+      color: #ffffff;
+      font-size: 0.86rem;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .search-input:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+    }
+
+    .profile-nav-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid #34d399;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+    }
+
+    .profile-nav-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Search Results Overlay Card */
+    .search-results-box {
+      display: none;
+      background: rgba(6, 43, 37, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid rgba(52, 211, 153, 0.15);
+    }
+
+    .user-card:last-child {
+      border-bottom: none;
+    }
+
+    .user-info-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar-sm {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #34d399;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-action {
+      background: rgba(16, 185, 129, 0.25);
+      border: 1px solid #34d399;
+      color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .btn-partner {
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+    }
+
+    /* Notice Board */
+    .glass-card {
+      background: rgba(6, 43, 37, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 20px;
+      padding: 20px 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(52, 211, 153, 0.2);
+      padding-bottom: 8px;
+    }
+
+    .notice-item {
+      background: rgba(3, 20, 17, 0.75);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .notice-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .notice-gallery img {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    /* Post Creation Box (Only Developer / Teacher) */
+    #createNoticePanel {
+      display: none;
+      margin-bottom: 20px;
+    }
+
+    .input-field-custom {
+      width: 100%;
+      background: rgba(3, 20, 17, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: #ffffff;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    /* Readonly Profile Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: rgba(6, 43, 37, 0.95);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: 24px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal-photo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #34d399;
+      margin-bottom: 14px;
+    }
+
+    .profile-field {
+      text-align: left;
+      background: rgba(3, 20, 17, 0.6);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(52, 211, 153, 0.15);
+    }
+
+    .profile-field span {
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    /* Bottom Navbar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(3, 20, 17, 0.92);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(52, 211, 153, 0.3);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .nav-item.active, .nav-item:hover {
+      color: #34d399;
+    }
+  </style>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Falling Medicines Rain -->
+  <div class="rain-container" id="rainContainer"></div>
+
+  <div class="app-wrapper">
+    <!-- Top Bar -->
+    <div class="top-navbar">
+      <div class="app-logo-badge">
+        <span>℞</span> D-PHARMA
+      </div>
+      <div class="search-container">
+        <input type="text" id="userSearchInput" class="search-input" placeholder="Search by Name or Enroll (e.g. 2626*)..." />
+      </div>
+      <div class="profile-nav-btn" onclick="openProfileModal()">
+        <img id="navProfilePic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
+      </div>
+    </div>
+
+    <!-- Search Results Card -->
+    <div id="searchResultsBox" class="search-results-box">
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
+      <div id="usersList"></div>
+    </div>
+
+    <!-- Notice Board Creation Area (Teacher & Developer Only) -->
+    <div id="createNoticePanel" class="glass-card">
+      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post to Official Notice Board</h3>
+      <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
+      <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Enter full announcement / notes..."></textarea>
+      <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional link (https://...)" />
+      
+      <!-- Multi Image Select (Limit 10) -->
+      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Images (Max 10):</label>
+      <input type="file" id="noticeImages" class="input-field-custom" accept="image/*" multiple />
+      
+      <button onclick="publishNotice()" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700;">Publish Notice to Board</button>
+    </div>
+
+    <!-- Notice Board Section -->
+    <div class="glass-card">
+      <div class="board-header">
+        <h2 style="font-size:1.1rem; color:#34d399; display:flex; align-items:center; gap:6px;">
+          📌 D. PHARMA NOTICE BOARD
+        </h2>
+        <span style="font-size:0.75rem; color:#94a3b8;">Official Updates</span>
+      </div>
+      <div id="noticesContainer">Loading official announcements...</div>
+    </div>
+  </div>
+
+  <!-- Read-Only Profile View Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+      <img id="modalProfileImg" class="modal-photo" src="" alt="Profile" />
+      <h3 id="modalName" style="margin-bottom: 4px;">Student Name</h3>
+      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">STUDENT (READ ONLY)</p>
+      
+      <div class="profile-field"><span>Enrollment:</span> <span id="modalEnroll" style="color:#fff;">-</span></div>
+      <div class="profile-field"><span>Email:</span> <span id="modalEmail" style="color:#fff;">-</span></div>
+      <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
+
+      <button onclick="closeProfileModal()" class="btn-action" style="width:100%; margin-top:12px; padding:8px;">Close</button>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Home
+    </div>
+    <div class="nav-item" onclick="window.location.href='dpg.html'">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+      D.P.G
+    </div>
+    <div class="nav-item" onclick="window.location.href='chats.html'">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      Chats
+    </div>
+  </div>
+
+  <script>
+    // 1. FIREBASE INITIALIZATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
+      authDomain: "d-pharma-class-group.firebaseapp.com",
+      projectId: "d-pharma-class-group",
+      storageBucket: "d-pharma-class-group.firebasestorage.app",
+      messagingSenderId: "870561978483",
+      appId: "1:870561978483:web:095681d6185f43cd6d7206",
+      measurementId: "G-VQ12Y4NLRJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. USER AUTH STATE & ROLE CHECK
+    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
+    const loggedRole = localStorage.getItem('userRole') || 'student';
+    const loggedAccount = localStorage.getItem('userAccount') || '';
+    let currentUserData = null;
+
+    async function loadCurrentUserInfo() {
+      if (!loggedAccount) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      // Check developer role or student collection
+      if (loggedAccount === DEVELOPER_ID) {
+        currentUserData = {
+          name: "Karan Rathoure (Dev)",
+          email: DEVELOPER_ID,
+          role: "developer",
+          enroll: "ADMIN-DEV",
+          phone: "Verified Dev"
+        };
+        document.getElementById('createNoticePanel').style.display = 'block';
+      } else {
+        const query = await db.collection('students').where('email', '==', loggedAccount.toLowerCase()).get();
+        if (!query.empty) {
+          currentUserData = query.docs[0].data();
+          currentUserData.id = query.docs[0].id;
+          if (currentUserData.photo) {
+            document.getElementById('navProfilePic').src = currentUserData.photo;
+          }
+          if (currentUserData.role === 'teacher' || currentUserData.isMainPartner) {
+            document.getElementById('createNoticePanel').style.display = 'block';
+          }
+        }
+      }
+    }
+    loadCurrentUserInfo();
+
+    // 3. SEARCH USER SYSTEM (Restricted: only Name & Photo visible)
+    const searchInput = document.getElementById('userSearchInput');
+    const searchResultsBox = document.getElementById('searchResultsBox');
+    const usersList = document.getElementById('usersList');
+
+    searchInput.addEventListener('input', async (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      if (val.length < 2) {
+        searchResultsBox.style.display = 'none';
+        return;
+      }
+
+      const snapshot = await db.collection('students').get();
+      usersList.innerHTML = '';
+      let matches = 0;
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const name = (data.name || '').toLowerCase();
+        const enroll = (data.enroll || '').toLowerCase();
+
+        if (name.includes(val) || enroll.includes(val)) {
+          matches++;
+          const card = document.createElement('div');
+          card.className = 'user-card';
+
+          const photo = data.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+          // If developer or partner is searching, they can see extra details
+          const isDevOrPartner = loggedAccount === DEVELOPER_ID || (currentUserData && currentUserData.isMainPartner);
+
+          let extraInfo = isDevOrPartner ? `<div style="font-size:0.7rem; color:#94a3b8;">${data.enroll || ''} | ${data.email || ''}</div>` : '';
+
+          let partnerBtn = '';
+          if (loggedAccount === DEVELOPER_ID) {
+            partnerBtn = `<button class="btn-action btn-partner" onclick="toggleMainPartner('${doc.id}', ${!data.isMainPartner})">
+              ${data.isMainPartner ? 'Revoke Partner' : '★ Make Main Partner'}
+            </button>`;
+          }
+
+          card.innerHTML = `
+            <div class="user-info-left">
+              <img class="user-avatar-sm" src="${photo}" alt="User Photo" />
+              <div>
+                <strong style="font-size:0.88rem;">${data.name}</strong>
+                ${extraInfo}
+              </div>
+            </div>
+            <div class="action-btns">
+              <button class="btn-action" onclick="sendChatRequest('${doc.id}', '${data.name}')">Chat Request</button>
+              ${partnerBtn}
+            </div>
+          `;
+          usersList.appendChild(card);
+        }
+      });
+
+      searchResultsBox.style.display = matches > 0 ? 'block' : 'none';
+    });
+
+    // 4. CHAT REQUEST / DIRECT SEND
+    async function sendChatRequest(targetUserId, targetName) {
+      const isSpecialPower = loggedAccount === DEVELOPER_ID || (currentUserData && currentUserData.isMainPartner);
+
+      if (isSpecialPower) {
+        alert(`Special Power Active: Direct Chat opened with ${targetName} without request!`);
+        window.location.href = `chats.html?to=${targetUserId}`;
+      } else {
+        await db.collection('chatRequests').add({
+          from: loggedAccount,
+          toId: targetUserId,
+          toName: targetName,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert(`Chat request successfully sent to ${targetName}!`);
+      }
+    }
+
+    // 5. DEVELOPER: SET SPECIAL MAIN PARTNER POWER
+    async function toggleMainPartner(studentDocId, setPartner) {
+      if (loggedAccount !== DEVELOPER_ID) return;
+      await db.collection('students').doc(studentDocId).update({
+        isMainPartner: setPartner
+      });
+      alert(`User partner status set to: ${setPartner}`);
+    }
+
+    // 6. NOTICE BOARD SYSTEM (MAX 10 PHOTOS, SAFEGUARDED)
+    async function publishNotice() {
+      const isAllowed = loggedAccount === DEVELOPER_ID || loggedRole === 'teacher' || (currentUserData && currentUserData.isMainPartner);
+      if (!isAllowed) {
+        alert("Unauthorized! Only verified Teachers or Developer can post notices.");
+        return;
+      }
+
+      const title = document.getElementById('noticeTitle').value.trim();
+      const content = document.getElementById('noticeContent').value.trim();
+      const link = document.getElementById('noticeLink').value.trim();
+      const imageFiles = document.getElementById('noticeImages').files;
+
+      if (!title || !content) {
+        alert("Title and Details are required.");
+        return;
+      }
+
+      if (imageFiles.length > 10) {
+        alert("Maximum 10 images allowed at one time!");
+        return;
+      }
+
+      // Convert images to Base64 (Compressed)
+      const base64Images = [];
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const b64 = await toBase64Compressed(file);
+        base64Images.push(b64);
+      }
+
+      await db.collection('notices').add({
+        title,
+        content,
+        link,
+        images: base64Images,
+        postedBy: currentUserData ? currentUserData.name : 'Authority',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert("Notice posted successfully!");
+      document.getElementById('noticeTitle').value = '';
+      document.getElementById('noticeContent').value = '';
+      document.getElementById('noticeLink').value = '';
+      document.getElementById('noticeImages').value = '';
+      loadNotices();
+    }
+
+    // Compress attached notice images
+    function toBase64Compressed(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const max = 700;
+            let w = img.width, h = img.height;
+            if (w > h && w > max) { h *= max / w; w = max; }
+            else if (h > max) { w *= max / h; h = max; }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.65));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Realtime Load Notices
+    function loadNotices() {
+      db.collection('notices').orderBy('createdAt', 'desc').onSnapshot((snap) => {
+        const container = document.getElementById('noticesContainer');
+        if (snap.empty) {
+          container.innerHTML = "<p style='color:#94a3b8; font-size:0.85rem;'>No notices posted yet.</p>";
+          return;
+        }
+
+        container.innerHTML = '';
+        snap.forEach((doc) => {
+          const n = doc.data();
+          const item = document.createElement('div');
+          item.className = 'notice-item';
+
+          let galleryHtml = '';
+          if (n.images && n.images.length > 0) {
+            galleryHtml = '<div class="notice-gallery">' + 
+              n.images.map(img => `<img src="${img}" alt="Notice Image" onclick="window.open('${img}')" />`).join('') + 
+            '</div>';
+          }
+
+          let linkHtml = n.link ? `<div style="margin-top:6px;"><a href="${n.link}" target="_blank" style="color:#38bdf8; font-size:0.8rem;">🔗 Open Attached Link</a></div>` : '';
+
+          item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="color:#34d399; font-size:0.95rem;">${n.title}</h4>
+              <span style="font-size:0.7rem; color:#6ee7b7;">By: ${n.postedBy || 'Admin'}</span>
+            </div>
+            <p style="font-size:0.84rem; color:#cbd5e1; margin-top:6px; white-space:pre-wrap;">${n.content}</p>
+            ${galleryHtml}
+            ${linkHtml}
+          `;
+          container.appendChild(item);
+        });
+      });
+    }
+    loadNotices();
+
+    // 7. READ-ONLY PROFILE MODAL
+    function openProfileModal() {
+      if (!currentUserData) return;
+      document.getElementById('modalName').innerText = currentUserData.name || 'User';
+      document.getElementById('modalEnroll').innerText = currentUserData.enroll || 'N/A';
+      document.getElementById('modalEmail').innerText = currentUserData.email || 'N/A';
+      document.getElementById('modalPhone').innerText = currentUserData.phone || 'N/A';
+      document.getElementById('modalProfileImg').src = currentUserData.photo || document.getElementById('navProfilePic').src;
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = 'none';
+    }
+
+    // 8. MEDICINE RAIN BACKGROUND (SAME ANIMATION)
+    const colorfulMedicines = [
+      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2"/></svg>`,
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`,
+      `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1"/><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2"/></svg>`
+    ];
+
+    const rainContainer = document.getElementById('rainContainer');
+    for (let i = 0; i < 28; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'medicine-drop';
+      drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
+      const size = Math.floor(Math.random() * 24) + 26;
+      drop.style.width = size + 'px';
+      drop.style.height = size + 'px';
+      drop.style.left = Math.random() * 95 + '%';
+      drop.style.animationDuration = (Math.random() * 8 + 12) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
+      rainContainer.appendChild(drop);
+    }
+
+    // 9. CROSS-BROWSER FULLSCREEN ON DOUBLE-CLICK
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    });
+  </script>
+</body>
+</html>
