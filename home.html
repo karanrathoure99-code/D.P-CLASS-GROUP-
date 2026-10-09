@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
-  <title>D Pharma Portal - Secure Chats</title>
+  <title>D Pharma Portal - Home & Secure Chats</title>
   <style>
     * {
       box-sizing: border-box;
@@ -584,7 +584,7 @@
     let loggedAccount = '';
     let myStudentDocId = "";
 
-    // 2. STRICT AUTH GUARD (Auto-redirect if unauthenticated)
+    // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.removeItem('isLoggedIn');
@@ -720,7 +720,7 @@
         const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
         if (senderUid) participantsArray.push(senderUid);
 
-        // Friendships Collection
+        // Friendships
         await db.collection('friendships').doc(roomId).set({
           user1: loggedAccount,
           user2: senderAccount,
@@ -729,7 +729,7 @@
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        // Ensure chats collection has participants array for Firestore rules
+        // Chats Document (Rules requirement)
         await db.collection('chats').doc(roomId).set({
           participants: participantsArray,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -859,7 +859,7 @@
         listenIncomingRequests();
         loadConversations();
       } else {
-        window.location.href = 'home.html';
+        window.location.reload();
       }
     }
 
