@@ -276,6 +276,7 @@
       line-height: 1.35;
       word-break: break-word;
       position: relative;
+      touch-action: pan-y;
     }
 
     .msg-incoming {
@@ -302,6 +303,7 @@
       border: 1px solid rgba(52, 211, 153, 0.4);
       display: block;
       cursor: pointer;
+      pointer-events: none;
     }
 
     .chat-media-video {
@@ -313,15 +315,46 @@
       background: #000;
     }
 
+    /* Shared ID Card Card Box */
     .shared-id-card {
-      background: rgba(3, 20, 17, 0.8);
-      border: 1px solid #34d399;
-      border-radius: 10px;
-      padding: 8px;
+      background: rgba(3, 20, 17, 0.95);
+      border: 1.5px solid #34d399;
+      border-radius: 14px;
+      padding: 12px;
       margin-top: 4px;
       display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 210px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .shared-id-info {
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    .btn-send-req-card {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: 1px solid #34d399;
+      color: #ffffff;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+
+    .btn-send-req-card:hover {
+      background: #34d399;
+      color: #021a15;
     }
 
     /* Bottom Input Bar */
@@ -482,6 +515,72 @@
       justify-content: center;
       box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
     }
+
+    /* 3-Second Long Press Context Modal */
+    .action-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .action-modal-box {
+      background: rgba(6, 43, 37, 0.98);
+      border: 1.5px solid rgba(52, 211, 153, 0.5);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 320px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .action-modal-btn {
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-download-act {
+      background: rgba(16, 185, 129, 0.25);
+      border: 1px solid #34d399;
+      color: #34d399;
+    }
+
+    .btn-delete-me-act {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+    }
+
+    .btn-unsend-act {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    .btn-cancel-act {
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
   </style>
 
   <!-- Firebase SDKs -->
@@ -508,6 +607,29 @@
     <div style="display: flex; gap: 14px; width: 100%; justify-content: center; margin-top: 6px;">
       <button onclick="acceptIncomingCall()" style="background:#10b981; border:none; color:#fff; padding:10px 22px; border-radius:12px; font-weight:700; cursor:pointer;">Accept</button>
       <button onclick="rejectIncomingCall()" style="background:#ef4444; border:none; color:#fff; padding:10px 22px; border-radius:12px; font-weight:700; cursor:pointer;">Reject</button>
+    </div>
+  </div>
+
+  <!-- 3-Second Long Press Message Context Action Modal -->
+  <div class="action-modal-overlay" id="actionModal" onclick="closeActionModal(event)">
+    <div class="action-modal-box" onclick="event.stopPropagation()">
+      <h4 style="color:#a7f3d0; font-size:0.92rem; margin-bottom:4px;">Message Options</h4>
+      
+      <button class="action-modal-btn btn-download-act" id="btnActDownload" onclick="triggerActionDownload()">
+        📥 Download File / Image
+      </button>
+
+      <button class="action-modal-btn btn-delete-me-act" onclick="triggerActionDeleteForMe()">
+        🗑️ Delete for Me
+      </button>
+
+      <button class="action-modal-btn btn-unsend-act" id="btnActUnsend" onclick="triggerActionUnsend()">
+        🚫 Unsend (Delete for Everyone)
+      </button>
+
+      <button class="action-modal-btn btn-cancel-act" onclick="closeActionModal()">
+        Cancel
+      </button>
     </div>
   </div>
 
@@ -620,6 +742,9 @@
     let currentUser = null;
     let loggedAccount = '';
     let myStudentDocId = "";
+
+    // Local Hidden Messages list for "Delete for Me"
+    let localDeletedMsgIds = JSON.parse(localStorage.getItem('_dp_deleted_msgs') || '[]');
 
     // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
@@ -776,6 +901,29 @@
       }
     }
 
+    // Direct Request Sender for Shared Student ID
+    async function sendRequestToSharedStudent(targetEmail, targetName) {
+      if (!currentUser || !loggedAccount) return;
+      if (targetEmail.toLowerCase() === loggedAccount.toLowerCase()) {
+        alert("This is your own student ID!");
+        return;
+      }
+      try {
+        await db.collection('chatRequests').add({
+          fromEmail: loggedAccount,
+          fromUid: currentUser.uid,
+          fromName: currentUser.displayName || loggedAccount,
+          toEmail: targetEmail.toLowerCase(),
+          toName: targetName,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert(`Chat request successfully sent to ${targetName}!`);
+      } catch (err) {
+        alert("Error sending request: " + err.message);
+      }
+    }
+
     // 6. CONVERSATIONS MANAGEMENT
     let activeChatRoomId = null;
     let targetUserData = null;
@@ -925,7 +1073,6 @@
       e.target.value = '';
     }
 
-    // DIRECT P2P VIDEO TRANSFER (Bypassing Firebase Database Limit)
     async function handleSendDirectVideo(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -941,11 +1088,8 @@
       const reader = new FileReader();
       reader.onload = async (evt) => {
         const videoBlobUrl = URL.createObjectURL(file);
-        
-        // Render locally immediately
         renderDirectLocalVideo(videoBlobUrl);
 
-        // Notify peer via signaling channel
         await db.collection('chats').doc(activeChatRoomId).collection('direct_transfers').add({
           sender: loggedAccount,
           receiver: targetUserData.email,
@@ -957,7 +1101,6 @@
           console.warn("Direct stream notice:", err.message);
         });
 
-        // Add notice bubble in chat
         sendEncryptedRecord('text', `🎥 Sent Video Clip: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
       };
       reader.readAsDataURL(file);
@@ -1027,8 +1170,10 @@
       input.value = '';
     });
 
-    // 8. REALTIME MESSAGES ENGINE
+    // 8. REALTIME MESSAGES ENGINE (WITH 3-SECOND LONG PRESS ACTION)
     let isInitialLoad = true;
+    let selectedMsgContext = null;
+    let pressTimer = null;
 
     function listenMessages() {
       if (msgListenerUnsub) msgListenerUnsub();
@@ -1048,6 +1193,10 @@
 
           let lastDoc = null;
           snap.forEach((doc) => {
+            const msgId = doc.id;
+            // Check if user locally deleted this message
+            if (localDeletedMsgIds.includes(msgId)) return;
+
             const m = doc.data();
             const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
             lastDoc = m;
@@ -1064,28 +1213,40 @@
               clearText = decryptPayload(m.cipher, m.deviceKey);
             }
 
+            let msgParsed = null;
+
             if (!clearText) {
               bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
             } else {
               try {
                 const parsed = JSON.parse(clearText);
+                msgParsed = parsed;
+
                 if (parsed.type === 'text') {
                   bubble.innerText = parsed.data;
                 } else if (parsed.type === 'image') {
-                  bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" onclick="window.open('${parsed.data}')" />`;
+                  // No opening blank page - only rendering image
+                  bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" alt="Chat Photo" />`;
                 } else if (parsed.type === 'video') {
                   bubble.innerHTML = `<video src="${parsed.data}" controls class="chat-media-video"></video>`;
                 } else if (parsed.type === 'link') {
                   bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
                 } else if (parsed.type === 'contact_card') {
                   const card = JSON.parse(parsed.data);
+                  const cardAvatar = card.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
                   bubble.innerHTML = `
                     <div class="shared-id-card">
-                      <img src="${card.photo || document.getElementById('chatTargetAvatar').src}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
-                      <div>
-                        <strong>${card.name}</strong>
-                        <div style="font-size:0.7rem; color:#94a3b8;">${card.enroll} | ${card.email}</div>
+                      <div class="shared-id-info">
+                        <img src="${cardAvatar}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:1.5px solid #34d399;" />
+                        <div>
+                          <strong style="font-size:0.9rem; color:#ffffff;">${card.name}</strong>
+                          <div style="font-size:0.72rem; color:#34d399;">${card.enroll}</div>
+                          <div style="font-size:0.68rem; color:#94a3b8;">${card.email}</div>
+                        </div>
                       </div>
+                      <button class="btn-send-req-card" onclick="sendRequestToSharedStudent('${card.email}', '${card.name.replace(/'/g, "\\'")}')">
+                        <span>✉️</span> Send Chat Request
+                      </button>
                     </div>
                   `;
                 }
@@ -1093,6 +1254,14 @@
                 bubble.innerText = clearText;
               }
             }
+
+            // ATTACH 3-SECOND LONG PRESS LISTENER
+            attachLongPressListener(bubble, {
+              id: msgId,
+              isMe: isMe,
+              parsed: msgParsed
+            });
+
             box.appendChild(bubble);
           });
 
@@ -1102,6 +1271,95 @@
           isInitialLoad = false;
           box.scrollTop = box.scrollHeight;
         });
+    }
+
+    // 3-SECOND TOUCH / MOUSE LONG-PRESS ENGINE
+    function attachLongPressListener(element, meta) {
+      const startPress = (e) => {
+        // Prevent trigger if clicking on internal buttons
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+
+        pressTimer = setTimeout(() => {
+          openActionModal(meta);
+        }, 3000); // Exactly 3 seconds
+      };
+
+      const cancelPress = () => {
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      };
+
+      element.addEventListener('touchstart', startPress, { passive: true });
+      element.addEventListener('touchend', cancelPress);
+      element.addEventListener('touchmove', cancelPress);
+
+      element.addEventListener('mousedown', startPress);
+      element.addEventListener('mouseup', cancelPress);
+      element.addEventListener('mouseleave', cancelPress);
+    }
+
+    function openActionModal(meta) {
+      selectedMsgContext = meta;
+      const modal = document.getElementById('actionModal');
+      const unsendBtn = document.getElementById('btnActUnsend');
+      const downloadBtn = document.getElementById('btnActDownload');
+
+      // Unsend is only visible if the message was sent by current user
+      unsendBtn.style.display = meta.isMe ? 'flex' : 'none';
+
+      // Download is visible if message contains photo or video
+      const isMedia = meta.parsed && (meta.parsed.type === 'image' || meta.parsed.type === 'video');
+      downloadBtn.style.display = isMedia ? 'flex' : 'none';
+
+      modal.style.display = 'flex';
+      playBeepSound();
+    }
+
+    function closeActionModal() {
+      document.getElementById('actionModal').style.display = 'none';
+      selectedMsgContext = null;
+    }
+
+    // ACTION 1: DOWNLOAD
+    function triggerActionDownload() {
+      if (!selectedMsgContext || !selectedMsgContext.parsed) return;
+      const { type, data } = selectedMsgContext.parsed;
+      if (type === 'image' || type === 'video') {
+        const a = document.createElement('a');
+        a.href = data;
+        a.download = type === 'image' ? `dpharma_photo_${Date.now()}.jpg` : `dpharma_video_${Date.now()}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      closeActionModal();
+    }
+
+    // ACTION 2: DELETE FOR ME
+    function triggerActionDeleteForMe() {
+      if (!selectedMsgContext) return;
+      localDeletedMsgIds.push(selectedMsgContext.id);
+      localStorage.setItem('_dp_deleted_msgs', JSON.stringify(localDeletedMsgIds));
+      closeActionModal();
+      listenMessages(); // Refresh chat
+    }
+
+    // ACTION 3: UNSEND (DELETE FOR EVERYONE)
+    async function triggerActionUnsend() {
+      if (!selectedMsgContext || !activeChatRoomId) return;
+      if (!selectedMsgContext.isMe) {
+        alert("You can only unsend messages sent by you.");
+        return;
+      }
+      try {
+        await db.collection('chats').doc(activeChatRoomId)
+          .collection('messages').doc(selectedMsgContext.id).delete();
+        closeActionModal();
+      } catch (err) {
+        alert("Failed to unsend: " + err.message);
+      }
     }
 
     // 9. COMPLETE WEBRTC CALLING ENGINE
@@ -1311,24 +1569,14 @@
       rainContainer.appendChild(drop);
     }
 
-    // 11. DOUBLE-CLICK / DOUBLE-TAP FULLSCREEN API
+    // 11. DOUBLE-CLICK FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
-      
       const doc = window.document;
       const docEl = doc.documentElement;
-
-      const req = docEl.requestFullscreen || 
-                  docEl.mozRequestFullScreen || 
-                  docEl.webkitRequestFullScreen || 
-                  docEl.msRequestFullscreen;
-
-      const exit = doc.exitFullscreen || 
-                   doc.mozCancelFullScreen || 
-                   doc.webkitExitFullscreen || 
-                   doc.msExitFullscreen;
-
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
       } else {
         if (exit) exit.call(doc);
