@@ -64,6 +64,14 @@
       margin-bottom: 22px;
       padding-bottom: 12px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.25);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .rx-badge {
@@ -78,6 +86,29 @@
       letter-spacing: 2px;
       padding: 5px 14px;
       border-radius: 20px;
+    }
+
+    .glass-btn-home {
+      background: rgba(52, 211, 153, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #34d399;
+      padding: 7px 16px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .glass-btn-home:hover {
+      background: rgba(52, 211, 153, 0.4);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
     }
 
     .glass-btn-logout {
@@ -316,7 +347,11 @@
   <div class="admin-wrapper">
     <div class="header-bar">
       <span class="rx-badge">℞ DEVELOPER ACCESS GRANTED</span>
-      <button class="glass-btn-logout" onclick="logoutDev()">Log Out</button>
+      <div class="nav-actions">
+        <!-- Home Button Added Here -->
+        <a href="home.html" class="glass-btn-home">🏠 Home</a>
+        <button class="glass-btn-logout" onclick="logoutDev()">Log Out</button>
+      </div>
     </div>
 
     <!-- SECTION 1: CREATE STUDENT ACCOUNT -->
@@ -570,7 +605,6 @@
       submitBtn.innerText = "Registering securely on Cloud...";
 
       try {
-        // Double check Enrollment & Email
         const checkEnroll = await db.collection("students").where("enroll", "==", enroll).get();
         const checkEmail = await db.collection("students").where("email", "==", email).get();
 
@@ -584,9 +618,9 @@
         // 1. Create User in Firebase Auth via Secondary App
         const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
         const uid = userCredential.user.uid;
-        await secondaryAuth.signOut(); // Keep secondary cleanly logged out
+        await secondaryAuth.signOut();
 
-        // 2. Save Profile in Firestore with UID key (No plain password stored)
+        // 2. Save Profile in Firestore with UID key
         await db.collection("students").doc(uid).set({
           uid: uid,
           name: name,
