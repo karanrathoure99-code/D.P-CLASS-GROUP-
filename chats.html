@@ -64,7 +64,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: rgba(6, 43, 37, 0.8);
+      background: rgba(6, 43, 37, 0.85);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(52, 211, 153, 0.25);
     }
@@ -110,7 +110,81 @@
       color: #fff;
     }
 
-    /* Conversation Area */
+    /* Main View Area */
+    .main-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Incoming Requests Box */
+    .requests-box {
+      background: rgba(16, 185, 129, 0.15);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 14px 16px;
+      display: none;
+    }
+
+    .req-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-top: 8px;
+    }
+
+    .btn-accept {
+      background: #10b981;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-accept:hover {
+      background: #059669;
+    }
+
+    /* Conversations List */
+    .chat-list-view {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(6, 43, 37, 0.75);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .chat-user-item:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #34d399;
+    }
+
+    /* Active Conversation Area */
+    .active-chat-view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+
     .messages-area {
       flex: 1;
       padding: 16px;
@@ -167,14 +241,6 @@
       border: 1px solid rgba(52, 211, 153, 0.5);
       color: #ffffff;
       border-bottom-right-radius: 4px;
-    }
-
-    .msg-time {
-      font-size: 0.65rem;
-      color: #94a3b8;
-      display: block;
-      text-align: right;
-      margin-top: 4px;
     }
 
     /* Message Input Box */
@@ -290,15 +356,15 @@
   <div class="app-container">
     <!-- Top Header -->
     <div class="chat-header">
-      <div class="user-profile-meta" onclick="window.location.href='home.html'">
+      <div class="user-profile-meta" id="headerProfileBlock" onclick="handleHeaderNav()">
         <span style="font-size: 1.2rem; color: #34d399; margin-right: 4px;">❮</span>
         <img id="chatTargetAvatar" class="chat-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
         <div>
-          <h3 id="chatTargetName" style="font-size: 0.95rem;">Select Chat</h3>
-          <span style="font-size: 0.72rem; color: #34d399;">🔒 Device-Bound Encrypted</span>
+          <h3 id="chatTargetName" style="font-size: 0.95rem;">Secure Chats</h3>
+          <span id="chatTargetStatus" style="font-size: 0.72rem; color: #34d399;">🔒 Device-Bound Encrypted</span>
         </div>
       </div>
-      <div class="header-icons">
+      <div class="header-icons" id="headerCallActions" style="display: none;">
         <button class="icon-btn" onclick="startCall('Audio')">
           <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
         </button>
@@ -308,22 +374,38 @@
       </div>
     </div>
 
-    <!-- Messages List -->
-    <div class="messages-area" id="messagesBox">
-      <div class="e2e-badge-wrap">
-        <span class="e2e-badge">
-          🛡️ Messages are end-to-end encrypted to this specific physical device only.
-        </span>
+    <!-- Main Dynamic Body -->
+    <div class="main-body">
+      <!-- 1. Incoming Requests Box -->
+      <div id="requestsWrap" class="requests-box">
+        <span style="font-size: 0.78rem; font-weight: 700; color: #34d399;">📥 INCOMING CHAT REQUESTS:</span>
+        <div id="requestsList"></div>
+      </div>
+
+      <!-- 2. Friends / Active Conversations List View -->
+      <div id="chatListView" class="chat-list-view">
+        <h4 style="font-size: 0.85rem; color: #a7f3d0; margin-bottom: 6px;">ACCEPTED CONVERSATIONS:</h4>
+        <div id="friendsList">Loading chats...</div>
+      </div>
+
+      <!-- 3. Active Chat Window -->
+      <div id="activeChatView" class="active-chat-view">
+        <div class="messages-area" id="messagesBox">
+          <div class="e2e-badge-wrap">
+            <span class="e2e-badge">
+              🛡️ Messages are end-to-end encrypted to this specific physical device only.
+            </span>
+          </div>
+        </div>
+
+        <form class="chat-input-bar" id="sendMsgForm">
+          <input type="text" id="msgInput" class="chat-input" placeholder="Type an encrypted message..." autocomplete="off" required />
+          <button type="submit" class="send-btn">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </form>
       </div>
     </div>
-
-    <!-- Chat Input Form -->
-    <form class="chat-input-bar" id="sendMsgForm">
-      <input type="text" id="msgInput" class="chat-input" placeholder="Type an encrypted message..." autocomplete="off" required />
-      <button type="submit" class="send-btn">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
-    </form>
   </div>
 
   <!-- Calling Screen Modal -->
@@ -344,8 +426,8 @@
 
   <script>
     // 1. AUTH GUARD
+    const loggedAccount = (localStorage.getItem('userAccount') || '').trim().toLowerCase();
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const loggedAccount = localStorage.getItem('userAccount');
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
 
     if (isLoggedIn !== 'true' || !loggedAccount) {
@@ -365,8 +447,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let myStudentDocId = "";
+    db.collection('students').where('email', '==', loggedAccount).get().then(snap => {
+      if (!snap.empty) {
+        myStudentDocId = snap.docs[0].id;
+      }
+      listenIncomingRequests();
+      loadConversations();
+    });
+
     // 3. DEVICE-BOUND E2EE ENGINE
-    // Device-Specific Unique Hardware Fingerprint Key
     function getDeviceKey() {
       let key = localStorage.getItem('_dp_device_e2e_key');
       if (!key) {
@@ -377,7 +467,6 @@
     }
     const currentDeviceKey = getDeviceKey();
 
-    // Custom Encrypt/Decrypt (Bound to device key)
     function encryptText(text, dKey) {
       let result = '';
       for (let i = 0; i < text.length; i++) {
@@ -397,39 +486,186 @@
         }
         return result;
       } catch (e) {
-        return null; // Failed decryption on unmatched device
+        return null;
       }
     }
 
-    // 4. URL PARAMS & ACTIVE TARGET
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetUserId = urlParams.get('to');
-    let targetUserData = null;
+    // 4. REALTIME REQUEST LISTENER (Supports Email & DocID)
+    function listenIncomingRequests() {
+      db.collection('chatRequests')
+        .where('status', '==', 'pending')
+        .onSnapshot((snap) => {
+          const wrap = document.getElementById('requestsWrap');
+          const list = document.getElementById('requestsList');
+          list.innerHTML = '';
+          let count = 0;
+
+          snap.forEach((doc) => {
+            const req = doc.data();
+            const toE = (req.toEmail || req.to || '').toLowerCase();
+            const toId = req.toId || '';
+
+            if (toE === loggedAccount || toId === loggedAccount || (myStudentDocId && toId === myStudentDocId)) {
+              count++;
+              const senderEmail = (req.fromEmail || req.from || '').toLowerCase();
+              const senderName = req.fromName || senderEmail;
+
+              const div = document.createElement('div');
+              div.className = 'req-item';
+              div.innerHTML = `
+                <div>
+                  <strong style="font-size:0.88rem; color:#fff;">${senderName}</strong>
+                  <div style="font-size:0.72rem; color:#94a3b8;">${senderEmail} sent chat request</div>
+                </div>
+                <button class="btn-accept" onclick="acceptChatRequest('${doc.id}', '${senderEmail}')">Accept</button>
+              `;
+              list.appendChild(div);
+            }
+          });
+
+          wrap.style.display = count > 0 ? 'block' : 'none';
+        });
+    }
+
+    // 1-TIME PERMANENT ACCEPT FUNCTION
+    async function acceptChatRequest(reqDocId, senderAccount) {
+      try {
+        await db.collection('chatRequests').doc(reqDocId).update({
+          status: 'accepted'
+        });
+
+        const cleanA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
+        const cleanB = senderAccount.replace(/[^a-zA-Z0-9]/g, '_');
+        const roomId = [cleanA, cleanB].sort().join('___');
+
+        await db.collection('friendships').doc(roomId).set({
+          user1: loggedAccount,
+          user2: senderAccount,
+          roomId: roomId,
+          establishedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        alert("Chat Request Accepted! Room created permanently.");
+        loadConversations();
+      } catch (err) {
+        console.error("Error accepting request:", err);
+        alert("Error: " + err.message);
+      }
+    }
+
+    // 5. LOAD ALL ACCEPTED CONVERSATIONS
     let activeChatRoomId = null;
+    let targetUserData = null;
+    let msgListenerUnsub = null;
 
-    async function initChatSession() {
-      if (targetUserId) {
-        const doc = await db.collection('students').doc(targetUserId).get();
-        if (doc.exists) {
-          targetUserData = doc.data();
-          targetUserData.id = doc.id;
-          document.getElementById('chatTargetName').innerText = targetUserData.name;
-          if (targetUserData.photo) {
-            document.getElementById('chatTargetAvatar').src = targetUserData.photo;
-          }
+    async function loadConversations() {
+      const friendsList = document.getElementById('friendsList');
 
-          // Generate consistent roomId for 2 users
-          const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
-          const idB = (targetUserData.email || targetUserId).replace(/[^a-zA-Z0-9]/g, '_');
-          activeChatRoomId = [idA, idB].sort().join('___');
+      const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
+      const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
 
-          listenMessages();
+      const peerAccounts = new Set();
+      q1.forEach(d => peerAccounts.add(d.data().user2));
+      q2.forEach(d => peerAccounts.add(d.data().user1));
+
+      // Direct URL parameter check (e.g., bypass or direct open)
+      const urlParams = new URLSearchParams(window.location.search);
+      const directTarget = urlParams.get('to');
+      if (directTarget) {
+        peerAccounts.add(directTarget.toLowerCase());
+      }
+
+      if (peerAccounts.size === 0) {
+        friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet. Accepted requests will appear here permanently.</p>";
+        return;
+      }
+
+      friendsList.innerHTML = '';
+      for (let peer of peerAccounts) {
+        let name = peer;
+        let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+        let sSnap = await db.collection('students').where('email', '==', peer).get();
+        if (sSnap.empty && peer.length > 15) {
+          try {
+            const byDoc = await db.collection('students').doc(peer).get();
+            if (byDoc.exists) {
+              sSnap = { empty: false, docs: [byDoc] };
+            }
+          } catch(e) {}
         }
+
+        if (!sSnap.empty) {
+          const sData = sSnap.docs[0].data();
+          name = sData.name || peer;
+          if (sData.photo) photo = sData.photo;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'chat-user-item';
+        item.onclick = () => openActiveChat(peer, name, photo);
+        item.innerHTML = `
+          <img src="${photo}" class="chat-avatar" alt="Avatar" />
+          <div style="flex:1;">
+            <strong style="font-size:0.92rem;">${name}</strong>
+            <div style="font-size:0.72rem; color:#34d399;">Tap to chat securely</div>
+          </div>
+        `;
+        friendsList.appendChild(item);
+      }
+
+      // If direct target was provided in URL, automatically open it
+      if (directTarget && !activeChatRoomId) {
+        const firstItem = friendsList.querySelector('.chat-user-item');
+        if (firstItem) firstItem.click();
       }
     }
-    initChatSession();
 
-    // 5. SEND MESSAGE (ENCRYPTED TO DEVICE)
+    // 6. OPEN ACTIVE CHAT WINDOW
+    function openActiveChat(peerAccount, peerName, peerPhoto) {
+      targetUserData = {
+        email: peerAccount,
+        name: peerName,
+        photo: peerPhoto
+      };
+
+      const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
+      const idB = peerAccount.replace(/[^a-zA-Z0-9]/g, '_');
+      activeChatRoomId = [idA, idB].sort().join('___');
+
+      document.getElementById('chatTargetName').innerText = peerName;
+      document.getElementById('chatTargetStatus').innerText = "● Online & Encrypted";
+      document.getElementById('chatTargetAvatar').src = peerPhoto;
+      document.getElementById('headerCallActions').style.display = 'flex';
+
+      document.getElementById('chatListView').style.display = 'none';
+      document.getElementById('requestsWrap').style.display = 'none';
+      document.getElementById('activeChatView').style.display = 'flex';
+
+      listenMessages();
+    }
+
+    function handleHeaderNav() {
+      if (activeChatRoomId) {
+        // Back to conversations list
+        if (msgListenerUnsub) msgListenerUnsub();
+        activeChatRoomId = null;
+        targetUserData = null;
+        document.getElementById('activeChatView').style.display = 'none';
+        document.getElementById('headerCallActions').style.display = 'none';
+        document.getElementById('chatTargetName').innerText = "Secure Chats";
+        document.getElementById('chatTargetStatus').innerText = "🔒 Device-Bound Encrypted";
+        document.getElementById('chatTargetAvatar').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        document.getElementById('chatListView').style.display = 'flex';
+        listenIncomingRequests();
+        loadConversations();
+      } else {
+        // Back to home page
+        window.location.href = 'home.html';
+      }
+    }
+
+    // 7. SEND ENCRYPTED MESSAGE
     document.getElementById('sendMsgForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = document.getElementById('msgInput');
@@ -442,16 +678,18 @@
         sender: loggedAccount,
         receiver: targetUserData.email,
         cipher: encryptedContent,
-        deviceKey: currentDeviceKey, // Tied to sending hardware
+        deviceKey: currentDeviceKey,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
       input.value = '';
     });
 
-    // 6. LISTEN REALTIME MESSAGES (DEVICE-BOUND VISIBILITY)
+    // 8. REALTIME MESSAGES LISTENER
     function listenMessages() {
-      db.collection('chats').doc(activeChatRoomId).collection('messages')
+      if (msgListenerUnsub) msgListenerUnsub();
+
+      msgListenerUnsub = db.collection('chats').doc(activeChatRoomId).collection('messages')
         .orderBy('createdAt', 'asc')
         .onSnapshot((snap) => {
           const box = document.getElementById('messagesBox');
@@ -469,15 +707,12 @@
             const bubble = document.createElement('div');
             bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
 
-            // Try Decrypting using this phone's hardware key
             let clearText = null;
             if (isMe) {
-              // Sender's own message: show ONLY if this phone has the exact device key
               if (m.deviceKey === currentDeviceKey) {
                 clearText = decryptText(m.cipher, currentDeviceKey);
               }
             } else {
-              // Received message: decrypt with sender key link if device matches
               clearText = decryptText(m.cipher, m.deviceKey);
             }
 
@@ -494,10 +729,10 @@
         });
     }
 
-    // 7. AUDIO & VIDEO CALLING UI
+    // 9. CALLING ENGINE UI
     function startCall(type) {
       if (!targetUserData) {
-        alert("Please open a valid chat to place a call.");
+        alert("Please open an active conversation to place a call.");
         return;
       }
       document.getElementById('callingStatus').innerText = `${type} Calling...`;
@@ -510,7 +745,7 @@
       document.getElementById('callModal').style.display = 'none';
     }
 
-    // 8. MEDICINES RAIN ANIMATION
+    // 10. MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
@@ -533,7 +768,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 9. DOUBLE-CLICK FULLSCREEN
+    // 11. DOUBLE-CLICK FULLSCREEN
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
