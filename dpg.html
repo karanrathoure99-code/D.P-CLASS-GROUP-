@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>D.P.G - Groups Portal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .main-wrap {
+      width: 100%;
+      max-width: 550px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(6, 43, 37, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 14px;
+      backdrop-filter: blur(10px);
+    }
+    .nav-btn {
+      color: #34d399;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    /* Cards & Containers */
+    .card {
+      background: rgba(6, 43, 37, 0.7);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-emerald:hover { opacity: 0.9; }
+
+    /* Group Card */
+    .group-item {
+      background: rgba(3, 20, 17, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .group-item:hover {
+      border-color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+    }
+    .group-badge {
+      font-size: 0.75rem;
+      background: rgba(52, 211, 153, 0.2);
+      color: #34d399;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    /* Input styles */
+    .input-box {
+      width: 100%;
+      background: rgba(3, 20, 17, 0.8);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .input-box:focus { border-color: #34d399; }
+
+    /* Messages Box */
+    .chat-box {
+      height: 320px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(2, 15, 13, 0.7);
+      border-radius: 12px;
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      margin-bottom: 12px;
+    }
+    .msg-bubble {
+      background: #064e3b;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      max-width: 85%;
+      align-self: flex-start;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .msg-sender {
+      font-size: 0.7rem;
+      color: #34d399;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+  </style>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <div class="main-wrap">
+    <!-- Top Nav -->
+    <div class="nav-bar">
+      <a href="home.html" class="nav-btn">❮ Home</a>
+      <h3 style="font-size: 1rem; color: #34d399;">D.P.G Groups</h3>
+      <span id="roleBadge" class="group-badge">Checking...</span>
+    </div>
+
+    <!-- VIEW 1: Groups List View -->
+    <div id="groupListView" class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h4 style="color:#a7f3d0;">All Class Groups</h4>
+        <!-- Only for Developer -->
+        <button id="makeGroupBtn" class="btn-emerald" style="display:none;" onclick="showCreateGroupModal()">+ Make a Group</button>
+      </div>
+
+      <div id="groupsContainer">
+        <p style="text-align:center; color:#94a3b8; font-size:0.85rem;">Loading groups...</p>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Create Group Form (Modal / Inline) -->
+    <div id="createGroupView" class="card" style="display:none;">
+      <h4 style="color:#34d399; margin-bottom:12px;">Create New Group</h4>
+      <input type="text" id="newGroupName" class="input-box" placeholder="Group Name (e.g. D Pharma 1st Year)" />
+      <textarea id="newGroupBio" class="input-box" rows="3" placeholder="Group Bio / Purpose"></textarea>
+      
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="nav-btn" onclick="hideCreateGroupModal()">Cancel</button>
+        <button class="btn-emerald" onclick="submitCreateGroup()">Create Group</button>
+      </div>
+    </div>
+
+    <!-- VIEW 3: Inside Group (Chat & Member Management) -->
+    <div id="insideGroupView" class="card" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div>
+          <h3 id="activeGroupName" style="color:#34d399;">Group Name</h3>
+          <p id="activeGroupBio" style="font-size:0.75rem; color:#94a3b8;"></p>
+        </div>
+        <button class="nav-btn" onclick="backToGroupsList()">❮ Back</button>
+      </div>
+
+      <!-- Developer Member Search Section -->
+      <div id="adminAddUserSection" style="display:none; background:rgba(3,20,17,0.7); padding:12px; border-radius:10px; margin-bottom:12px; border:1px solid rgba(52,211,153,0.3);">
+        <label style="font-size:0.75rem; color:#a7f3d0; display:block; margin-bottom:4px;">Add Student by 6-digit Enrollment No:</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="searchEnrollmentInput" class="input-box" style="margin-bottom:0;" placeholder="Enter Enrollment No." />
+          <button class="btn-emerald" onclick="searchStudentByEnrollment()">Search</button>
+        </div>
+
+        <div id="searchResultBox" style="margin-top:8px; font-size:0.85rem;"></div>
+      </div>
+
+      <!-- Messages Stream -->
+      <div id="messagesContainer" class="chat-box">
+        <p style="text-align:center; color:#94a3b8; font-size:0.8rem; margin:auto;">No messages yet.</p>
+      </div>
+
+      <!-- Message Sender (Only Devs / Teachers) -->
+      <div id="msgInputSection" style="display:none;">
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="newMsgText" class="input-box" style="margin-bottom:0;" placeholder="Type announcement or message..." />
+          <button class="btn-emerald" onclick="sendGroupMessage()">Send</button>
+        </div>
+      </div>
+      <div id="studentNoticeText" style="display:none; text-align:center; font-size:0.75rem; color:#94a3b8; padding:6px;">
+        🔒 Only Admins and Teachers can send messages here.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
+      authDomain: "d-pharma-class-group.firebaseapp.com",
+      projectId: "d-pharma-class-group",
+      storageBucket: "d-pharma-class-group.firebasestorage.app",
+      messagingSenderId: "870561978483",
+      appId: "1:870561978483:web:095681d6185f43cd6d7206",
+      measurementId: "G-VQ12Y4NLRJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let currentUserData = null;
+    let isDeveloper = false;
+    let activeGroupId = null;
+    let activeGroupData = null;
+    let unsubMessages = null;
+
+    // Check Auth & Identify Developer
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.replace('login.html');
+        return;
+      }
+      currentUser = user;
+      const email = (user.email || '').trim().toLowerCase();
+
+      // Check user role in students or admins
+      const snap = await db.collection('students').where('email', '==', email).get();
+      if (!snap.empty) {
+        currentUserData = snap.docs[0].data();
+        currentUserData.docId = snap.docs[0].id;
+      }
+
+      // Check Developer/Teacher
+      if (
+        (currentUserData && (currentUserData.role === 'developer' || currentUserData.role === 'admin' || currentUserData.role === 'teacher')) ||
+        email === "dpharmaclassgroup@gmail.com"
+      ) {
+        isDeveloper = true;
+        document.getElementById('roleBadge').innerText = "Developer";
+        document.getElementById('makeGroupBtn').style.display = "block";
+      } else {
+        document.getElementById('roleBadge').innerText = "Student";
+      }
+
+      loadGroups();
+    });
+
+    // 1. Load Groups
+    function loadGroups() {
+      db.collection('groups').orderBy('createdAt', 'desc').onSnapshot((snap) => {
+        const container = document.getElementById('groupsContainer');
+        container.innerHTML = '';
+
+        if (snap.empty) {
+          container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem;">No groups created yet.</p>';
+          return;
+        }
+
+        snap.forEach((doc) => {
+          const g = doc.data();
+          const membersCount = (g.members || []).length;
+
+          // Check if current user is member OR is developer
+          const userEnroll = currentUserData ? (currentUserData.enrollmentNo || currentUserData.enrollment || '') : '';
+          const isMember = (g.members || []).includes(currentUser.email) || (userEnroll && (g.members || []).includes(userEnroll));
+
+          // Developers see all groups; Students see groups they are added to
+          if (isDeveloper || isMember) {
+            const item = document.createElement('div');
+            item.className = 'group-item';
+            item.onclick = () => openGroup(doc.id, g);
+            item.innerHTML = `
+              <div>
+                <div style="font-weight:600; color:#34d399;">👥 ${g.name}</div>
+                <div style="font-size:0.75rem; color:#94a3b8;">${g.bio || 'Classroom Group'}</div>
+              </div>
+              <div class="group-badge">${membersCount} Members</div>
+            `;
+            container.appendChild(item);
+          }
+        });
+      });
+    }
+
+    // 2. Create Group
+    function showCreateGroupModal() {
+      document.getElementById('groupListView').style.display = 'none';
+      document.getElementById('createGroupView').style.display = 'block';
+    }
+    function hideCreateGroupModal() {
+      document.getElementById('createGroupView').style.display = 'none';
+      document.getElementById('groupListView').style.display = 'block';
+    }
+
+    async function submitCreateGroup() {
+      const name = document.getElementById('newGroupName').value.trim();
+      const bio = document.getElementById('newGroupBio').value.trim();
+
+      if (!name) {
+        alert("Please enter a group name");
+        return;
+      }
+
+      try {
+        await db.collection('groups').add({
+          name: name,
+          bio: bio,
+          createdBy: currentUser.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          members: [currentUser.email] // Admin is default member
+        });
+
+        document.getElementById('newGroupName').value = '';
+        document.getElementById('newGroupBio').value = '';
+        hideCreateGroupModal();
+      } catch (err) {
+        alert("Error creating group: " + err.message);
+      }
+    }
+
+    // 3. Open Group Detail & Chat
+    function openGroup(groupId, groupData) {
+      activeGroupId = groupId;
+      activeGroupData = groupData;
+
+      document.getElementById('groupListView').style.display = 'none';
+      document.getElementById('insideGroupView').style.display = 'block';
+
+      document.getElementById('activeGroupName').innerText = groupData.name;
+      document.getElementById('activeGroupBio').innerText = groupData.bio || '';
+
+      // Controls setup for Developer vs Student
+      if (isDeveloper) {
+        document.getElementById('adminAddUserSection').style.display = 'block';
+        document.getElementById('msgInputSection').style.display = 'block';
+        document.getElementById('studentNoticeText').style.display = 'none';
+      } else {
+        document.getElementById('adminAddUserSection').style.display = 'none';
+        document.getElementById('msgInputSection').style.display = 'none';
+        document.getElementById('studentNoticeText').style.display = 'block';
+      }
+
+      listenToMessages(groupId);
+    }
+
+    function backToGroupsList() {
+      if (unsubMessages) unsubMessages();
+      activeGroupId = null;
+      document.getElementById('insideGroupView').style.display = 'none';
+      document.getElementById('groupListView').style.display = 'block';
+    }
+
+    // 4. Search & Add Student by 6-Digit Enrollment No
+    async function searchStudentByEnrollment() {
+      const term = document.getElementById('searchEnrollmentInput').value.trim();
+      const box = document.getElementById('searchResultBox');
+
+      if (!term) {
+        box.innerHTML = '<span style="color:#f87171;">Enter enrollment number</span>';
+        return;
+      }
+
+      box.innerHTML = '<span style="color:#94a3b8;">Searching...</span>';
+
+      try {
+        // Search students collection where enrollment matches
+        let q = await db.collection('students').where('enrollmentNo', '==', term).get();
+        if (q.empty) {
+          q = await db.collection('students').where('enrollment', '==', term).get();
+        }
+
+        if (q.empty) {
+          box.innerHTML = '<span style="color:#f87171;">No student found with this Enrollment No.</span>';
+          return;
+        }
+
+        const student = q.docs[0].data();
+        const studentIdOrEmail = student.email || student.enrollmentNo || term;
+
+        box.innerHTML = `
+          <div style="background:rgba(6,43,37,0.9); padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <div>
+              <b style="color:#fff;">${student.name || 'Student'}</b>
+              <div style="font-size:0.75rem; color:#94a3b8;">Enroll: ${term} | ${student.email || ''}</div>
+            </div>
+            <button class="btn-emerald" style="padding:6px 12px; font-size:0.75rem;" onclick="addMemberToGroup('${studentIdOrEmail}')">+ Add</button>
+          </div>
+        `;
+      } catch (err) {
+        box.innerHTML = '<span style="color:#f87171;">Error: ' + err.message + '</span>';
+      }
+    }
+
+    async function addMemberToGroup(memberId) {
+      if (!activeGroupId) return;
+
+      try {
+        await db.collection('groups').doc(activeGroupId).update({
+          members: firebase.firestore.FieldValue.arrayUnion(memberId)
+        });
+        document.getElementById('searchResultBox').innerHTML = `<span style="color:#34d399;">✓ Student added to group successfully!</span>`;
+        document.getElementById('searchEnrollmentInput').value = '';
+      } catch (err) {
+        alert("Failed to add member: " + err.message);
+      }
+    }
+
+    // 5. Real-time Messages
+    function listenToMessages(groupId) {
+      const box = document.getElementById('messagesContainer');
+      box.innerHTML = '';
+
+      unsubMessages = db.collection('groups').doc(groupId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot((snap) => {
+          box.innerHTML = '';
+          if (snap.empty) {
+            box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem; margin:auto;">No messages in this group yet.</p>';
+            return;
+          }
+
+          snap.forEach((doc) => {
+            const m = doc.data();
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            bubble.innerHTML = `
+              <div class="msg-sender">${m.senderName || 'Admin'}</div>
+              <div>${m.text}</div>
+            `;
+            box.appendChild(bubble);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    async function sendGroupMessage() {
+      const input = document.getElementById('newMsgText');
+      const text = input.value.trim();
+      if (!text || !activeGroupId) return;
+
+      try {
+        await db.collection('groups').doc(activeGroupId).collection('messages').add({
+          text: text,
+          senderEmail: currentUser.email,
+          senderName: (currentUserData && currentUserData.name) || 'Faculty/Developer',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        input.value = '';
+      } catch (err) {
+        alert("Failed to send message: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
