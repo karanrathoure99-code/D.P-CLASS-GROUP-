@@ -57,7 +57,6 @@
       100% { transform: translateY(112vh) rotate(360deg); opacity: 0; }
     }
 
-    /* App Wrapper Full Page */
     #secureAppWrapper {
       position: relative;
       z-index: 2;
@@ -132,10 +131,7 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .btn-glass:hover {
-      background: rgba(52, 211, 153, 0.3);
-      color: #fff;
-    }
+    .btn-glass:hover { background: rgba(52, 211, 153, 0.3); color: #fff; }
 
     .btn-danger {
       background: rgba(239, 68, 68, 0.2);
@@ -148,12 +144,8 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.4);
-      color: #fff;
-    }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
 
-    /* Main Viewport */
     .viewport-box {
       flex: 1;
       width: 100%;
@@ -164,7 +156,6 @@
       position: relative;
     }
 
-    /* VIEW 1: Groups List */
     #viewGroupList {
       width: 100%;
       height: 100%;
@@ -193,7 +184,6 @@
       transform: translateY(-2px);
     }
 
-    /* VIEW 2: Create Group Form */
     #viewCreateGroup {
       width: 100%;
       max-width: 600px;
@@ -223,7 +213,6 @@
       box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
     }
 
-    /* VIEW 3: Inside Group */
     #viewInsideGroup {
       width: 100%;
       height: 100%;
@@ -249,7 +238,6 @@
       gap: 8px;
     }
 
-    /* Search Student Section */
     #developerAddStudentBox {
       background: rgba(6, 43, 37, 0.95);
       border-bottom: 1px solid rgba(52, 211, 153, 0.3);
@@ -276,7 +264,6 @@
       background: #064e3b;
     }
 
-    /* Chat Stream Full Height */
     .chat-stream {
       flex: 1;
       overflow-y: auto;
@@ -333,7 +320,6 @@
       text-align: right;
     }
 
-    /* Input Bar */
     .chat-input-bar {
       min-height: 60px;
       background: rgba(3, 20, 17, 0.9);
@@ -356,7 +342,6 @@
       justify-content: center;
     }
 
-    /* VIEW 4: Members List Modal/View */
     #membersModal {
       position: absolute;
       inset: 0;
@@ -381,7 +366,6 @@
       gap: 10px;
     }
 
-    /* Loader */
     #securityLoader {
       position: fixed;
       inset: 0;
@@ -406,7 +390,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase Auth & Firestore SDKs (Only for Text Messages & Auth) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -463,19 +447,14 @@
 
       <!-- VIEW 3: Full Page Group & Chat Stream -->
       <section id="viewInsideGroup">
-        <!-- Group Top Banner with MEMBERS option -->
         <div class="group-subnav">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 50%;">
             <h3 id="currentGroupName" style="color:#34d399; font-size:1.05rem; font-weight:800; overflow:hidden; text-overflow:ellipsis;">Group Name</h3>
             <p id="currentGroupBio" style="font-size:0.72rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis;"></p>
           </div>
           
-          <!-- Mid & Right Action Buttons: Members, Add, and Exit -->
           <div class="group-nav-actions">
-            <!-- Members List Option -->
             <button class="btn-glass" onclick="openMembersModal()">👥 Members</button>
-
-            <!-- Dev Add Student Toggle -->
             <button id="btnToggleAddMember" class="btn-emerald" style="display:none; font-size:0.78rem; padding:6px 12px;" onclick="toggleAddStudentBar()">+ Add</button>
             <button class="nav-btn" onclick="exitGroupView()">❮ All Groups</button>
           </div>
@@ -499,7 +478,7 @@
         <!-- Attached Image Preview Before Sending -->
         <div id="imagePreviewBox" style="display:none; background:rgba(6,43,37,0.9); padding:8px 16px; border-top:1px solid #10b981; align-items:center; gap:12px;">
           <img id="imgPreviewTag" style="width:50px; height:50px; border-radius:8px; object-fit:cover; border:1px solid #34d399;" />
-          <span style="font-size:0.8rem; color:#a7f3d0;">Photo attached</span>
+          <span style="font-size:0.8rem; color:#a7f3d0;" id="uploadStatusText">Photo selected</span>
           <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedImage()">✕ Remove</button>
         </div>
 
@@ -508,7 +487,7 @@
           <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" />
           <button class="icon-btn" onclick="document.getElementById('chatPhotoUpload').click()" title="Send Photo">📷</button>
           <input type="text" id="outgoingMsgInput" class="input-field" style="margin-bottom:0;" placeholder="Type announcement or message..." />
-          <button class="btn-emerald" onclick="dispatchMessage()">Send</button>
+          <button class="btn-emerald" id="btnSendMessage" onclick="dispatchMessage()">Send</button>
         </div>
 
         <!-- Student Read-Only Notice -->
@@ -534,6 +513,12 @@
   </div>
 
   <script>
+    // ==========================================
+    // CLOUDINARY CONFIGURATION (यहाँ अपनी डिटेल्स डालें)
+    // ==========================================
+    const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUDINARY_CLOUD_NAME"; 
+    const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_UPLOAD_PRESET";
+
     // 1. FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
@@ -565,7 +550,6 @@
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" /><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" /></g></svg>`,
-      `<svg viewBox="0 0 32 32"><path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" /></svg>`,
       `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" /><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" /></svg>`,
       `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" /><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" /></svg>`
     ];
@@ -610,9 +594,8 @@
     let activeGroupData = null;
     let chatListener = null;
     let groupDocListener = null;
-    let attachedImageBase64 = '';
+    let selectedImageFile = null;
 
-    // Auth & Identity Validation
     auth.onAuthStateChanged(async (user) => {
       if (!user && !loggedAccount) {
         localStorage.clear();
@@ -719,7 +702,7 @@
           createdBy: currentUser.email || DEVELOPER_EMAIL,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           members: [DEVELOPER_EMAIL],
-          teachers: [] // List of members promoted to Teacher
+          teachers: []
         });
 
         document.getElementById('groupNameInput').value = '';
@@ -744,7 +727,6 @@
       document.getElementById('currentGroupName').innerText = groupData.name;
       document.getElementById('currentGroupBio').innerText = groupData.bio || '';
 
-      // Live listen to group document to keep members & teachers updated
       if (groupDocListener) groupDocListener();
       groupDocListener = db.collection('groups').doc(groupId).onSnapshot((doc) => {
         if (doc.exists) {
@@ -764,7 +746,6 @@
       listenGroupMessages(groupId);
     }
 
-    // Evaluate if current user can send messages (Developer OR Assigned Teacher)
     function evaluateMessagingPermission() {
       if (!activeGroupData) return;
       const teachers = activeGroupData.teachers || [];
@@ -797,7 +778,7 @@
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
-    // 7. MEMBERS MODAL LOGIC (LIST & SET AS TEACHER)
+    // 7. MEMBERS MODAL LOGIC
     async function openMembersModal() {
       if (!activeGroupId || !activeGroupData) return;
       const modal = document.getElementById('membersModal');
@@ -819,7 +800,6 @@
       listContainer.innerHTML = '';
 
       for (let mId of members) {
-        // If developer
         if (mId.toLowerCase() === DEVELOPER_EMAIL.toLowerCase()) {
           const devRow = document.createElement('div');
           devRow.className = 'member-item';
@@ -837,19 +817,12 @@
           continue;
         }
 
-        // Fetch student record
         let student = null;
         let snap = await db.collection('students').where('enroll', '==', mId).get();
-        if (snap.empty) {
-          snap = await db.collection('students').where('enrollNo', '==', mId).get();
-        }
-        if (snap.empty) {
-          snap = await db.collection('students').where('email', '==', mId.toLowerCase()).get();
-        }
+        if (snap.empty) snap = await db.collection('students').where('enrollNo', '==', mId).get();
+        if (snap.empty) snap = await db.collection('students').where('email', '==', mId.toLowerCase()).get();
 
-        if (!snap.empty) {
-          student = snap.docs[0].data();
-        }
+        if (!snap.empty) student = snap.docs[0].data();
 
         const name = student ? student.name : mId;
         const photo = (student && student.photo) ? student.photo : 'https://via.placeholder.com/150';
@@ -891,7 +864,6 @@
       document.getElementById('membersModal').style.display = 'none';
     }
 
-    // Toggle Teacher Role Function
     async function toggleTeacherRole(memberId, makeTeacher) {
       if (!isDeveloper || !activeGroupId) return;
 
@@ -900,14 +872,14 @@
           await db.collection('groups').doc(activeGroupId).update({
             teachers: firebase.firestore.FieldValue.arrayUnion(memberId)
           });
-          alert("✓ User successfully promoted to Teacher! They can now send messages.");
+          alert("✓ User promoted to Teacher! They can now send messages.");
         } else {
           await db.collection('groups').doc(activeGroupId).update({
             teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
           });
           alert("✓ Teacher privileges removed.");
         }
-        openMembersModal(); // Refresh list
+        openMembersModal();
       } catch (err) {
         alert("Error updating role: " + err.message);
       }
@@ -928,9 +900,7 @@
 
       try {
         let q = await db.collection('students').where('enroll', '==', enrollVal).get();
-        if (q.empty) {
-          q = await db.collection('students').where('enrollNo', '==', enrollVal).get();
-        }
+        if (q.empty) q = await db.collection('students').where('enrollNo', '==', enrollVal).get();
 
         if (q.empty) {
           resArea.innerHTML = '<span style="color:#f87171; font-size:0.8rem; display:block; margin-top:8px;">No student registered with this Enrollment Number.</span>';
@@ -973,40 +943,28 @@
       }
     }
 
-    // 9. PHOTO ATTACHMENT COMPRESSION
+    // 9. PHOTO SELECTION (CLOUDINARY READY)
     document.getElementById('chatPhotoUpload').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
+        selectedImageFile = file;
         const reader = new FileReader();
         reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const maxWidth = 700;
-            const scale = maxWidth / img.width;
-            canvas.width = (img.width > maxWidth) ? maxWidth : img.width;
-            canvas.height = (img.width > maxWidth) ? img.height * scale : img.height;
-
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            attachedImageBase64 = canvas.toDataURL('image/jpeg', 0.65);
-
-            document.getElementById('imgPreviewTag').src = attachedImageBase64;
-            document.getElementById('imagePreviewBox').style.display = 'flex';
-          };
-          img.src = evt.target.result;
+          document.getElementById('imgPreviewTag').src = evt.target.result;
+          document.getElementById('uploadStatusText').innerText = "Photo selected (" + (file.size / 1024).toFixed(0) + " KB)";
+          document.getElementById('imagePreviewBox').style.display = 'flex';
         };
         reader.readAsDataURL(file);
       }
     });
 
     function removeAttachedImage() {
-      attachedImageBase64 = '';
+      selectedImageFile = null;
       document.getElementById('chatPhotoUpload').value = '';
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // 10. CHAT REALTIME STREAM
+    // 10. CHAT REALTIME STREAM (FIRESTORE)
     function listenGroupMessages(groupId) {
       const box = document.getElementById('chatMessages');
       box.innerHTML = '';
@@ -1024,13 +982,13 @@
             const m = doc.data();
             const isMine = (m.senderEmail || '').toLowerCase() === (currentUser.email || '').toLowerCase();
             const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
-
             const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${isMine ? 'mine' : ''}`;
 
-            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" />` : '';
+            // Image loads from Cloudinary URL
+            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" loading="lazy" />` : '';
 
             wrapper.innerHTML = `
               <img src="${senderPhoto}" class="msg-avatar" alt="User" />
@@ -1047,33 +1005,63 @@
         });
     }
 
-    // 11. DISPATCH MESSAGE
+    // 11. DISPATCH MESSAGE (UPLOAD TO CLOUDINARY + TEXT TO FIRESTORE)
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
+      const sendBtn = document.getElementById('btnSendMessage');
       const text = input.value.trim();
 
-      if (!text && !attachedImageBase64) return;
+      if (!text && !selectedImageFile) return;
       if (!activeGroupId) return;
 
-      const senderName = isDeveloper ? 'Developer Karan' : ((currentStudentData && currentStudentData.name) || 'Faculty/Teacher');
-      const senderPhoto = isDeveloper ? 'https://via.placeholder.com/150' : ((currentStudentData && currentStudentData.photo) || 'https://via.placeholder.com/150');
+      sendBtn.disabled = true;
+      sendBtn.innerText = "...";
 
-      const payload = {
-        text: text,
-        image: attachedImageBase64 || null,
-        senderEmail: currentUser.email || DEVELOPER_EMAIL,
-        senderName: senderName,
-        senderPhoto: senderPhoto,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      };
-
-      input.value = '';
-      removeAttachedImage();
+      let cloudinaryUrl = null;
 
       try {
-        await db.collection('groups').doc(activeGroupId).collection('messages').add(payload);
+        // Step 1: फोटो को सीधे Cloudinary में अपलोड करना (Firebase में नहीं)
+        if (selectedImageFile) {
+          document.getElementById('uploadStatusText').innerText = "Uploading photo to Cloudinary...";
+
+          const formData = new FormData();
+          formData.append("file", selectedImageFile);
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+          if (data.secure_url) {
+            cloudinaryUrl = data.secure_url; // Cloudinary से मिला सुरक्षित लिंक
+          } else {
+            throw new Error(data.error ? data.error.message : "Cloudinary Upload Failed");
+          }
+        }
+
+        // Step 2: केवल टेक्स्ट और Cloudinary का यूआरएल Firestore डेटाबेस में जाएगा
+        const senderName = isDeveloper ? 'Developer Karan' : ((currentStudentData && currentStudentData.name) || 'Faculty/Teacher');
+        const senderPhoto = isDeveloper ? 'https://via.placeholder.com/150' : ((currentStudentData && currentStudentData.photo) || 'https://via.placeholder.com/150');
+
+        await db.collection('groups').doc(activeGroupId).collection('messages').add({
+          text: text,
+          image: cloudinaryUrl, // सिर्फ 1 लाइन का वेब लिंक जाएगा
+          senderEmail: currentUser.email || DEVELOPER_EMAIL,
+          senderName: senderName,
+          senderPhoto: senderPhoto,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        input.value = '';
+        removeAttachedImage();
       } catch (err) {
-        alert("Failed to send message: " + err.message);
+        console.error("Sending error:", err);
+        alert("Upload/Send failed: " + err.message);
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerText = "Send";
       }
     }
 
