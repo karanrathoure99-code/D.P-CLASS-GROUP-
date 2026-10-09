@@ -24,7 +24,7 @@
       overflow: hidden;
     }
 
-    /* Slow-Motion Falling Medicines Rain */
+    /* Slow-Motion Realistic Falling Medicine Rain */
     .rain-container {
       position: absolute;
       top: 0;
@@ -38,35 +38,39 @@
 
     .medicine-drop {
       position: absolute;
-      top: -80px;
-      opacity: 0.22;
+      top: -90px;
       animation: slowRain linear infinite;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
     }
 
     @keyframes slowRain {
       0% {
-        transform: translateY(-80px) rotate(0deg);
+        transform: translateY(-90px) rotate(0deg);
         opacity: 0;
       }
-      15% { opacity: 0.28; }
-      85% { opacity: 0.28; }
+      12% {
+        opacity: 0.85;
+      }
+      88% {
+        opacity: 0.85;
+      }
       100% {
-        transform: translateY(110vh) rotate(360deg);
+        transform: translateY(112vh) rotate(360deg);
         opacity: 0;
       }
     }
 
-    /* Glassmorphism Main Login Card */
+    /* Glassmorphism Login Card */
     .login-card {
-      background: rgba(6, 43, 37, 0.65);
+      background: rgba(6, 43, 37, 0.68);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(52, 211, 153, 0.25);
+      border: 1px solid rgba(52, 211, 153, 0.3);
       border-radius: 28px;
       padding: 35px 28px;
       width: 100%;
       max-width: 400px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 25px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.18);
       position: relative;
       z-index: 2;
     }
@@ -82,12 +86,11 @@
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 2px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(52, 211, 153, 0.3);
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
       padding: 4px 14px;
       border-radius: 20px;
       margin-bottom: 12px;
-      backdrop-filter: blur(8px);
     }
 
     .brand-title {
@@ -119,8 +122,8 @@
 
     .input-field {
       width: 100%;
-      background: rgba(3, 20, 17, 0.75);
-      border: 1px solid rgba(52, 211, 153, 0.25);
+      background: rgba(3, 20, 17, 0.8);
+      border: 1px solid rgba(52, 211, 153, 0.28);
       border-radius: 14px;
       padding: 13px 16px;
       color: #ffffff;
@@ -131,78 +134,71 @@
 
     .input-field:focus {
       border-color: #34d399;
-      box-shadow: 0 0 15px rgba(52, 211, 153, 0.35);
-      background: rgba(6, 43, 37, 0.85);
+      box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+      background: rgba(6, 43, 37, 0.9);
     }
 
-    .input-field::placeholder {
-      color: #64748b;
-      font-size: 0.85rem;
-    }
-
+    /* Wrong Password Alert with Emoji */
     .error-msg {
       display: none;
       color: #f87171;
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.8rem;
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
       margin-bottom: 16px;
       text-align: center;
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
     }
 
     .glass-btn {
       width: 100%;
-      background: rgba(16, 185, 129, 0.25);
+      background: rgba(16, 185, 129, 0.28);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(52, 211, 153, 0.6);
+      border: 1px solid rgba(52, 211, 153, 0.65);
       border-radius: 14px;
       color: #ffffff;
       font-size: 1rem;
       font-weight: 700;
       padding: 14px;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.28);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       margin-top: 6px;
     }
 
     .glass-btn:hover {
-      background: rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.5);
       border-color: #34d399;
-      box-shadow: 0 12px 35px rgba(16, 185, 129, 0.45), inset 0 0 18px rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
       transform: translateY(-2px);
     }
 
-    .glass-about-btn {
-      background: rgba(34, 211, 238, 0.1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(34, 211, 238, 0.35);
-      color: #22d3ee;
-      padding: 9px 18px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: inset 0 0 8px rgba(34, 211, 238, 0.1);
+    .glass-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    .glass-about-btn:hover {
-      background: rgba(34, 211, 238, 0.25);
-      border-color: #67e8f9;
-      color: #ffffff;
-      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
-    }
-
-    .about-link {
+    .forgot-hint {
       text-align: center;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .forgot-hint span {
+      color: #34d399;
+      font-weight: 600;
     }
 
     .security-badge {
@@ -212,111 +208,37 @@
       gap: 6px;
       font-size: 0.75rem;
       color: #64748b;
-      margin-top: 18px;
-    }
-
-    .security-badge span {
-      color: #34d399;
-    }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 10;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-content {
-      background: rgba(5, 36, 31, 0.85);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      border-radius: 24px;
-      padding: 26px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.2);
-    }
-
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #34d399;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .modal-body {
-      font-size: 0.88rem;
-      color: #cbd5e1;
-      line-height: 1.6;
-    }
-
-    .modal-body ul {
-      margin: 10px 0 15px 20px;
-    }
-
-    .modal-close-btn {
-      width: 100%;
-      background: rgba(16, 185, 129, 0.2);
-      backdrop-filter: blur(10px);
-      border: 1px solid #10b981;
-      color: #34d399;
-      padding: 11px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 15px;
-      transition: all 0.3s ease;
-    }
-
-    .modal-close-btn:hover {
-      background: rgba(16, 185, 129, 0.35);
-      color: #ffffff;
-    }
-
-    .fullscreen-hint {
-      position: absolute;
-      bottom: 12px;
-      font-size: 0.72rem;
-      color: #64748b;
-      letter-spacing: 1px;
-      z-index: 2;
+      margin-top: 20px;
     }
   </style>
+
+  <!-- Firebase App & Firestore SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
+  <!-- Colorful Realistic Medicines Rain Container -->
   <div class="rain-container" id="rainContainer"></div>
 
   <div class="login-card">
     <div class="brand-header">
       <span class="rx-tag">℞ PHARMACY VAULT</span>
       <h1 class="brand-title">D Pharma Login</h1>
-      <p class="brand-subtitle">Authorized Classroom & Faculty Access</p>
+      <p class="brand-subtitle">Student & Developer Secure Authentication</p>
     </div>
 
-    <div class="error-msg" id="errorMsg">Invalid credentials. Contact class developer.</div>
+    <!-- Error message element with emoji -->
+    <div class="error-msg" id="errorMsg">❌ 🔐 Wrong Password or ID! Please try again. 💊</div>
 
     <form id="loginForm">
       <div class="input-group">
-        <label for="userIdentifier">Email or Phone Number</label>
+        <label for="userIdentifier">Enrollment No. / Gmail / Phone</label>
         <input 
           type="text" 
           id="userIdentifier" 
           class="input-field" 
-          placeholder="karanrathoure6271@gmail.com or Student ID" 
+          placeholder="Enrollment, Gmail, or Dev ID" 
           required 
         />
       </div>
@@ -332,59 +254,100 @@
         />
       </div>
 
-      <button type="submit" class="glass-btn">Authenticate & Log In</button>
+      <button type="submit" id="loginBtn" class="glass-btn">Log In</button>
     </form>
 
+    <div class="forgot-hint">
+      Forgot Password? <span>Contact Class Developer</span>
+    </div>
+
     <div class="security-badge">
-      <span>🔒</span> Developer Verified & E2E Encrypted Network
-    </div>
-
-    <div class="about-link">
-      <button type="button" class="glass-about-btn" onclick="openAboutModal()">ℹ️ About Application</button>
+      <span>🔒</span> E2E Verified & Cloud Secured
     </div>
   </div>
-
-  <div class="modal-overlay" id="aboutModal">
-    <div class="modal-content">
-      <div class="modal-title">
-        <span>💊</span> D Pharma Class Group
-      </div>
-      <div class="modal-body">
-        <p>A closed-loop, specialized network designed strictly for <strong>D.Pharma Classrooms</strong> to eliminate WhatsApp dependence.</p>
-        <ul>
-          <li><strong>Restricted Enrollment:</strong> Only the developer/admin can register authentic student accounts.</li>
-          <li><strong>E2E Encrypted Chat:</strong> Direct peer-to-peer security across all discussions.</li>
-          <li><strong>Academic Vault:</strong> Centralized syllabus, PDF manuals, and instant updates.</li>
-        </ul>
-        <p>Self-registration is disabled for maximum security.</p>
-      </div>
-      <button class="modal-close-btn" onclick="closeAboutModal()">Close</button>
-    </div>
-  </div>
-
-  <div class="fullscreen-hint">Double click anywhere for Fullscreen</div>
 
   <script>
-    const medicineIcons = [
-      `<svg viewBox="0 0 24 24" fill="#34d399"><path d="M4.5 10.5C3.67 10.5 3 11.17 3 12s.67 1.5 1.5 1.5h3v3c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-3h3c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5h-3v-3c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v3h-3zM18.5 3c-1.93 0-3.5 1.57-3.5 3.5 0 .58.15 1.12.4 1.6L12.7 10.8c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l2.7-2.7c.48.25 1.02.4 1.6.4 1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3z"/></svg>`,
-      `<svg viewBox="0 0 24 24" fill="#22d3ee"><circle cx="12" cy="12" r="9" stroke="#22d3ee" stroke-width="2" fill="none"/><line x1="7" y1="12" x2="17" y2="12" stroke="#22d3ee" stroke-width="2"/></svg>`,
-      `<svg viewBox="0 0 24 24" fill="#6ee7b7"><rect x="3" y="2" width="18" height="20" rx="3" stroke="#6ee7b7" stroke-width="1.8" fill="none"/><circle cx="8" cy="7" r="2"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/></svg>`,
-      `<svg viewBox="0 0 24 24" fill="#10b981"><path d="M6 3h12v2H6zm11 3H7c-.55 0-1 .45-1 1v1.18c0 .37.15.73.42 1L10 12.82V19c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6.18l3.58-3.64c.27-.27.42-.63.42-1V7c0-.55-.45-1-1-1z"/></svg>`,
-      `<svg viewBox="0 0 24 24" fill="#38bdf8"><path d="M9 2h6v3H9zm-2 5h10a1 1 0 0 1 1 1v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a1 1 0 0 1 1-1zm3 6v2h4v-2zm2-2h-2v6h2z"/></svg>`
+    // 1. Firebase Initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
+      authDomain: "d-pharma-class-group.firebaseapp.com",
+      projectId: "d-pharma-class-group",
+      storageBucket: "d-pharma-class-group.firebasestorage.app",
+      messagingSenderId: "870561978483",
+      appId: "1:870561978483:web:095681d6185f43cd6d7206",
+      measurementId: "G-VQ12Y4NLRJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. High-Quality Colorful Transparent Medicines (Red/White Capsule, Black Capsule, Heart Tablets, Bottles)
+    const colorfulMedicines = [
+      // 1. Red & White Two-Tone Capsule (Semi-Transparent)
+      `<svg viewBox="0 0 32 32">
+        <g transform="rotate(-30 16 16)">
+          <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" />
+          <path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" />
+          <rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" />
+        </g>
+      </svg>`,
+
+      // 2. Black & Neon Emerald Capsule
+      `<svg viewBox="0 0 32 32">
+        <g transform="rotate(25 16 16)">
+          <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" />
+          <path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" />
+          <rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" />
+        </g>
+      </svg>`,
+
+      // 3. Heart-Shaped Pink/Rose Tablet (Semi-Transparent)
+      `<svg viewBox="0 0 32 32">
+        <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" />
+        <path d="M16 13 v8" stroke="#ffe4e6" stroke-width="1" stroke-dasharray="2,2" opacity="0.8" />
+      </svg>`,
+
+      // 4. Heart-Shaped Purple/Lavender Tablet
+      `<svg viewBox="0 0 32 32">
+        <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#a855f7" opacity="0.55" stroke="#d8b4fe" stroke-width="1.2" />
+      </svg>`,
+
+      // 5. Round Blue Scoring Tablet (Cross Break Line)
+      `<svg viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" />
+        <line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
+        <line x1="16" y1="8" x2="16" y2="24" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
+      </svg>`,
+
+      // 6. Round Amber / Golden Tablet
+      `<svg viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="10" fill="#f59e0b" opacity="0.55" stroke="#fde68a" stroke-width="1.5" />
+        <line x1="8" y1="16" x2="24" y2="16" stroke="#fff" stroke-width="1.5" opacity="0.7" />
+      </svg>`,
+
+      // 7. Syrup Medicine Bottle with White Cap & Liquid Level
+      `<svg viewBox="0 0 32 32">
+        <rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" />
+        <rect x="11" y="6" width="10" height="3" fill="#94a3b8" opacity="0.6" />
+        <path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" />
+        <rect x="9.5" y="17" width="13" height="9.5" fill="#0369a1" opacity="0.5" rx="1" />
+        <line x1="11" y1="14" x2="15" y2="14" stroke="#e0f2fe" stroke-width="1" opacity="0.7" />
+        <line x1="11" y1="18" x2="15" y2="18" stroke="#e0f2fe" stroke-width="1" opacity="0.7" />
+      </svg>`
     ];
 
     const container = document.getElementById('rainContainer');
-    const totalDrops = 30;
+    const totalItems = 32;
 
-    for (let i = 0; i < totalDrops; i++) {
+    for (let i = 0; i < totalItems; i++) {
       const drop = document.createElement('div');
       drop.className = 'medicine-drop';
-      drop.innerHTML = medicineIcons[Math.floor(Math.random() * medicineIcons.length)];
+      drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
 
-      const size = Math.floor(Math.random() * 24) + 24;
-      const left = Math.random() * 96;
-      const duration = Math.random() * 8 + 12;
-      const delay = Math.random() * 10;
+      const size = Math.floor(Math.random() * 26) + 26; // 26px - 52px
+      const left = Math.random() * 95; // horizontal scatter
+      const duration = Math.random() * 8 + 12; // 12s - 20s (slow rain)
+      const delay = Math.random() * 12;
 
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
@@ -395,6 +358,86 @@
       container.appendChild(drop);
     }
 
+    // 3. Developer Master Credentials
+    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
+    const DEVELOPER_PASS = "KARAN#255075@";
+
+    // 4. Form Authentication Logic
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('userIdentifier').value.trim();
+      const password = document.getElementById('userPassword').value;
+      const errorMsg = document.getElementById('errorMsg');
+      const loginBtn = document.getElementById('loginBtn');
+
+      errorMsg.style.display = 'none';
+
+      // (A) Check if Developer is logging in -> Send directly to create.html
+      if (identifier === DEVELOPER_ID) {
+        if (password === DEVELOPER_PASS) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userRole', 'developer');
+          localStorage.setItem('userAccount', identifier);
+          window.location.replace('create.html');
+          return;
+        } else {
+          errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password!</b> Developer access denied. 🛑";
+          errorMsg.style.display = 'block';
+          return;
+        }
+      }
+
+      // (B) Student Authentication via Cloud Firestore
+      loginBtn.disabled = true;
+      loginBtn.innerText = "Authenticating...";
+
+      try {
+        let querySnapshot = await db.collection("students")
+          .where("enroll", "==", identifier.toUpperCase())
+          .get();
+
+        if (querySnapshot.empty) {
+          querySnapshot = await db.collection("students")
+            .where("email", "==", identifier.toLowerCase())
+            .get();
+        }
+
+        if (querySnapshot.empty) {
+          querySnapshot = await db.collection("students")
+            .where("phone", "==", identifier)
+            .get();
+        }
+
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0].data();
+          if (docData.password === password) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', 'student');
+            localStorage.setItem('studentName', docData.name);
+            localStorage.setItem('studentPhoto', docData.photo);
+            localStorage.setItem('studentEnroll', docData.enroll);
+            localStorage.setItem('userAccount', identifier);
+            window.location.replace('home.html');
+            return;
+          } else {
+            errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password!</b> Please check and re-enter. 💊";
+            errorMsg.style.display = 'block';
+          }
+        } else {
+          errorMsg.innerHTML = "❌ 👤 <b>Student ID not registered!</b> Contact class developer. 🚫";
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error("Auth error:", err);
+        errorMsg.innerHTML = "⚠️ 🌐 <b>Server connection error!</b> Try again later. 📡";
+        errorMsg.style.display = 'block';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "Log In";
+      }
+    });
+
+    // Double-click for Fullscreen
     document.addEventListener('dblclick', () => {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -404,52 +447,6 @@
         }
       }
     });
-
-    // DEVELOPER / ADMIN CREDENTIALS CONFIGURATION
-    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
-    const DEVELOPER_PASS = "KARAN#255075@";
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const identifier = document.getElementById('userIdentifier').value.trim();
-      const password = document.getElementById('userPassword').value;
-      const errorMsg = document.getElementById('errorMsg');
-
-      errorMsg.style.display = 'none';
-
-      // (A) Check if Developer / Admin logs in
-      if (identifier === DEVELOPER_ID && password === DEVELOPER_PASS) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userRole', 'developer');
-        localStorage.setItem('userAccount', identifier);
-        window.location.replace('register.html');
-        return;
-      }
-
-      // (B) Check for Registered Students from Storage
-      const registeredUsers = JSON.parse(localStorage.getItem('dpharma_students')) || [];
-      const studentMatch = registeredUsers.find(
-        user => (user.email === identifier || user.phone === identifier) && user.password === password
-      );
-
-      if (studentMatch) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userRole', 'student');
-        localStorage.setItem('studentName', studentMatch.name);
-        localStorage.setItem('userAccount', identifier);
-        window.location.replace('home.html');
-      } else {
-        errorMsg.style.display = 'block';
-      }
-    });
-
-    function openAboutModal() {
-      document.getElementById('aboutModal').style.display = 'flex';
-    }
-
-    function closeAboutModal() {
-      document.getElementById('aboutModal').style.display = 'none';
-    }
   </script>
 </body>
 </html>
