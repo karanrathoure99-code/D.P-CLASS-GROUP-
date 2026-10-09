@@ -10,6 +10,10 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     body {
@@ -96,6 +100,8 @@
       font-size: 0.86rem;
       outline: none;
       transition: 0.3s;
+      -webkit-user-select: text;
+      user-select: text;
     }
 
     .search-input:focus {
@@ -103,6 +109,7 @@
       box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
     }
 
+    /* Protected Profile Avatar */
     .profile-nav-btn {
       width: 44px;
       height: 44px;
@@ -115,12 +122,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
-    .profile-nav-btn img {
+    .protected-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      pointer-events: none; /* Prevents dragging & long-press download */
+      -webkit-touch-callout: none;
     }
 
     /* Search Results */
@@ -159,6 +169,7 @@
       object-fit: cover;
       border: 1.5px solid #34d399;
       background: #031411;
+      pointer-events: none;
     }
 
     .action-btns {
@@ -190,7 +201,7 @@
       color: #fbbf24;
     }
 
-    /* Cards */
+    /* Notice Creator Panel */
     .glass-card {
       background: rgba(6, 43, 37, 0.7);
       backdrop-filter: blur(20px);
@@ -200,46 +211,6 @@
       padding: 20px 18px;
       margin-bottom: 20px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-    }
-
-    .board-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      border-bottom: 1px solid rgba(52, 211, 153, 0.2);
-      padding-bottom: 8px;
-    }
-
-    .notice-item {
-      background: rgba(3, 20, 17, 0.75);
-      border: 1px solid rgba(52, 211, 153, 0.2);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    /* Thumbnail Gallery */
-    .notice-gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .notice-thumb {
-      width: 100%;
-      height: 75px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1.5px solid rgba(52, 211, 153, 0.4);
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .notice-thumb:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
     }
 
     #createNoticePanel {
@@ -257,9 +228,168 @@
       font-size: 0.85rem;
       margin-bottom: 8px;
       outline: none;
+      -webkit-user-select: text;
+      user-select: text;
     }
 
-    /* Modals (Profile & Image Preview) */
+    /* WHATSAPP STORY STYLE NOTICE VIEWER */
+    .story-card-wrapper {
+      position: relative;
+      background: linear-gradient(180deg, rgba(8, 48, 41, 0.95) 0%, rgba(2, 20, 17, 0.98) 100%);
+      border: 1.5px solid rgba(52, 211, 153, 0.4);
+      border-radius: 24px;
+      padding: 18px;
+      min-height: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .story-progress-bar {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .story-progress-segment {
+      height: 3.5px;
+      flex: 1;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+
+    .story-progress-segment.active {
+      background: #34d399;
+    }
+
+    .story-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .story-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .story-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid #34d399;
+      object-fit: cover;
+      pointer-events: none;
+      background: #021a15;
+    }
+
+    .story-author-details h4 {
+      font-size: 0.95rem;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .story-author-details span {
+      font-size: 0.72rem;
+      color: #34d399;
+      display: block;
+    }
+
+    .btn-delete-notice {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-delete-notice:hover {
+      background: rgba(239, 68, 68, 0.45);
+      color: #ffffff;
+    }
+
+    .story-content-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 10px 4px;
+    }
+
+    .story-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 10px;
+    }
+
+    .story-desc {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+      padding: 0 10px;
+    }
+
+    .story-image-full {
+      max-width: 100%;
+      max-height: 260px;
+      border-radius: 14px;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      object-fit: contain;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .story-footer-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(52, 211, 153, 0.15);
+    }
+
+    .arrow-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #34d399;
+      color: #34d399;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .arrow-btn:hover {
+      background: rgba(16, 185, 129, 0.45);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    .arrow-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Read-Only Profile View Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -294,6 +424,7 @@
       border: 3px solid #34d399;
       margin-bottom: 12px;
       background: #021a15;
+      pointer-events: none;
     }
 
     .profile-field {
@@ -327,28 +458,6 @@
       font-weight: 700;
       cursor: pointer;
       flex: 1;
-    }
-
-    /* Image Preview Modal (Big Window) */
-    .image-modal-content {
-      background: rgba(4, 25, 21, 0.95);
-      border: 1px solid rgba(52, 211, 153, 0.5);
-      border-radius: 20px;
-      padding: 16px;
-      max-width: 90vw;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    }
-
-    .image-modal-content img {
-      max-width: 100%;
-      max-height: 65vh;
-      object-fit: contain;
-      border-radius: 12px;
-      border: 1px solid rgba(52, 211, 153, 0.3);
     }
 
     /* Fixed Bottom Nav */
@@ -396,7 +505,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body>
+<body oncontextmenu="return false;"> <!-- Global anti-save/right-click block -->
 
   <!-- Falling Medicines Background Animation -->
   <div class="rain-container" id="rainContainer"></div>
@@ -408,22 +517,22 @@
         <span>℞</span> D-PHARMA
       </div>
       <div class="search-container">
-        <input type="text" id="userSearchInput" class="search-input" placeholder="Search registered students (Name/Enroll)..." />
+        <input type="text" id="userSearchInput" class="search-input" placeholder="Search registered students (Name/Enroll)..." autocomplete="off" />
       </div>
       <div class="profile-nav-btn" onclick="openProfileModal()">
-        <img id="navProfilePic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
+        <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
       </div>
     </div>
 
-    <!-- Search Results View -->
+    <!-- Search Results View (Clears automatically when input is empty) -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">ALL MATCHING USERS:</div>
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
       <div id="usersList"></div>
     </div>
 
     <!-- Protected Notice Creation Area (ONLY Developer & Teachers can post) -->
     <div id="createNoticePanel" class="glass-card">
-      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Auto-Expires in 24h)</h3>
+      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (WhatsApp Status View)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
       <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
       <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
@@ -434,26 +543,48 @@
       <button onclick="publishNotice()" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
     </div>
 
-    <!-- Notice Board (VISIBLE TO ALL LOGGED-IN USERS) -->
-    <div class="glass-card">
-      <div class="board-header">
-        <h2 style="font-size:1.1rem; color:#34d399; display:flex; align-items:center; gap:6px;">
-          📌 D. PHARMA NOTICE BOARD
-        </h2>
-        <span style="font-size:0.75rem; color:#94a3b8;">Active (Last 24 Hours)</span>
+    <!-- WHATSAPP STORY STYLE NOTICE SECTION -->
+    <div class="story-card-wrapper" id="storyNoticeBox">
+      <!-- Story Segments Progress -->
+      <div class="story-progress-bar" id="storyProgress"></div>
+
+      <!-- Story Header: Author Info & Dev Delete -->
+      <div class="story-header">
+        <div class="story-author">
+          <img id="storyAuthorPhoto" class="story-avatar protected-img" src="" alt="Author" />
+          <div class="story-author-details">
+            <h4 id="storyAuthorName">Authority</h4>
+            <span id="storyTime">Just now</span>
+          </div>
+        </div>
+        <div id="devDeleteWrap"></div>
       </div>
-      <div id="noticesContainer">Loading official announcements...</div>
+
+      <!-- Story Body: Content + Main Image -->
+      <div class="story-content-body">
+        <div class="story-title" id="storyTitle">Notice Title</div>
+        <div class="story-desc" id="storyDesc">Loading announcement details...</div>
+        <div id="storyImageWrap"></div>
+        <div id="storyLinkWrap" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- Story Footer: Left/Right Arrows -->
+      <div class="story-footer-nav">
+        <button class="arrow-btn" id="prevStoryBtn" onclick="navigateStory(-1)">◀</button>
+        <span id="storyCounter" style="font-size:0.8rem; color:#94a3b8; font-weight:600;">1 / 1</span>
+        <button class="arrow-btn" id="nextStoryBtn" onclick="navigateStory(1)">▶</button>
+      </div>
     </div>
 
     <div class="fullscreen-hint">📱 Double tap / click anywhere on screen for Fullscreen mode</div>
   </div>
 
-  <!-- Read-Only Profile View Modal with Logout -->
+  <!-- Read-Only Profile View Modal with Protected Image & Logout -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal-content">
-      <img id="modalProfileImg" class="modal-photo" src="" alt="Profile" />
+      <img id="modalProfileImg" class="modal-photo protected-img" src="" alt="Profile" />
       <h3 id="modalName" style="margin-bottom: 4px;">Student Name</h3>
-      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">VERIFIED ID (READ ONLY)</p>
+      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">PROTECTED ID (READ ONLY)</p>
       
       <div class="profile-field"><span>Enrollment:</span> <span id="modalEnroll" style="color:#fff;">-</span></div>
       <div class="profile-field"><span>Email:</span> <span id="modalEmail" style="color:#fff;">-</span></div>
@@ -462,17 +593,6 @@
       <div class="modal-btn-row">
         <button onclick="closeProfileModal()" class="btn-action" style="flex:1; justify-content:center; padding:10px;">Close</button>
         <button onclick="logoutUser()" class="btn-logout">Log Out</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Big Image Preview Modal -->
-  <div class="modal-overlay" id="imagePreviewModal" onclick="closeImageModal(event)">
-    <div class="image-modal-content">
-      <img id="modalBigImg" src="" alt="Enlarged Image" />
-      <div style="display:flex; gap:12px; margin-top:14px; width:100%;">
-        <a id="modalDownloadBtn" href="" download="notice_image.jpg" class="btn-action" style="flex:1; justify-content:center; padding:10px;">⬇ Download Full Image</a>
-        <button onclick="document.getElementById('imagePreviewModal').style.display='none'" class="btn-action" style="background:rgba(239,68,68,0.25); border-color:#ef4444; color:#fca5a5; padding:10px 18px;">✕ Close</button>
       </div>
     </div>
   </div>
@@ -519,7 +639,7 @@
 
     let currentUserData = null;
 
-    // 3. LOAD USER IDENTITY
+    // 3. LOAD CURRENT USER IDENTITY
     async function initUserIdentity() {
       if (loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
         currentUserData = {
@@ -528,7 +648,7 @@
           role: "developer",
           enroll: "DEV-ROOT",
           phone: "Verified Admin",
-          photo: ""
+          photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
         };
         document.getElementById('createNoticePanel').style.display = 'block';
       } else {
@@ -544,23 +664,22 @@
           if (currentUserData.role === 'teacher' || loggedRole === 'teacher') {
             document.getElementById('createNoticePanel').style.display = 'block';
           }
-        } else {
-          if (loggedRole === 'teacher') {
-            document.getElementById('createNoticePanel').style.display = 'block';
-          }
         }
       }
     }
     initUserIdentity();
 
-    // 4. GLOBAL SEARCH FOR ALL USERS
+    // 4. INSTANT SEARCH WITH AUTO-CLEAR WHEN EMPTY
     const searchInput = document.getElementById('userSearchInput');
     const searchResultsBox = document.getElementById('searchResultsBox');
     const usersList = document.getElementById('usersList');
 
     searchInput.addEventListener('input', async (e) => {
       const query = e.target.value.trim().toLowerCase();
-      if (query.length < 1) {
+      
+      // If search bar is cleared/empty, wipe out all results immediately
+      if (query === '' || query.length === 0) {
+        usersList.innerHTML = '';
         searchResultsBox.style.display = 'none';
         return;
       }
@@ -591,7 +710,7 @@
 
           card.innerHTML = `
             <div class="user-info-left">
-              <img class="user-avatar-sm" src="${photo}" alt="Student Photo" />
+              <img class="user-avatar-sm protected-img" src="${photo}" alt="User Photo" />
               <div>
                 <strong style="font-size:0.88rem;">${data.name}</strong>
               </div>
@@ -630,7 +749,7 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // 5. NOTICE PUBLISHING & 24-HOUR AUTO EXPIRY
+    // 5. POST NOTICE
     async function publishNotice() {
       const isAllowed = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase() || loggedRole === 'teacher';
       if (!isAllowed) {
@@ -668,11 +787,12 @@
         link,
         images: compressedImages,
         postedBy: currentUserData ? currentUserData.name : 'Authority',
+        authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
       });
 
-      alert("Notice posted! It will be visible to everyone and auto-expire after 24 hours.");
+      alert("Notice posted in Status view! Auto-expires in 24h.");
       document.getElementById('noticeTitle').value = '';
       document.getElementById('noticeContent').value = '';
       document.getElementById('noticeLink').value = '';
@@ -701,66 +821,119 @@
       });
     }
 
-    // REALTIME LOAD NOTICES (THUMBNAIL + CLICK TO ENLARGE)
-    function loadActiveNotices() {
+    // 6. WHATSAPP STORY STATUS ENGINE (WITH REALTIME DELETE)
+    let activeNotices = [];
+    let currentStoryIndex = 0;
+
+    function loadStoryNotices() {
       db.collection('notices').orderBy('createdAt', 'desc').onSnapshot((snap) => {
-        const container = document.getElementById('noticesContainer');
         const currentTime = new Date().getTime();
-        let count = 0;
-        container.innerHTML = '';
+        activeNotices = [];
 
         snap.forEach((doc) => {
-          const n = doc.data();
+          const data = doc.data();
+          data.id = doc.id;
           
-          if (n.expiresAt) {
-            const expTime = n.expiresAt.toDate().getTime();
-            if (currentTime > expTime) return;
+          if (data.expiresAt) {
+            const expTime = data.expiresAt.toDate().getTime();
+            if (currentTime > expTime) return; // Expired, skip
           }
-
-          count++;
-          const item = document.createElement('div');
-          item.className = 'notice-item';
-
-          let galleryHtml = '';
-          if (n.images && n.images.length > 0) {
-            galleryHtml = '<div class="notice-gallery">' + 
-              n.images.map((img) => `
-                <img src="${img}" class="notice-thumb" alt="Notice Thumbnail" onclick="openImageModal('${img}')" />
-              `).join('') + 
-            '</div>';
-          }
-
-          let linkHtml = n.link ? `<div style="margin-top:8px;"><a href="${n.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:none;">🔗 Open Attached Link</a></div>` : '';
-
-          item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="color:#34d399; font-size:0.95rem;">${n.title}</h4>
-              <span style="font-size:0.7rem; color:#6ee7b7;">By: ${n.postedBy || 'Admin'}</span>
-            </div>
-            <p style="font-size:0.84rem; color:#cbd5e1; margin-top:6px; white-space:pre-wrap;">${n.content}</p>
-            ${galleryHtml}
-            ${linkHtml}
-          `;
-          container.appendChild(item);
+          activeNotices.push(data);
         });
 
-        if (count === 0) {
-          container.innerHTML = "<p style='color:#94a3b8; font-size:0.85rem;'>No active notices in the last 24 hours.</p>";
+        if (currentStoryIndex >= activeNotices.length) {
+          currentStoryIndex = Math.max(0, activeNotices.length - 1);
         }
+        renderCurrentStory();
       });
     }
-    loadActiveNotices();
+    loadStoryNotices();
 
-    // 6. ENLARGED IMAGE MODAL LOGIC
-    function openImageModal(imgSrc) {
-      document.getElementById('modalBigImg').src = imgSrc;
-      document.getElementById('modalDownloadBtn').href = imgSrc;
-      document.getElementById('imagePreviewModal').style.display = 'flex';
+    function renderCurrentStory() {
+      const isDev = loggedAccount.toLowerCase() === DEVELOPER_ID.toLowerCase();
+
+      if (activeNotices.length === 0) {
+        document.getElementById('storyProgress').innerHTML = '<div class="story-progress-segment active"></div>';
+        document.getElementById('storyAuthorName').innerText = "Notice Board";
+        document.getElementById('storyTime').innerText = "No updates";
+        document.getElementById('storyAuthorPhoto').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        document.getElementById('storyTitle').innerText = "No Active Notices";
+        document.getElementById('storyDesc').innerText = "There are no active notices at this moment.";
+        document.getElementById('storyImageWrap').innerHTML = '';
+        document.getElementById('storyLinkWrap').innerHTML = '';
+        document.getElementById('devDeleteWrap').innerHTML = '';
+        document.getElementById('storyCounter').innerText = "0 / 0";
+        document.getElementById('prevStoryBtn').disabled = true;
+        document.getElementById('nextStoryBtn').disabled = true;
+        return;
+      }
+
+      const notice = activeNotices[currentStoryIndex];
+
+      // Story Progress Bars
+      let bars = '';
+      for (let i = 0; i < activeNotices.length; i++) {
+        bars += `<div class="story-progress-segment ${i <= currentStoryIndex ? 'active' : ''}"></div>`;
+      }
+      document.getElementById('storyProgress').innerHTML = bars;
+
+      // Author Info
+      document.getElementById('storyAuthorName').innerText = notice.postedBy || "Authority";
+      document.getElementById('storyTime').innerText = "Official Update";
+      document.getElementById('storyAuthorPhoto').src = notice.authorPhoto || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      // Developer Delete Button
+      if (isDev) {
+        document.getElementById('devDeleteWrap').innerHTML = `<button class="btn-delete-notice" onclick="deleteNoticeDirect('${notice.id}')">🗑 Delete Notice</button>`;
+      } else {
+        document.getElementById('devDeleteWrap').innerHTML = '';
+      }
+
+      // Content
+      document.getElementById('storyTitle').innerText = notice.title || "";
+      document.getElementById('storyDesc').innerText = notice.content || "";
+
+      // Notice Images
+      if (notice.images && notice.images.length > 0) {
+        document.getElementById('storyImageWrap').innerHTML = `
+          <img src="${notice.images[0]}" class="story-image-full" alt="Notice Image" onclick="window.open('${notice.images[0]}')" />
+          ${notice.images.length > 1 ? `<div style="font-size:0.75rem; color:#6ee7b7; margin-top:4px;">+${notice.images.length - 1} more images</div>` : ''}
+        `;
+      } else {
+        document.getElementById('storyImageWrap').innerHTML = '';
+      }
+
+      // Link
+      if (notice.link) {
+        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:none;">🔗 Open Attached Link</a>`;
+      } else {
+        document.getElementById('storyLinkWrap').innerHTML = '';
+      }
+
+      // Counter & Navigation
+      document.getElementById('storyCounter').innerText = `${currentStoryIndex + 1} / ${activeNotices.length}`;
+      document.getElementById('prevStoryBtn').disabled = currentStoryIndex === 0;
+      document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
     }
 
-    function closeImageModal(e) {
-      if (e.target.id === 'imagePreviewModal') {
-        document.getElementById('imagePreviewModal').style.display = 'none';
+    function navigateStory(dir) {
+      const newIndex = currentStoryIndex + dir;
+      if (newIndex >= 0 && newIndex < activeNotices.length) {
+        currentStoryIndex = newIndex;
+        renderCurrentStory();
+      }
+    }
+
+    // DEVELOPER DIRECT NOTICE DELETION
+    async function deleteNoticeDirect(noticeId) {
+      if (loggedAccount.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
+      if (confirm("Are you sure you want to permanently remove this notice?")) {
+        try {
+          await db.collection('notices').doc(noticeId).delete();
+          alert("Notice successfully deleted!");
+        } catch (err) {
+          alert("Error deleting notice: " + err.message);
+        }
       }
     }
 
