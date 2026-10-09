@@ -576,6 +576,7 @@
       appId: "1:870561978483:web:095681d6185f43cd6d7206",
       measurementId: "G-VQ12Y4NLRJ"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -584,22 +585,30 @@
     let loggedAccount = '';
     let myStudentDocId = "";
 
-    // 2. STRICT FIREBASE AUTH GUARD
+    // 2. STRICT FIREBASE AUTH GUARD (Unauthorized redirection)
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('userAccount');
+        sessionStorage.clear();
         window.location.replace('login.html');
         return;
       }
 
       currentUser = user;
-      loggedAccount = (user.email || localStorage.getItem('userAccount') || '').trim().toLowerCase();
+      loggedAccount = (user.email || '').trim().toLowerCase();
 
       try {
-        const snap = await db.collection('students').where('email', '==', loggedAccount).get();
-        if (!snap.empty) {
-          myStudentDocId = snap.docs[0].id;
+        // Direct document check using user.uid first
+        const docRef = await db.collection('students').doc(user.uid).get();
+        if (docRef.exists) {
+          myStudentDocId = docRef.id;
+        } else {
+          // Fallback lookup by email
+          const snap = await db.collection('students').where('email', '==', loggedAccount).get();
+          if (!snap.empty) {
+            myStudentDocId = snap.docs[0].id;
+          }
         }
       } catch (err) {
         console.warn("Could not find student doc id:", err);
@@ -718,7 +727,7 @@
         const roomId = [cleanA, cleanB].sort().join('___');
 
         const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
-        if (senderUid) participantsArray.push(senderUid);
+        if (senderUid && !participantsArray.includes(senderUid)) participantsArray.push(senderUid);
 
         // Friendships
         await db.collection('friendships').doc(roomId).set({
@@ -729,7 +738,7 @@
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        // Chats Document (Rules requirement)
+        // Chats Document (Required for security rules participants matching)
         await db.collection('chats').doc(roomId).set({
           participants: participantsArray,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -832,9 +841,9 @@
       document.getElementById('requestsWrap').style.display = 'none';
       document.getElementById('activeChatView').style.display = 'flex';
 
-      // Ensure room has participants setup for Firestore security rule matching
+      // Ensure room has participants array setup for Firestore security rules
       const participants = [currentUser.uid, loggedAccount, peerAccount];
-      if (peerUid) participants.push(peerUid);
+      if (peerUid && !participants.includes(peerUid)) participants.push(peerUid);
 
       await db.collection('chats').doc(activeChatRoomId).set({
         participants: participants,
