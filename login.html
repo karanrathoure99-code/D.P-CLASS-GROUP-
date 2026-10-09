@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D Pharma Portal - Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #062b25 0%, #031411 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Pharmacy Background Mesh */
+    .chem-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(rgba(16, 185, 129, 0.08) 2px, transparent 2px),
+        linear-gradient(rgba(20, 184, 166, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px, 64px 64px;
+      z-index: 0;
+    }
+
+    /* Glassmorphism Card */
+    .login-card {
+      background: rgba(6, 43, 37, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 24px;
+      padding: 35px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.15);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Top Branding */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .rx-tag {
+      display: inline-block;
+      color: #34d399;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .brand-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #34d399, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* Form Fields */
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #a7f3d0;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .input-field {
+      width: 100%;
+      background: rgba(3, 20, 17, 0.8);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 13px 16px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+      background: rgba(6, 43, 37, 0.9);
+    }
+
+    .input-field::placeholder {
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    /* Submit Button */
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+      transition: all 0.3s ease;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.55);
+      transform: translateY(-1px);
+    }
+
+    /* Security Notice */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 20px;
+    }
+
+    .security-badge span {
+      color: #34d399;
+    }
+
+    /* About Section Link */
+    .about-link {
+      text-align: center;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .about-link button {
+      background: none;
+      border: none;
+      color: #22d3ee;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.2s ease;
+    }
+
+    .about-link button:hover {
+      color: #67e8f9;
+    }
+
+    /* About Popup Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #062b25;
+      border: 1px solid #10b981;
+      border-radius: 20px;
+      padding: 25px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #34d399;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-body {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .modal-body ul {
+      margin: 10px 0 15px 20px;
+    }
+
+    .btn-close {
+      width: 100%;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Grid -->
+  <div class="chem-grid"></div>
+
+  <!-- Login Card -->
+  <div class="login-card">
+    <div class="brand-header">
+      <span class="rx-tag">℞ PHARMACY VAULT</span>
+      <h1 class="brand-title">D Pharma Login</h1>
+      <p class="brand-subtitle">अपने क्लासरूम पोर्टल में प्रवेश करें</p>
+    </div>
+
+    <form id="loginForm">
+      <!-- Input: Email or Phone -->
+      <div class="input-group">
+        <label for="userIdentifier">ईमेल या फ़ोन नंबर</label>
+        <input 
+          type="text" 
+          id="userIdentifier" 
+          class="input-field" 
+          placeholder="example@gmail.com या 9876543210" 
+          required 
+        />
+      </div>
+
+      <!-- Input: Password -->
+      <div class="input-group">
+        <label for="userPassword">पासवर्ड</label>
+        <input 
+          type="password" 
+          id="userPassword" 
+          class="input-field" 
+          placeholder="••••••••" 
+          required 
+        />
+      </div>
+
+      <!-- Login Submit Button -->
+      <button type="submit" class="btn-login">लॉग इन करें</button>
+    </form>
+
+    <!-- Security Info -->
+    <div class="security-badge">
+      <span>🔒</span> एंड-टू-एंड एन्क्रिप्टेड सुरक्षित नेटवर्क
+    </div>
+
+    <!-- About App Link -->
+    <div class="about-link">
+      <button type="button" onclick="openAboutModal()">ℹ️ ऐप के बारे में जानें (About App)</button>
+    </div>
+  </div>
+
+  <!-- About App Modal -->
+  <div class="modal-overlay" id="aboutModal">
+    <div class="modal-content">
+      <div class="modal-title">
+        <span>💊</span> D Pharma Class Group
+      </div>
+      <div class="modal-body">
+        <p>यह वेब एप्लिकेशन विशेष रूप से <strong>D.Pharma छात्रों</strong> के लिए बनाया गया है ताकि WhatsApp पर निर्भर न रहना पड़े।</p>
+        <ul>
+          <li><strong>सुरक्षित चैटिंग:</strong> एंड-टू-एंड एन्क्रिप्शन के साथ निजी चर्चा।</li>
+          <li><strong>स्टडी मटीरियल:</strong> विषयवार PDF बुक्स और लैब मैनुअल।</li>
+          <li><strong>नोटिस बोर्ड:</strong> परीक्षा व क्लास टाइमटेबल के सटीक अपडेट्स।</li>
+        </ul>
+        <p>इस प्लेटफ़ॉर्म पर केवल क्लास के अधिकृत छात्र ही जुड़ सकते हैं।</p>
+      </div>
+      <button class="btn-close" onclick="closeAboutModal()">बंद करें</button>
+    </div>
+  </div>
+
+  <script>
+    // Form Submission Handling
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const identifier = document.getElementById('userIdentifier').value.trim();
+      const password = document.getElementById('userPassword').value;
+
+      if (identifier && password) {
+        // लॉगिन स्टेट सेव करें
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userAccount', identifier);
+
+        // होम स्क्रीन पर भेजें
+        window.location.href = 'home.html';
+      }
+    });
+
+    // About Modal Functions
+    function openAboutModal() {
+      document.getElementById('aboutModal').style.display = 'flex';
+    }
+
+    function closeAboutModal() {
+      document.getElementById('aboutModal').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
