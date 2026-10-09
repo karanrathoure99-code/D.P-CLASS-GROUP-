@@ -138,7 +138,6 @@
       background: rgba(6, 43, 37, 0.9);
     }
 
-    /* Wrong Password Alert with Emoji */
     .error-msg {
       display: none;
       color: #f87171;
@@ -189,7 +188,6 @@
       transform: none;
     }
 
-    /* About Link (Replacing Forgot Password) */
     .about-link-container {
       text-align: center;
       margin-top: 18px;
@@ -229,8 +227,9 @@
     }
   </style>
 
-  <!-- Firebase App & Firestore SDKs -->
+  <!-- Firebase App, Auth & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
@@ -297,11 +296,11 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
     // 2. High-Quality Colorful Transparent Medicines
     const colorfulMedicines = [
-      // Red & White Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(-30 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" />
@@ -309,7 +308,6 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" />
         </g>
       </svg>`,
-      // Black & Neon Green Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(25 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" />
@@ -317,16 +315,13 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" />
         </g>
       </svg>`,
-      // Heart Tablet (Pink)
       `<svg viewBox="0 0 32 32">
         <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" />
       </svg>`,
-      // Round Tablet (Cyan)
       `<svg viewBox="0 0 32 32">
         <circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" />
         <line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
       </svg>`,
-      // Syrup Bottle
       `<svg viewBox="0 0 32 32">
         <rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" />
         <path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" />
@@ -361,14 +356,36 @@
 
       errorMsg.style.display = 'none';
 
-      // (A) Developer Login -> Redirect to create.html
-      if (identifier === DEVELOPER_ID) {
+      // (A) Developer Login
+      if (identifier.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
         if (password === DEVELOPER_PASS) {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userRole', 'developer');
-          localStorage.setItem('userAccount', identifier);
-          window.location.replace('create.html');
-          return;
+          loginBtn.disabled = true;
+          loginBtn.innerText = "Authenticating Developer...";
+          try {
+            // Sign in or create Developer in Firebase Auth
+            try {
+              await auth.signInWithEmailAndPassword(DEVELOPER_ID, DEVELOPER_PASS);
+            } catch (authErr) {
+              if (authErr.code === 'auth/user-not-found') {
+                await auth.createUserWithEmailAndPassword(DEVELOPER_ID, DEVELOPER_PASS);
+              } else {
+                throw authErr;
+              }
+            }
+
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', 'developer');
+            localStorage.setItem('userAccount', DEVELOPER_ID);
+            window.location.replace('create.html');
+            return;
+          } catch (devErr) {
+            console.error("Developer Auth Error:", devErr);
+            errorMsg.innerHTML = `❌ 🔐 <b>Developer Auth Failed:</b> ${devErr.message}`;
+            errorMsg.style.display = 'block';
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Log In";
+            return;
+          }
         } else {
           errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password!</b> Developer access denied. 🛑";
           errorMsg.style.display = 'block';
@@ -376,49 +393,78 @@
         }
       }
 
-      // (B) Student Login via Cloud Firestore
+      // (B) Student Secure Login
       loginBtn.disabled = true;
       loginBtn.innerText = "Authenticating...";
 
       try {
-        let querySnapshot = await db.collection("students")
-          .where("enroll", "==", identifier.toUpperCase())
-          .get();
+        let targetEmail = "";
+        let studentData = null;
 
-        if (querySnapshot.empty) {
-          querySnapshot = await db.collection("students")
-            .where("email", "==", identifier.toLowerCase())
-            .get();
-        }
-
-        if (querySnapshot.empty) {
-          querySnapshot = await db.collection("students")
-            .where("phone", "==", identifier)
-            .get();
-        }
-
-        if (!querySnapshot.empty) {
-          const docData = querySnapshot.docs[0].data();
-          if (docData.password === password) {
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userRole', 'student');
-            localStorage.setItem('studentName', docData.name);
-            localStorage.setItem('studentPhoto', docData.photo);
-            localStorage.setItem('studentEnroll', docData.enroll);
-            localStorage.setItem('userAccount', identifier);
-            window.location.replace('home.html');
-            return;
-          } else {
-            errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password!</b> Please check and re-enter. 💊";
-            errorMsg.style.display = 'block';
-          }
+        // If identifier is directly an email
+        if (identifier.includes("@")) {
+          targetEmail = identifier.toLowerCase();
         } else {
+          // Resolve Email by Enrollment or Phone
+          let snap = await db.collection("students")
+            .where("enroll", "==", identifier.toUpperCase())
+            .get();
+
+          if (snap.empty) {
+            snap = await db.collection("students")
+              .where("phone", "==", identifier)
+              .get();
+          }
+
+          if (!snap.empty) {
+            studentData = snap.docs[0].data();
+            targetEmail = studentData.email ? studentData.email.toLowerCase() : "";
+          }
+        }
+
+        if (!targetEmail) {
           errorMsg.innerHTML = "❌ 👤 <b>Student ID not registered!</b> Contact class developer. 🚫";
           errorMsg.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.innerText = "Log In";
+          return;
         }
+
+        // Firebase Auth Verification
+        const userCredential = await auth.signInWithEmailAndPassword(targetEmail, password);
+        const user = userCredential.user;
+
+        // Fetch profile details if not already fetched
+        if (!studentData) {
+          const docSnap = await db.collection("students").doc(user.uid).get();
+          if (docSnap.exists) {
+            studentData = docSnap.data();
+          } else {
+            const querySnap = await db.collection("students").where("email", "==", targetEmail).get();
+            if (!querySnap.empty) {
+              studentData = querySnap.docs[0].data();
+            }
+          }
+        }
+
+        // Persist session
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userRole', 'student');
+        localStorage.setItem('userAccount', targetEmail);
+        localStorage.setItem('studentName', studentData ? studentData.name : targetEmail);
+        localStorage.setItem('studentEnroll', studentData ? studentData.enroll : '');
+        localStorage.setItem('studentPhoto', studentData ? (studentData.photo || '') : '');
+
+        window.location.replace('home.html');
       } catch (err) {
         console.error("Auth error:", err);
-        errorMsg.innerHTML = "⚠️ 🌐 <b>Server connection error!</b> Try again later. 📡";
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+          errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password or ID!</b> Please check and re-enter. 💊";
+        } else if (err.code === 'auth/network-request-failed') {
+          errorMsg.innerHTML = "⚠️ 🌐 <b>Network error!</b> Please check your internet connection. 📡";
+        } else {
+          errorMsg.innerHTML = `⚠️ 🌐 <b>Authentication error!</b> (${err.message}) 📡`;
+        }
         errorMsg.style.display = 'block';
       } finally {
         loginBtn.disabled = false;
