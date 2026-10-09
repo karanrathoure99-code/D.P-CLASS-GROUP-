@@ -193,7 +193,7 @@
 
     .photo-preview {
       width: 85px;
-      height: 120px; /* A4 aspect ratio representation */
+      height: 120px;
       border-radius: 8px;
       object-fit: cover;
       border: 2px solid #34d399;
@@ -303,8 +303,9 @@
     }
   </style>
 
-  <!-- Firebase App & Firestore SDKs -->
+  <!-- Firebase App, Auth & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
@@ -376,24 +377,19 @@
     <div class="glass-card">
       <h2 style="color: #38bdf8; font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">🔑 Instant Password Reset Console</h2>
       <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 18px;">
-        If any student forgets their password, enter their registered Enrollment No. or Gmail and assign a new password directly (No OTP needed).
+        If any student forgets their password, send password reset link directly to their registered Gmail.
       </p>
 
       <div id="resetStatusBox" class="status-msg"></div>
 
       <form id="resetPassForm" class="form-grid">
-        <div class="input-group">
-          <label for="resetIdentifier">Enrollment No. or Gmail</label>
-          <input type="text" id="resetIdentifier" class="input-field" placeholder="DP2026-001 or user@gmail.com" required />
-        </div>
-
-        <div class="input-group">
-          <label for="resetNewPass">Set New Password</label>
-          <input type="password" id="resetNewPass" class="input-field" placeholder="New Password" required />
+        <div class="input-group" style="grid-column: 1 / -1;">
+          <label for="resetIdentifier">Student Gmail Address</label>
+          <input type="email" id="resetIdentifier" class="input-field" placeholder="user@gmail.com" required />
         </div>
 
         <div style="grid-column: 1 / -1;">
-          <button type="submit" id="btnReset" class="glass-btn-reset">Overwrite Password in Cloud Server</button>
+          <button type="submit" id="btnReset" class="glass-btn-reset">Send Password Reset Link</button>
         </div>
       </form>
     </div>
@@ -435,24 +431,16 @@
 
     // 2. DOUBLE-CLICK FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
-      if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL'].includes(e.target.tagName)) {
-        return;
-      }
-
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-
       const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
       const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
       if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        if (requestFullScreen) {
-          requestFullScreen.call(docEl).catch(() => {});
-        }
+        if (requestFullScreen) requestFullScreen.call(docEl).catch(() => {});
       } else {
-        if (cancelFullScreen) {
-          cancelFullScreen.call(doc);
-        }
+        if (cancelFullScreen) cancelFullScreen.call(doc);
       }
     });
 
@@ -470,33 +458,17 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // Secondary App for User Registration so Developer doesn't get signed out
+    const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp");
+    const secondaryAuth = secondaryApp.auth();
+
     // 4. COLORFUL MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
-      `<svg viewBox="0 0 32 32">
-        <g transform="rotate(-30 16 16)">
-          <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" />
-          <path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" />
-          <rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" />
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 32 32">
-        <g transform="rotate(25 16 16)">
-          <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" />
-          <path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" />
-          <rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" />
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 32 32">
-        <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" />
-      </svg>`,
-      `<svg viewBox="0 0 32 32">
-        <circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" />
-        <line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
-      </svg>`,
-      `<svg viewBox="0 0 32 32">
-        <rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" />
-        <path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" />
-      </svg>`
+      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
+      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" /><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" /></g></svg>`,
+      `<svg viewBox="0 0 32 32"><path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" /></svg>`,
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" /><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" /></svg>`,
+      `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" /><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" /></svg>`
     ];
 
     const rainContainer = document.getElementById('rainContainer');
@@ -524,13 +496,11 @@
           img.onload = function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             const targetRatio = 1 / 1.414;
             const srcWidth = img.width;
             const srcHeight = img.height;
 
             let cropWidth, cropHeight, startX, startY;
-
             if (srcWidth / srcHeight > targetRatio) {
               cropHeight = srcHeight;
               cropWidth = srcHeight * targetRatio;
@@ -545,16 +515,10 @@
 
             const finalWidth = 420;
             const finalHeight = Math.round(finalWidth * 1.414);
-
             canvas.width = finalWidth;
             canvas.height = finalHeight;
 
-            ctx.drawImage(
-              img,
-              startX, startY, cropWidth, cropHeight,
-              0, 0, finalWidth, finalHeight
-            );
-
+            ctx.drawImage(img, startX, startY, cropWidth, cropHeight, 0, 0, finalWidth, finalHeight);
             compressedPhoto = canvas.toDataURL('image/jpeg', 0.68);
 
             const preview = document.getElementById('photoPreview');
@@ -571,7 +535,7 @@
       }
     });
 
-    // 6. CREATE STUDENT SUBMISSION (FIRESTORE)
+    // 6. CREATE STUDENT SUBMISSION (SECURE FIREBASE AUTH + FIRESTORE)
     document.getElementById('createAccountForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const statusBox = document.getElementById('statusBox');
@@ -587,6 +551,11 @@
         return;
       }
 
+      if (pass.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
       if (!compressedPhoto) {
         alert("Please upload a clear face profile photo.");
         return;
@@ -598,9 +567,10 @@
       const phone = document.getElementById('phone').value.trim();
 
       submitBtn.disabled = true;
-      submitBtn.innerText = "Registering on Cloud...";
+      submitBtn.innerText = "Registering securely on Cloud...";
 
       try {
+        // Double check Enrollment & Email
         const checkEnroll = await db.collection("students").where("enroll", "==", enroll).get();
         const checkEmail = await db.collection("students").where("email", "==", email).get();
 
@@ -611,13 +581,20 @@
           return;
         }
 
-        await db.collection("students").add({
+        // 1. Create User in Firebase Auth via Secondary App
+        const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
+        const uid = userCredential.user.uid;
+        await secondaryAuth.signOut(); // Keep secondary cleanly logged out
+
+        // 2. Save Profile in Firestore with UID key (No plain password stored)
+        await db.collection("students").doc(uid).set({
+          uid: uid,
           name: name,
           enroll: enroll,
           email: email,
           phone: phone,
-          password: pass,
           photo: compressedPhoto,
+          role: 'student',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -625,16 +602,16 @@
         statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
         statusBox.style.color = '#34d399';
         statusBox.style.border = '1px solid #10b981';
-        statusBox.innerText = `✓ Student ${name} (${enroll}) registered permanently on Firebase!`;
+        statusBox.innerText = `✓ Student ${name} (${enroll}) registered securely in Firebase Cloud!`;
 
-        alert(`Account successfully created!\n\nName: ${name}\nEnrollment: ${enroll}\nPassword: ${pass}`);
+        alert(`Account successfully created!\n\nName: ${name}\nEnrollment: ${enroll}\nGmail: ${email}\nPassword: ${pass}`);
 
         this.reset();
         document.getElementById('photoPreview').style.display = 'none';
         document.getElementById('uploadHint').style.display = 'none';
         compressedPhoto = '';
       } catch (err) {
-        console.error("Firestore error:", err);
+        console.error("Registration error:", err);
         alert("Error creating account: " + err.message);
       } finally {
         submitBtn.disabled = false;
@@ -642,45 +619,31 @@
       }
     });
 
-    // 7. DIRECT PASSWORD RESET (FIRESTORE)
+    // 7. DIRECT PASSWORD RESET VIA EMAIL LINK
     document.getElementById('resetPassForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const target = document.getElementById('resetIdentifier').value.trim();
-      const newPass = document.getElementById('resetNewPass').value;
+      const targetEmail = document.getElementById('resetIdentifier').value.trim().toLowerCase();
       const btnReset = document.getElementById('btnReset');
       const resetStatusBox = document.getElementById('resetStatusBox');
 
       resetStatusBox.style.display = 'none';
       btnReset.disabled = true;
-      btnReset.innerText = "Overwriting in Cloud...";
+      btnReset.innerText = "Sending Link...";
 
       try {
-        let querySnapshot = await db.collection("students").where("enroll", "==", target.toUpperCase()).get();
-        if (querySnapshot.empty) {
-          querySnapshot = await db.collection("students").where("email", "==", target.toLowerCase()).get();
-        }
-
-        if (querySnapshot.empty) {
-          alert("No student found with that Enrollment Number or Gmail!");
-        } else {
-          querySnapshot.forEach(async (doc) => {
-            await db.collection("students").doc(doc.id).update({ password: newPass });
-          });
-
-          resetStatusBox.style.display = 'block';
-          resetStatusBox.style.background = 'rgba(56, 189, 248, 0.2)';
-          resetStatusBox.style.color = '#38bdf8';
-          resetStatusBox.style.border = '1px solid #38bdf8';
-          resetStatusBox.innerText = `✓ Password for ${target} has been updated to: ${newPass}`;
-
-          alert(`Success! Password for ${target} updated to: ${newPass}`);
-          this.reset();
-        }
+        await firebase.auth().sendPasswordResetEmail(targetEmail);
+        resetStatusBox.style.display = 'block';
+        resetStatusBox.style.background = 'rgba(56, 189, 248, 0.2)';
+        resetStatusBox.style.color = '#38bdf8';
+        resetStatusBox.style.border = '1px solid #38bdf8';
+        resetStatusBox.innerText = `✓ Password reset link has been sent to: ${targetEmail}`;
+        alert(`Success! Password reset link sent to: ${targetEmail}`);
+        this.reset();
       } catch (err) {
         alert("Error resetting password: " + err.message);
       } finally {
         btnReset.disabled = false;
-        btnReset.innerText = "Overwrite Password in Cloud Server";
+        btnReset.innerText = "Send Password Reset Link";
       }
     });
 
@@ -736,6 +699,7 @@
 
     // 9. DEVELOPER LOGOUT
     function logoutDev() {
+      firebase.auth().signOut().catch(() => {});
       localStorage.clear();
       window.location.replace('login.html');
     }
