@@ -303,7 +303,6 @@
       border: 1px solid rgba(52, 211, 153, 0.4);
       display: block;
       cursor: pointer;
-      pointer-events: none;
     }
 
     .chat-media-video {
@@ -448,7 +447,7 @@
       color: #34d399;
     }
 
-    /* Real WebRTC Call Screen */
+    /* WebRTC Call Screen */
     .call-modal {
       position: fixed;
       top: 0;
@@ -516,7 +515,7 @@
       box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
     }
 
-    /* 3-Second Long Press Context Modal */
+    /* Action Modal */
     .action-modal-overlay {
       position: fixed;
       top: 0;
@@ -682,17 +681,15 @@
         <div class="attach-menu" id="attachMenu">
           <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera & Snap</button>
           <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Choose from Gallery</button>
-          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Direct Video (P2P)</button>
+          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Cloud Video</button>
           <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
           <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
         </div>
 
-        <!-- Direct Live Camera Capture Input -->
-        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleSendImage(event)" />
-        
-        <!-- Gallery File Inputs -->
-        <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleSendImage(event)" />
-        <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleSendDirectVideo(event)" />
+        <!-- Inputs for Photos and Videos -->
+        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
+        <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
+        <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
 
         <form class="chat-input-bar" id="sendMsgForm">
           <button type="button" class="attach-btn" onclick="toggleAttachMenu()">📎</button>
@@ -725,7 +722,11 @@
   </div>
 
   <script>
-    // 1. FIREBASE CONFIG
+    // 1. CLOUDINARY CONFIGURATION
+    const CLOUDINARY_CLOUD_NAME = "glkgivxq";
+    const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
+
+    // 2. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -746,7 +747,7 @@
     // Local Hidden Messages list for "Delete for Me"
     let localDeletedMsgIds = JSON.parse(localStorage.getItem('_dp_deleted_msgs') || '[]');
 
-    // 2. STRICT FIREBASE AUTH GUARD
+    // 3. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.removeItem('isLoggedIn');
@@ -772,7 +773,7 @@
       loadConversations();
     });
 
-    // 3. SOUND & NOTIFICATION
+    // 4. SOUND & NOTIFICATION
     function playBeepSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -797,7 +798,7 @@
       setTimeout(() => banner.classList.remove('show'), 3500);
     }
 
-    // 4. DEVICE-BOUND E2EE ENGINE
+    // 5. DEVICE-BOUND E2EE ENGINE
     function getDeviceKey() {
       let key = localStorage.getItem('_dp_device_e2e_key');
       if (!key) {
@@ -831,7 +832,7 @@
       }
     }
 
-    // 5. INCOMING REQUESTS
+    // 6. INCOMING REQUESTS
     function listenIncomingRequests() {
       if (!loggedAccount) return;
       db.collection('chatRequests')
@@ -901,7 +902,6 @@
       }
     }
 
-    // Direct Request Sender for Shared Student ID
     async function sendRequestToSharedStudent(targetEmail, targetName) {
       if (!currentUser || !loggedAccount) return;
       if (targetEmail.toLowerCase() === loggedAccount.toLowerCase()) {
@@ -924,7 +924,7 @@
       }
     }
 
-    // 6. CONVERSATIONS MANAGEMENT
+    // 7. CONVERSATIONS MANAGEMENT
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
@@ -1042,78 +1042,46 @@
       }
     }
 
-    // 7. ATTACHMENT & MEDIA HANDLING
+    // 8. ATTACHMENT & MEDIA HANDLING VIA CLOUDINARY (FREE HYBRID ARCHITECTURE)
     function toggleAttachMenu() {
       const menu = document.getElementById('attachMenu');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    function handleSendImage(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      toggleAttachMenu();
+    // Cloudinary Direct Uploader
+    async function uploadFileToCloudinary(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const max = 700;
-          let w = img.width, h = img.height;
-          if (w > h && w > max) { h *= max / w; w = max; }
-          else if (h > max) { w *= max / h; h = max; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          const compressedB64 = canvas.toDataURL('image/jpeg', 0.65);
-          sendEncryptedRecord('image', compressedB64);
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-      e.target.value = '';
-    }
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+        method: "POST",
+        body: formData
+      });
 
-    async function handleSendDirectVideo(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      toggleAttachMenu();
-
-      if (file.size > 50 * 1024 * 1024) {
-        alert("Maximum video limit is 50MB for Direct Transfer.");
-        return;
+      if (!res.ok) {
+        throw new Error("Cloudinary upload failed with status " + res.status);
       }
 
-      showNotification("Direct Video", "Preparing direct stream...");
-      
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        const videoBlobUrl = URL.createObjectURL(file);
-        renderDirectLocalVideo(videoBlobUrl);
-
-        await db.collection('chats').doc(activeChatRoomId).collection('direct_transfers').add({
-          sender: loggedAccount,
-          receiver: targetUserData.email,
-          fileName: file.name,
-          fileSize: (file.size / (1024 * 1024)).toFixed(1) + 'MB',
-          dataUrl: evt.target.result,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch((err) => {
-          console.warn("Direct stream notice:", err.message);
-        });
-
-        sendEncryptedRecord('text', `🎥 Sent Video Clip: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
-      };
-      reader.readAsDataURL(file);
-      e.target.value = '';
+      const data = await res.json();
+      return data.secure_url; // Direct CDN URL
     }
 
-    function renderDirectLocalVideo(url) {
-      const box = document.getElementById('messagesBox');
-      const bubble = document.createElement('div');
-      bubble.className = 'msg-bubble msg-outgoing';
-      bubble.innerHTML = `<video src="${url}" controls class="chat-media-video"></video>`;
-      box.appendChild(bubble);
-      box.scrollTop = box.scrollHeight;
+    async function handleCloudinaryUpload(e, type) {
+      const file = e.target.files[0];
+      if (!file) return;
+      toggleAttachMenu();
+
+      showNotification("Uploading...", `Sending ${type} to cloud...`);
+
+      try {
+        const secureUrl = await uploadFileToCloudinary(file);
+        sendEncryptedRecord(type, secureUrl);
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      } finally {
+        e.target.value = '';
+      }
     }
 
     function promptSendLink() {
@@ -1157,7 +1125,8 @@
         receiver: targetUserData.email,
         cipher: cipher,
         deviceKey: currentDeviceKey,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdMillis: Date.now()
       });
     }
 
@@ -1170,19 +1139,181 @@
       input.value = '';
     });
 
-    // 8. REALTIME MESSAGES ENGINE (WITH 3-SECOND LONG PRESS ACTION)
+    // 9. LOCAL STORAGE + 15 DAYS SERVER AUTO-CLEANUP
+    function getLocalRoomMessages(roomId) {
+      try {
+        const stored = localStorage.getItem(`_room_msgs_${roomId}`);
+        return stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLocalRoomMessages(roomId, messages) {
+      try {
+        localStorage.setItem(`_room_msgs_${roomId}`, JSON.stringify(messages));
+      } catch (e) {
+        console.warn("Storage full on device:", e);
+      }
+    }
+
+    // Deletes messages older than 15 days from Firebase Firestore
+    async function cleanOldServerMessages(roomId) {
+      if (!roomId) return;
+      const fifteenDaysInMs = 15 * 24 * 60 * 60 * 1000;
+      const expiryTimestamp = Date.now() - fifteenDaysInMs;
+
+      try {
+        const oldSnap = await db.collection('chats').doc(roomId).collection('messages')
+          .where('createdMillis', '<', expiryTimestamp)
+          .get();
+
+        const batch = db.batch();
+        let count = 0;
+        oldSnap.forEach(doc => {
+          batch.delete(doc.ref);
+          count++;
+        });
+
+        if (count > 0) {
+          await batch.commit();
+          console.log(`Auto-cleaned ${count} old server messages for room ${roomId}`);
+        }
+      } catch (err) {
+        console.warn("Server auto-clean note:", err.message);
+      }
+    }
+
+    // 10. REALTIME MESSAGES ENGINE (RENDER FROM LOCAL + SYNC SERVER)
     let isInitialLoad = true;
     let selectedMsgContext = null;
     let pressTimer = null;
+
+    function renderSingleMessageBubble(m, box) {
+      const msgId = m.id;
+      if (localDeletedMsgIds.includes(msgId)) return;
+
+      const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
+      const bubble = document.createElement('div');
+      bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
+
+      let clearText = null;
+      if (isMe) {
+        if (m.deviceKey === currentDeviceKey) {
+          clearText = decryptPayload(m.cipher, currentDeviceKey);
+        }
+      } else {
+        clearText = decryptPayload(m.cipher, m.deviceKey);
+      }
+
+      let msgParsed = null;
+
+      if (!clearText) {
+        bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
+      } else {
+        try {
+          const parsed = JSON.parse(clearText);
+          msgParsed = parsed;
+
+          if (parsed.type === 'text') {
+            bubble.innerText = parsed.data;
+          } else if (parsed.type === 'image') {
+            bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" alt="Chat Photo" />`;
+          } else if (parsed.type === 'video') {
+            bubble.innerHTML = `<video src="${parsed.data}" controls class="chat-media-video"></video>`;
+          } else if (parsed.type === 'link') {
+            bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
+          } else if (parsed.type === 'contact_card') {
+            const card = JSON.parse(parsed.data);
+            const cardAvatar = card.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+            bubble.innerHTML = `
+              <div class="shared-id-card">
+                <div class="shared-id-info">
+                  <img src="${cardAvatar}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:1.5px solid #34d399;" />
+                  <div>
+                    <strong style="font-size:0.9rem; color:#ffffff;">${card.name}</strong>
+                    <div style="font-size:0.72rem; color:#34d399;">${card.enroll}</div>
+                    <div style="font-size:0.68rem; color:#94a3b8;">${card.email}</div>
+                  </div>
+                </div>
+                <button class="btn-send-req-card" onclick="sendRequestToSharedStudent('${card.email}', '${card.name.replace(/'/g, "\\'")}')">
+                  <span>✉️</span> Send Chat Request
+                </button>
+              </div>
+            `;
+          }
+        } catch(e) {
+          bubble.innerText = clearText;
+        }
+      }
+
+      attachLongPressListener(bubble, {
+        id: msgId,
+        isMe: isMe,
+        parsed: msgParsed
+      });
+
+      box.appendChild(bubble);
+    }
 
     function listenMessages() {
       if (msgListenerUnsub) msgListenerUnsub();
       isInitialLoad = true;
 
-      msgListenerUnsub = db.collection('chats').doc(activeChatRoomId).collection('messages')
+      const currentRoom = activeChatRoomId;
+      const box = document.getElementById('messagesBox');
+
+      // 1. First render existing local messages stored on device
+      let localMessages = getLocalRoomMessages(currentRoom);
+
+      box.innerHTML = `
+        <div class="e2e-badge-wrap">
+          <span class="e2e-badge">
+            🛡️ Messages are end-to-end encrypted to this specific physical device only.
+          </span>
+        </div>
+      `;
+
+      localMessages.forEach(msg => renderSingleMessageBubble(msg, box));
+      box.scrollTop = box.scrollHeight;
+
+      // 2. Listen to Firestore messages
+      msgListenerUnsub = db.collection('chats').doc(currentRoom).collection('messages')
         .orderBy('createdAt', 'asc')
         .onSnapshot((snap) => {
-          const box = document.getElementById('messagesBox');
+          let updatedList = [...localMessages];
+          let hasNew = false;
+          let lastDoc = null;
+
+          snap.forEach((doc) => {
+            const m = doc.data();
+            const msgObj = {
+              id: doc.id,
+              sender: m.sender,
+              senderId: m.senderId,
+              receiver: m.receiver,
+              cipher: m.cipher,
+              deviceKey: m.deviceKey,
+              createdMillis: m.createdMillis || Date.now()
+            };
+
+            lastDoc = m;
+
+            // Check if already in local storage
+            const idx = updatedList.findIndex(x => x.id === doc.id);
+            if (idx === -1) {
+              updatedList.push(msgObj);
+              hasNew = true;
+            } else {
+              updatedList[idx] = msgObj;
+            }
+          });
+
+          // Save combined list to device local memory
+          saveLocalRoomMessages(currentRoom, updatedList);
+          localMessages = updatedList;
+
+          // Re-render UI with complete local list
           box.innerHTML = `
             <div class="e2e-badge-wrap">
               <span class="e2e-badge">
@@ -1190,98 +1321,27 @@
               </span>
             </div>
           `;
-
-          let lastDoc = null;
-          snap.forEach((doc) => {
-            const msgId = doc.id;
-            // Check if user locally deleted this message
-            if (localDeletedMsgIds.includes(msgId)) return;
-
-            const m = doc.data();
-            const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
-            lastDoc = m;
-
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
-
-            let clearText = null;
-            if (isMe) {
-              if (m.deviceKey === currentDeviceKey) {
-                clearText = decryptPayload(m.cipher, currentDeviceKey);
-              }
-            } else {
-              clearText = decryptPayload(m.cipher, m.deviceKey);
-            }
-
-            let msgParsed = null;
-
-            if (!clearText) {
-              bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
-            } else {
-              try {
-                const parsed = JSON.parse(clearText);
-                msgParsed = parsed;
-
-                if (parsed.type === 'text') {
-                  bubble.innerText = parsed.data;
-                } else if (parsed.type === 'image') {
-                  // No opening blank page - only rendering image
-                  bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" alt="Chat Photo" />`;
-                } else if (parsed.type === 'video') {
-                  bubble.innerHTML = `<video src="${parsed.data}" controls class="chat-media-video"></video>`;
-                } else if (parsed.type === 'link') {
-                  bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
-                } else if (parsed.type === 'contact_card') {
-                  const card = JSON.parse(parsed.data);
-                  const cardAvatar = card.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-                  bubble.innerHTML = `
-                    <div class="shared-id-card">
-                      <div class="shared-id-info">
-                        <img src="${cardAvatar}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:1.5px solid #34d399;" />
-                        <div>
-                          <strong style="font-size:0.9rem; color:#ffffff;">${card.name}</strong>
-                          <div style="font-size:0.72rem; color:#34d399;">${card.enroll}</div>
-                          <div style="font-size:0.68rem; color:#94a3b8;">${card.email}</div>
-                        </div>
-                      </div>
-                      <button class="btn-send-req-card" onclick="sendRequestToSharedStudent('${card.email}', '${card.name.replace(/'/g, "\\'")}')">
-                        <span>✉️</span> Send Chat Request
-                      </button>
-                    </div>
-                  `;
-                }
-              } catch(e) {
-                bubble.innerText = clearText;
-              }
-            }
-
-            // ATTACH 3-SECOND LONG PRESS LISTENER
-            attachLongPressListener(bubble, {
-              id: msgId,
-              isMe: isMe,
-              parsed: msgParsed
-            });
-
-            box.appendChild(bubble);
-          });
+          updatedList.forEach(msg => renderSingleMessageBubble(msg, box));
 
           if (!isInitialLoad && lastDoc && lastDoc.sender !== loggedAccount && lastDoc.senderId !== currentUser?.uid) {
             showNotification(targetUserData ? targetUserData.name : 'Incoming', 'New Encrypted Message');
           }
           isInitialLoad = false;
           box.scrollTop = box.scrollHeight;
+
+          // Trigger server clean-up for messages older than 15 days
+          cleanOldServerMessages(currentRoom);
         });
     }
 
-    // 3-SECOND TOUCH / MOUSE LONG-PRESS ENGINE
+    // 11. 3-SECOND TOUCH / MOUSE LONG-PRESS ENGINE
     function attachLongPressListener(element, meta) {
       const startPress = (e) => {
-        // Prevent trigger if clicking on internal buttons
         if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
 
         pressTimer = setTimeout(() => {
           openActionModal(meta);
-        }, 3000); // Exactly 3 seconds
+        }, 3000); // 3 seconds
       };
 
       const cancelPress = () => {
@@ -1306,10 +1366,8 @@
       const unsendBtn = document.getElementById('btnActUnsend');
       const downloadBtn = document.getElementById('btnActDownload');
 
-      // Unsend is only visible if the message was sent by current user
       unsendBtn.style.display = meta.isMe ? 'flex' : 'none';
 
-      // Download is visible if message contains photo or video
       const isMedia = meta.parsed && (meta.parsed.type === 'image' || meta.parsed.type === 'video');
       downloadBtn.style.display = isMedia ? 'flex' : 'none';
 
@@ -1329,6 +1387,7 @@
       if (type === 'image' || type === 'video') {
         const a = document.createElement('a');
         a.href = data;
+        a.target = "_blank";
         a.download = type === 'image' ? `dpharma_photo_${Date.now()}.jpg` : `dpharma_video_${Date.now()}.mp4`;
         document.body.appendChild(a);
         a.click();
@@ -1343,7 +1402,7 @@
       localDeletedMsgIds.push(selectedMsgContext.id);
       localStorage.setItem('_dp_deleted_msgs', JSON.stringify(localDeletedMsgIds));
       closeActionModal();
-      listenMessages(); // Refresh chat
+      listenMessages();
     }
 
     // ACTION 3: UNSEND (DELETE FOR EVERYONE)
@@ -1356,13 +1415,20 @@
       try {
         await db.collection('chats').doc(activeChatRoomId)
           .collection('messages').doc(selectedMsgContext.id).delete();
+
+        // Also remove from local device memory
+        let localMsgs = getLocalRoomMessages(activeChatRoomId);
+        localMsgs = localMsgs.filter(m => m.id !== selectedMsgContext.id);
+        saveLocalRoomMessages(activeChatRoomId, localMsgs);
+
         closeActionModal();
+        listenMessages();
       } catch (err) {
         alert("Failed to unsend: " + err.message);
       }
     }
 
-    // 9. COMPLETE WEBRTC CALLING ENGINE
+    // 12. WEBRTC CALLING ENGINE
     let localStream = null;
     let peerConnection = null;
     let activeCallDocId = null;
@@ -1548,7 +1614,7 @@
       document.getElementById('localStreamVideo').srcObject = null;
     }
 
-    // 10. BACKGROUND ANIMATION
+    // 13. BACKGROUND ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
@@ -1569,7 +1635,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 11. DOUBLE-CLICK FULLSCREEN API
+    // 14. DOUBLE-CLICK FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
       const doc = window.document;
