@@ -24,7 +24,7 @@
       overflow: hidden;
     }
 
-    /* Slow-Motion Realistic Falling Medicine Rain */
+    /* Falling Medicines Rain */
     .rain-container {
       position: absolute;
       top: 0;
@@ -189,16 +189,33 @@
       transform: none;
     }
 
-    .forgot-hint {
+    /* About Link (Replacing Forgot Password) */
+    .about-link-container {
       text-align: center;
-      margin-top: 16px;
-      font-size: 0.8rem;
-      color: #94a3b8;
+      margin-top: 18px;
     }
 
-    .forgot-hint span {
-      color: #34d399;
+    .about-btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
       font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .about-btn-link:hover {
+      background: rgba(34, 211, 238, 0.22);
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+      transform: translateY(-1px);
     }
 
     .security-badge {
@@ -208,7 +225,7 @@
       gap: 6px;
       font-size: 0.75rem;
       color: #64748b;
-      margin-top: 20px;
+      margin-top: 18px;
     }
   </style>
 
@@ -218,7 +235,7 @@
 </head>
 <body>
 
-  <!-- Colorful Realistic Medicines Rain Container -->
+  <!-- Falling Medicine Animation Container -->
   <div class="rain-container" id="rainContainer"></div>
 
   <div class="login-card">
@@ -228,7 +245,7 @@
       <p class="brand-subtitle">Student & Developer Secure Authentication</p>
     </div>
 
-    <!-- Error message element with emoji -->
+    <!-- Error Message with Emoji -->
     <div class="error-msg" id="errorMsg">❌ 🔐 Wrong Password or ID! Please try again. 💊</div>
 
     <form id="loginForm">
@@ -257,8 +274,9 @@
       <button type="submit" id="loginBtn" class="glass-btn">Log In</button>
     </form>
 
-    <div class="forgot-hint">
-      Forgot Password? <span>Contact Class Developer</span>
+    <!-- About Page Link -->
+    <div class="about-link-container">
+      <a href="about.html" class="about-btn-link">📖 About D Pharma Hub</a>
     </div>
 
     <div class="security-badge">
@@ -281,9 +299,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. High-Quality Colorful Transparent Medicines (Red/White Capsule, Black Capsule, Heart Tablets, Bottles)
+    // 2. High-Quality Colorful Transparent Medicines
     const colorfulMedicines = [
-      // 1. Red & White Two-Tone Capsule (Semi-Transparent)
+      // Red & White Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(-30 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" />
@@ -291,8 +309,7 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" />
         </g>
       </svg>`,
-
-      // 2. Black & Neon Emerald Capsule
+      // Black & Neon Green Capsule
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(25 16 16)">
           <path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" />
@@ -300,61 +317,33 @@
           <rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" />
         </g>
       </svg>`,
-
-      // 3. Heart-Shaped Pink/Rose Tablet (Semi-Transparent)
+      // Heart Tablet (Pink)
       `<svg viewBox="0 0 32 32">
         <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#f43f5e" opacity="0.55" stroke="#fda4af" stroke-width="1.2" />
-        <path d="M16 13 v8" stroke="#ffe4e6" stroke-width="1" stroke-dasharray="2,2" opacity="0.8" />
       </svg>`,
-
-      // 4. Heart-Shaped Purple/Lavender Tablet
-      `<svg viewBox="0 0 32 32">
-        <path d="M16 26 s-9-5.5-9-12 a5.5 5.5 0 0 1 10-3.2 a5.5 5.5 0 0 1 10 3.2 c0 6.5-9 12-9 12 z" fill="#a855f7" opacity="0.55" stroke="#d8b4fe" stroke-width="1.2" />
-      </svg>`,
-
-      // 5. Round Blue Scoring Tablet (Cross Break Line)
+      // Round Tablet (Cyan)
       `<svg viewBox="0 0 32 32">
         <circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" />
         <line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
-        <line x1="16" y1="8" x2="16" y2="24" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" />
       </svg>`,
-
-      // 6. Round Amber / Golden Tablet
-      `<svg viewBox="0 0 32 32">
-        <circle cx="16" cy="16" r="10" fill="#f59e0b" opacity="0.55" stroke="#fde68a" stroke-width="1.5" />
-        <line x1="8" y1="16" x2="24" y2="16" stroke="#fff" stroke-width="1.5" opacity="0.7" />
-      </svg>`,
-
-      // 7. Syrup Medicine Bottle with White Cap & Liquid Level
+      // Syrup Bottle
       `<svg viewBox="0 0 32 32">
         <rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" />
-        <rect x="11" y="6" width="10" height="3" fill="#94a3b8" opacity="0.6" />
         <path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" />
-        <rect x="9.5" y="17" width="13" height="9.5" fill="#0369a1" opacity="0.5" rx="1" />
-        <line x1="11" y1="14" x2="15" y2="14" stroke="#e0f2fe" stroke-width="1" opacity="0.7" />
-        <line x1="11" y1="18" x2="15" y2="18" stroke="#e0f2fe" stroke-width="1" opacity="0.7" />
       </svg>`
     ];
 
     const container = document.getElementById('rainContainer');
-    const totalItems = 32;
-
-    for (let i = 0; i < totalItems; i++) {
+    for (let i = 0; i < 28; i++) {
       const drop = document.createElement('div');
       drop.className = 'medicine-drop';
       drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
-
-      const size = Math.floor(Math.random() * 26) + 26; // 26px - 52px
-      const left = Math.random() * 95; // horizontal scatter
-      const duration = Math.random() * 8 + 12; // 12s - 20s (slow rain)
-      const delay = Math.random() * 12;
-
+      const size = Math.floor(Math.random() * 24) + 26;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
-      drop.style.left = left + '%';
-      drop.style.animationDuration = duration + 's';
-      drop.style.animationDelay = '-' + delay + 's';
-
+      drop.style.left = Math.random() * 95 + '%';
+      drop.style.animationDuration = (Math.random() * 8 + 12) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
       container.appendChild(drop);
     }
 
@@ -362,7 +351,7 @@
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
     const DEVELOPER_PASS = "KARAN#255075@";
 
-    // 4. Form Authentication Logic
+    // 4. Form Authentication
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const identifier = document.getElementById('userIdentifier').value.trim();
@@ -372,7 +361,7 @@
 
       errorMsg.style.display = 'none';
 
-      // (A) Check if Developer is logging in -> Send directly to create.html
+      // (A) Developer Login -> Redirect to create.html
       if (identifier === DEVELOPER_ID) {
         if (password === DEVELOPER_PASS) {
           localStorage.setItem('isLoggedIn', 'true');
@@ -387,7 +376,7 @@
         }
       }
 
-      // (B) Student Authentication via Cloud Firestore
+      // (B) Student Login via Cloud Firestore
       loginBtn.disabled = true;
       loginBtn.innerText = "Authenticating...";
 
@@ -437,14 +426,13 @@
       }
     });
 
-    // Double-click for Fullscreen
-    document.addEventListener('dblclick', () => {
+    // 5. Double-Click Fullscreen API
+    document.addEventListener('dblclick', (e) => {
+      if (['INPUT', 'BUTTON', 'A'].includes(e.target.tagName)) return;
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen();
       }
     });
   </script>
