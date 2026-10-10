@@ -475,21 +475,9 @@
 
   <script>
     // ==========================================
-    // 0. CLOUDINARY CONFIGURATION
+    // SECURITY GUARDS (Anti-Inspect & Fullscreen API)
     // ==========================================
-    const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
-    const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
-
-    // STRICT SECURITY & AUTH GUARD
-    (function () {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      const userAccount = localStorage.getItem('userAccount');
-      if (!isLoggedIn || !userAccount) {
-        window.location.replace('login.html');
-      }
-    })();
-
-    // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
     document.addEventListener('keydown', function (e) {
       if (
         e.keyCode === 123 ||
@@ -501,7 +489,6 @@
       }
     });
 
-    // Debugger Loop Trap
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
@@ -529,6 +516,21 @@
         if (exit) exit.call(doc);
       }
     });
+
+    // ==========================================
+    // 0. CLOUDINARY CONFIGURATION
+    // ==========================================
+    const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
+    const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
+
+    // STRICT SECURITY & AUTH GUARD
+    (function () {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const userAccount = localStorage.getItem('userAccount');
+      if (!isLoggedIn || !userAccount) {
+        window.location.replace('login.html');
+      }
+    })();
 
     // 1. FIREBASE CONFIG
     const firebaseConfig = {
