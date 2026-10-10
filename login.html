@@ -232,7 +232,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
   <!-- Falling Medicine Animation Container -->
   <div class="rain-container" id="rainContainer"></div>
@@ -284,6 +284,25 @@
   </div>
 
   <script>
+    // ==========================================
+    // SECURITY GUARDS (Anti-Inspect / F12 Block)
+    // ==========================================
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Debugger Loop Trap
+    setInterval(function () {
+      (function () { return false; }['constructor']('debugger')['call']());
+    }, 1000);
+
     // 1. Firebase Initialization
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
