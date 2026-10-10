@@ -197,7 +197,7 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
   <!-- Falling Medicines Slow Rain Background -->
   <div class="rain-container" id="rainContainer"></div>
@@ -227,6 +227,25 @@
   <div class="fullscreen-hint">Double click anywhere for Fullscreen</div>
 
   <script>
+    // ==========================================
+    // SECURITY GUARDS (Anti-Inspect / F12 Block)
+    // ==========================================
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Debugger Loop Trap
+    setInterval(function () {
+      (function () { return false; }['constructor']('debugger')['call']());
+    }, 1000);
+
     // Slow-motion Falling Medicine Rain (Capsules, Tablets, Blister Strips, Syrups, Ampoules)
     const medicineIcons = [
       // Capsule
