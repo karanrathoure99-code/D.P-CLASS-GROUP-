@@ -617,6 +617,25 @@
   </div>
 
   <script>
+    // ==========================================
+    // SECURITY GUARDS (Anti-Inspect / F12 Block)
+    // ==========================================
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Debugger Loop Trap
+    setInterval(function () {
+      (function () { return false; }['constructor']('debugger')['call']());
+    }, 1000);
+
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
 
     // 1. FAST LOCAL PROFILE PRELOAD (Zero Delay)
