@@ -355,6 +355,71 @@
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
     }
 
+    /* FULLSCREEN IMAGE MODAL VIEWER */
+    .image-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .image-modal-overlay img {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    /* LONG PRESS CONTEXT MENU MODAL (Download & Share Only) */
+    .context-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 1100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .context-menu-box {
+      background: rgba(6, 43, 37, 0.98);
+      border: 1px solid #34d399;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+    }
+
+    .context-menu-btn {
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #ffffff;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+
+    .context-menu-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: #34d399;
+    }
+
     .story-footer-nav {
       display: flex;
       align-items: center;
@@ -512,6 +577,22 @@
 
   <!-- Falling Medicines Background Animation -->
   <div class="rain-container" id="rainContainer"></div>
+
+  <!-- FULLSCREEN IMAGE MODAL VIEWER -->
+  <div class="image-modal-overlay" id="imageModalOverlay" onclick="closeImageModal()">
+    <img id="fullscreenImageTag" src="" alt="Fullscreen Notice" />
+    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 12px;">Tap anywhere to close</span>
+  </div>
+
+  <!-- LONG PRESS CONTEXT MENU (Download & Internal Share Only) -->
+  <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
+    <div class="context-menu-box" onclick="event.stopPropagation()">
+      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Image</button>
+      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy / Internal Share</button>
+      <button class="context-menu-btn" style="color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="closeContextMenu()">Cancel</button>
+    </div>
+  </div>
 
   <div class="app-wrapper">
     <!-- Top Nav Bar -->
@@ -841,7 +922,7 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // 5. NOTICE PUBLISHING WITH COMPRESSION
+    // 5. NOTICE PUBLISHING WITH COMPRESSION & LINK 404 FIX
     async function publishNotice() {
       if (!authUser) return;
       const isDev = authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
@@ -854,12 +935,17 @@
 
       const title = document.getElementById('noticeTitle').value.trim();
       const content = document.getElementById('noticeContent').value.trim();
-      const link = document.getElementById('noticeLink').value.trim();
+      let link = document.getElementById('noticeLink').value.trim();
       const files = document.getElementById('noticeImages').files;
 
       if (!title || !content) {
         alert("Please enter Title and Description.");
         return;
+      }
+
+      // Fix 404 error by ensuring http/https prefix
+      if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
+        link = 'https://' + link;
       }
 
       if (files.length > 10) {
@@ -930,6 +1016,7 @@
     // 6. WHATSAPP STORY NOTICES ENGINE
     let activeNotices = [];
     let currentStoryIndex = 0;
+    let activeMediaUrl = "";
 
     function loadStoryNotices() {
       db.collection('notices').orderBy('createdAt', 'desc').limit(15).onSnapshot((snap) => {
@@ -993,16 +1080,39 @@
       document.getElementById('storyDesc').innerText = notice.content || "";
 
       if (notice.images && notice.images.length > 0) {
-        document.getElementById('storyImageWrap').innerHTML = `
-          <img src="${notice.images[0]}" class="story-image-full" alt="Notice" onclick="window.open('${notice.images[0]}')" />
+        activeMediaUrl = notice.images[0];
+        const imgWrap = document.getElementById('storyImageWrap');
+        imgWrap.innerHTML = `
+          <img src="${activeMediaUrl}" class="story-image-full" id="activeStoryImg" alt="Notice" />
           ${notice.images.length > 1 ? `<div style="font-size:0.75rem; color:#6ee7b7; margin-top:4px;">+${notice.images.length - 1} more photos</div>` : ''}
         `;
+
+        // Attach Fullscreen & Long Press Handlers (1 to 1.5s delay)
+        const imgEl = document.getElementById('activeStoryImg');
+        let pressTimer = null;
+
+        imgEl.onclick = () => {
+          openImageModal(activeMediaUrl);
+        };
+
+        imgEl.onmousedown = () => {
+          pressTimer = setTimeout(() => openContextMenu(activeMediaUrl), 1200);
+        };
+        imgEl.onmouseup = () => clearTimeout(pressTimer);
+        imgEl.onmouseleave = () => clearTimeout(pressTimer);
+
+        imgEl.ontouchstart = () => {
+          pressTimer = setTimeout(() => openContextMenu(activeMediaUrl), 1200);
+        };
+        imgEl.ontouchend = () => clearTimeout(pressTimer);
+
       } else {
+        activeMediaUrl = "";
         document.getElementById('storyImageWrap').innerHTML = '';
       }
 
       if (notice.link) {
-        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:none;">🔗 Open Attached Link</a>`;
+        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:underline;">🔗 Open Attached Link</a>`;
       } else {
         document.getElementById('storyLinkWrap').innerHTML = '';
       }
@@ -1010,6 +1120,46 @@
       document.getElementById('storyCounter').innerText = `${currentStoryIndex + 1} / ${activeNotices.length}`;
       document.getElementById('prevStoryBtn').disabled = currentStoryIndex === 0;
       document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
+    }
+
+    // FULLSCREEN & INTERNAL CONTEXT MENU HANDLERS
+    function openImageModal(url) {
+      document.getElementById('fullscreenImageTag').src = url;
+      document.getElementById('imageModalOverlay').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModalOverlay').style.display = 'none';
+    }
+
+    let menuMediaUrl = "";
+    function openContextMenu(url) {
+      menuMediaUrl = url;
+      document.getElementById('contextMenuOverlay').style.display = 'flex';
+    }
+
+    function closeContextMenu() {
+      document.getElementById('contextMenuOverlay').style.display = 'none';
+    }
+
+    // Download locally
+    function downloadCurrentMedia() {
+      if (!menuMediaUrl) return;
+      const a = document.createElement('a');
+      a.href = menuMediaUrl;
+      a.download = 'DPharma_Notice_' + Date.now() + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      closeContextMenu();
+    }
+
+    // Internal Share (Copies link or internal sharing without external social media redirection)
+    function shareCurrentMedia() {
+      if (!menuMediaUrl) return;
+      navigator.clipboard.writeText(menuMediaUrl);
+      alert("Image link copied securely for internal use!");
+      closeContextMenu();
     }
 
     function navigateStory(dir) {
@@ -1083,7 +1233,7 @@
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
       const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
       if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
