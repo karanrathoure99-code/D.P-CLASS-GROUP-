@@ -313,6 +313,68 @@
       display: block;
       cursor: pointer;
     }
+
+    /* IN-APP FULLSCREEN MEDIA VIEWER MODAL */
+    .fullscreen-media-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .fullscreen-media-modal img, .fullscreen-media-modal video {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    /* LONG PRESS CONTEXT MENU MODAL */
+    .context-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+    .context-menu-box {
+      background: rgba(6, 43, 37, 0.98);
+      border: 1px solid #34d399;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+    }
+    .context-menu-btn {
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #ffffff;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .context-menu-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: #34d399;
+    }
+
     .msg-time {
       font-size: 0.68rem;
       color: #a7f3d0;
@@ -390,7 +452,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Firebase Auth & Firestore SDKs (Only for Text Messages & Auth) -->
+  <!-- Firebase Auth & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -405,6 +467,23 @@
 
   <!-- Slow Motion Medicine Particles -->
   <div class="rain-container" id="rainContainer"></div>
+
+  <!-- IN-APP FULLSCREEN MEDIA VIEWER MODAL -->
+  <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
+    <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
+    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
+  </div>
+
+  <!-- LONG PRESS CONTEXT MENU MODAL (With Audio Beep & Dynamic Unsend Option) -->
+  <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
+    <div class="context-menu-box" onclick="event.stopPropagation()">
+      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Image / Video</button>
+      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Internal Share / Copy Link</button>
+      <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
+      <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
+    </div>
+  </div>
 
   <!-- Main Full-Page Viewport Wrapper -->
   <div id="secureAppWrapper">
@@ -514,7 +593,7 @@
 
   <script>
     // ==========================================
-    // CLOUDINARY CONFIGURATION (Updated with your credentials)
+    // CLOUDINARY CONFIGURATION
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
@@ -524,7 +603,7 @@
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
       const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
       if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
@@ -545,6 +624,23 @@
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
+
+    // AUDIO BEEP EFFECT (For Long Press / Notifications)
+    function playBeepSound(frequency = 1200, duration = 0.2) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
 
     // 3. SLOW MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
@@ -964,6 +1060,85 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
+    // IN-APP FULLSCREEN MEDIA VIEW & LONG PRESS HANDLERS
+    let activeMediaUrl = "";
+    let activeMsgDocId = "";
+    let isMsgMine = false;
+
+    function openMediaModal(url) {
+      const container = document.getElementById('mediaModalContentContainer');
+      container.innerHTML = `<img src="${url}" alt="Fullscreen Media" />`;
+      document.getElementById('mediaModalOverlay').style.display = 'flex';
+    }
+
+    function closeMediaModal() {
+      document.getElementById('mediaModalOverlay').style.display = 'none';
+      document.getElementById('mediaModalContentContainer').innerHTML = '';
+    }
+
+    function openContextMenu(url, docId, mine) {
+      playBeepSound(1200, 0.2); // Beep sound on long press
+      activeMediaUrl = url;
+      activeMsgDocId = docId;
+      isMsgMine = mine;
+
+      const unsendBtn = document.getElementById('unsendMenuBtn');
+      if (isMsgMine) {
+        unsendBtn.style.display = 'block';
+      } else {
+        unsendBtn.style.display = 'none';
+      }
+
+      document.getElementById('contextMenuOverlay').style.display = 'flex';
+    }
+
+    function closeContextMenu() {
+      document.getElementById('contextMenuOverlay').style.display = 'none';
+      activeMediaUrl = "";
+      activeMsgDocId = "";
+    }
+
+    function downloadCurrentMedia() {
+      if (!activeMediaUrl) return;
+      const a = document.createElement('a');
+      a.href = activeMediaUrl;
+      a.download = 'DPharma_Group_Media_' + Date.now();
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      closeContextMenu();
+    }
+
+    function shareCurrentMedia() {
+      if (!activeMediaUrl) return;
+      navigator.clipboard.writeText(activeMediaUrl);
+      alert("Media link copied securely for internal use!");
+      closeContextMenu();
+    }
+
+    async function unsendCurrentMedia() {
+      if (!activeMsgDocId || !activeGroupId) return;
+      if (!confirm("Are you sure you want to unsend this message?")) return;
+      try {
+        await db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId).delete();
+        alert("Message unsent successfully!");
+      } catch (err) {
+        alert("Failed to unsend: " + err.message);
+      }
+      closeContextMenu();
+    }
+
+    function attachLongPressHandlers(element, url, docId, mine) {
+      let pressTimer = null;
+      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.onmouseup = () => clearTimeout(pressTimer);
+      element.onmouseleave = () => clearTimeout(pressTimer);
+
+      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.ontouchend = () => clearTimeout(pressTimer);
+    }
+
     // 10. CHAT REALTIME STREAM (FIRESTORE)
     function listenGroupMessages(groupId) {
       const box = document.getElementById('chatMessages');
@@ -980,6 +1155,7 @@
 
           snap.forEach((doc) => {
             const m = doc.data();
+            const docId = doc.id;
             const isMine = (m.senderEmail || '').toLowerCase() === (currentUser.email || '').toLowerCase();
             const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
             const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -987,18 +1163,37 @@
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${isMine ? 'mine' : ''}`;
 
-            // Image loads from Cloudinary URL
-            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" loading="lazy" />` : '';
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
 
-            wrapper.innerHTML = `
-              <img src="${senderPhoto}" class="msg-avatar" alt="User" />
-              <div class="msg-bubble">
-                <div style="font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;">${escapeHtml(m.senderName || 'Faculty')}</div>
-                ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
-                ${imageHtml}
-                <div class="msg-time">${timeStr}</div>
-              </div>
-            `;
+            const nameDiv = document.createElement('div');
+            nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;";
+            nameDiv.innerText = m.senderName || 'Faculty';
+            bubble.appendChild(nameDiv);
+
+            if (m.text) {
+              const textDiv = document.createElement('div');
+              textDiv.innerText = m.text;
+              bubble.appendChild(textDiv);
+              attachLongPressHandlers(bubble, "", docId, isMine);
+            }
+
+            if (m.image) {
+              const img = document.createElement('img');
+              img.src = m.image;
+              img.className = 'msg-img-preview';
+              img.onclick = () => openMediaModal(m.image);
+              attachLongPressHandlers(img, m.image, docId, isMine);
+              bubble.appendChild(img);
+            }
+
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'msg-time';
+            timeDiv.innerText = timeStr;
+            bubble.appendChild(timeDiv);
+
+            wrapper.innerHTML = `<img src="${senderPhoto}" class="msg-avatar" alt="User" />`;
+            wrapper.appendChild(bubble);
             box.appendChild(wrapper);
           });
           box.scrollTop = box.scrollHeight;
@@ -1020,7 +1215,6 @@
       let cloudinaryUrl = null;
 
       try {
-        // Step 1: फोटो को सीधे Cloudinary में अपलोड करना (Firebase में नहीं)
         if (selectedImageFile) {
           document.getElementById('uploadStatusText').innerText = "Uploading photo to Cloudinary...";
 
@@ -1035,19 +1229,18 @@
 
           const data = await res.json();
           if (data.secure_url) {
-            cloudinaryUrl = data.secure_url; // Cloudinary से मिला सुरक्षित लिंक
+            cloudinaryUrl = data.secure_url;
           } else {
             throw new Error(data.error ? data.error.message : "Cloudinary Upload Failed");
           }
         }
 
-        // Step 2: केवल टेक्स्ट और Cloudinary का यूआरएल Firestore डेटाबेस में जाएगा
         const senderName = isDeveloper ? 'Developer Karan' : ((currentStudentData && currentStudentData.name) || 'Faculty/Teacher');
         const senderPhoto = isDeveloper ? 'https://via.placeholder.com/150' : ((currentStudentData && currentStudentData.photo) || 'https://via.placeholder.com/150');
 
         await db.collection('groups').doc(activeGroupId).collection('messages').add({
           text: text,
-          image: cloudinaryUrl, // सिर्फ 1 लाइन का वेब लिंक जाएगा
+          image: cloudinaryUrl,
           senderEmail: currentUser.email || DEVELOPER_EMAIL,
           senderName: senderName,
           senderPhoto: senderPhoto,
