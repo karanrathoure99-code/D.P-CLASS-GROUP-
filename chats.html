@@ -116,30 +116,6 @@
       pointer-events: none;
     }
 
-    .header-icons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .icon-btn {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      color: #34d399;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: rgba(16, 185, 129, 0.45);
-      color: #fff;
-    }
-
     /* Main View Area */
     .main-body {
       flex: 1;
@@ -290,6 +266,68 @@
       margin-top: 4px;
       outline: none;
       background: #000;
+      cursor: pointer;
+    }
+
+    /* IN-APP FULLSCREEN MEDIA VIEWER MODAL */
+    .fullscreen-media-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .fullscreen-media-modal img, .fullscreen-media-modal video {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    /* LONG PRESS CONTEXT MENU MODAL */
+    .context-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+    .context-menu-box {
+      background: rgba(6, 43, 37, 0.98);
+      border: 1px solid #34d399;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+    }
+    .context-menu-btn {
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #ffffff;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .context-menu-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: #34d399;
     }
 
     .shared-id-card {
@@ -409,6 +447,23 @@
   <div class="notif-banner" id="notifBanner">
     <span>🔔</span>
     <div id="notifText">New message received</div>
+  </div>
+
+  <!-- IN-APP FULLSCREEN MEDIA VIEWER MODAL -->
+  <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
+    <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
+    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
+  </div>
+
+  <!-- LONG PRESS CONTEXT MENU MODAL (Media Only: Download, Share, Unsend) -->
+  <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
+    <div class="context-menu-box" onclick="event.stopPropagation()">
+      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Media</button>
+      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Internal Share / Copy Link</button>
+      <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
+      <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
+    </div>
   </div>
 
   <div class="app-container">
@@ -576,7 +631,7 @@
     });
 
     // 3. SOUND & NOTIFICATION
-    function playBeepSound() {
+    function playBeepSound(frequency = 1200, duration = 0.2) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -584,16 +639,16 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
+        osc.stop(audioCtx.currentTime + duration);
       } catch (e) {}
     }
 
     function showNotification(senderName, previewText) {
-      playBeepSound();
+      playBeepSound(880, 0.35);
       const banner = document.getElementById('notifBanner');
       document.getElementById('notifText').innerText = `${senderName}: ${previewText}`;
       banner.classList.add('show');
@@ -914,6 +969,97 @@
       input.value = '';
     });
 
+    // IN-APP FULLSCREEN MEDIA VIEWER & LONG PRESS (1.2s + Audio Beep + Unsend for Sender)
+    let activeMediaUrl = "";
+    let activeMsgDocId = "";
+    let isMsgMine = false;
+
+    function openMediaModal(url, type) {
+      const container = document.getElementById('mediaModalContentContainer');
+      container.innerHTML = '';
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = url;
+        container.appendChild(img);
+      } else if (type === 'video') {
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.autoplay = true;
+        container.appendChild(vid);
+      }
+      document.getElementById('mediaModalOverlay').style.display = 'flex';
+    }
+
+    function closeMediaModal() {
+      document.getElementById('mediaModalOverlay').style.display = 'none';
+      document.getElementById('mediaModalContentContainer').innerHTML = '';
+    }
+
+    function openContextMenu(url, docId, mine) {
+      playBeepSound(1200, 0.2); // Beep Sound on Long Press
+      activeMediaUrl = url;
+      activeMsgDocId = docId;
+      isMsgMine = mine;
+
+      const unsendBtn = document.getElementById('unsendMenuBtn');
+      if (isMsgMine) {
+        unsendBtn.style.display = 'block';
+      } else {
+        unsendBtn.style.display = 'none';
+      }
+
+      document.getElementById('contextMenuOverlay').style.display = 'flex';
+    }
+
+    function closeContextMenu() {
+      document.getElementById('contextMenuOverlay').style.display = 'none';
+      activeMediaUrl = "";
+      activeMsgDocId = "";
+    }
+
+    function downloadCurrentMedia() {
+      if (!activeMediaUrl) return;
+      const a = document.createElement('a');
+      a.href = activeMediaUrl;
+      a.download = 'DPharma_Media_' + Date.now();
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      closeContextMenu();
+    }
+
+    function shareCurrentMedia() {
+      if (!activeMediaUrl) return;
+      navigator.clipboard.writeText(activeMediaUrl);
+      alert("Media link copied securely for internal use!");
+      closeContextMenu();
+    }
+
+    async function unsendCurrentMedia() {
+      if (!activeMsgDocId || !activeChatRoomId) return;
+      if (!confirm("Are you sure you want to unsend this message?")) return;
+      try {
+        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(activeMsgDocId).delete();
+        alert("Message unsent successfully!");
+      } catch (err) {
+        alert("Failed to unsend: " + err.message);
+      }
+      closeContextMenu();
+    }
+
+    // Attach Long Press STRICTLY to Media Elements (Photos & Videos) with 1 to 1.5s delay
+    function attachMediaLongPress(element, url, docId, mine) {
+      let pressTimer = null;
+      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.onmouseup = () => clearTimeout(pressTimer);
+      element.onmouseleave = () => clearTimeout(pressTimer);
+
+      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.ontouchend = () => clearTimeout(pressTimer);
+    }
+
     // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE)
     let isInitialLoad = true;
 
@@ -936,6 +1082,7 @@
           let lastDoc = null;
           snap.forEach((doc) => {
             const m = doc.data();
+            const docId = doc.id;
             const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
             lastDoc = m;
 
@@ -958,10 +1105,23 @@
                 const parsed = JSON.parse(clearText);
                 if (parsed.type === 'text') {
                   bubble.innerText = parsed.data;
+                  // Note: Text messages do NOT trigger long-press menu
                 } else if (parsed.type === 'image') {
-                  bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" onclick="window.open('${parsed.data}')" />`;
+                  const img = document.createElement('img');
+                  img.src = parsed.data;
+                  img.className = 'chat-media-img';
+                  img.onclick = () => openMediaModal(parsed.data, 'image');
+                  attachMediaLongPress(img, parsed.data, docId, isMe);
+                  bubble.appendChild(img);
                 } else if (parsed.type === 'video') {
-                  bubble.innerHTML = `<video src="${parsed.data}" controls class="chat-media-video"></video>`;
+                  const vid = document.createElement('video');
+                  vid.src = parsed.data;
+                  vid.className = 'chat-media-video';
+                  vid.controls = true;
+                  // Note: Plays normally in chat stream. Double click handles fullscreen or view modal.
+                  vid.onclick = () => openMediaModal(parsed.data, 'video');
+                  attachMediaLongPress(vid, parsed.data, docId, isMe);
+                  bubble.appendChild(vid);
                 } else if (parsed.type === 'link') {
                   bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
                 } else if (parsed.type === 'contact_card') {
