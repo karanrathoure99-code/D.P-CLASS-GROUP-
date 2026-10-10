@@ -313,6 +313,16 @@
       display: block;
       cursor: pointer;
     }
+    .msg-video-preview {
+      max-width: 250px;
+      max-height: 200px;
+      border-radius: 10px;
+      margin-top: 6px;
+      display: block;
+      background: #000;
+      outline: none;
+      cursor: pointer;
+    }
 
     /* IN-APP FULLSCREEN MEDIA VIEWER MODAL */
     .fullscreen-media-modal {
@@ -375,6 +385,40 @@
       border-color: #34d399;
     }
 
+    /* ATTACHMENT MENU POPUP */
+    .attach-menu {
+      position: absolute;
+      bottom: 75px;
+      left: 16px;
+      background: rgba(6, 43, 37, 0.96);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: 16px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+    .attach-option {
+      background: rgba(3, 20, 17, 0.7);
+      border: none;
+      color: #e2e8f0;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .attach-option:hover {
+      background: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
     .msg-time {
       font-size: 0.68rem;
       color: #a7f3d0;
@@ -391,6 +435,7 @@
       align-items: center;
       gap: 10px;
       flex-shrink: 0;
+      position: relative;
     }
 
     .icon-btn {
@@ -474,11 +519,11 @@
     <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU MODAL (With Audio Beep & Dynamic Unsend Option) -->
+  <!-- LONG PRESS CONTEXT MENU MODAL -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
       <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Image / Video</button>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Media / File</button>
       <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Internal Share / Copy Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
@@ -554,17 +599,26 @@
           <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>
         </div>
 
-        <!-- Attached Image Preview Before Sending -->
+        <!-- Attached Media Preview Before Sending -->
         <div id="imagePreviewBox" style="display:none; background:rgba(6,43,37,0.9); padding:8px 16px; border-top:1px solid #10b981; align-items:center; gap:12px;">
-          <img id="imgPreviewTag" style="width:50px; height:50px; border-radius:8px; object-fit:cover; border:1px solid #34d399;" />
-          <span style="font-size:0.8rem; color:#a7f3d0;" id="uploadStatusText">Photo selected</span>
-          <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedImage()">✕ Remove</button>
+          <span id="uploadStatusText" style="font-size:0.8rem; color:#a7f3d0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Media selected</span>
+          <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedMedia()">✕ Remove</button>
         </div>
 
         <!-- Authorized Chat Input Bar (Developer & Teachers) -->
         <div id="devMessageInputRow" class="chat-input-bar" style="display:none;">
-          <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" />
-          <button class="icon-btn" onclick="document.getElementById('chatPhotoUpload').click()" title="Send Photo">📷</button>
+          <!-- Attachment Popup Menu -->
+          <div class="attach-menu" id="attachMenu">
+            <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Send Photo</button>
+            <button class="attach-option" onclick="document.getElementById('chatVideoUpload').click()">🎥 Send Video</button>
+            <button class="attach-option" onclick="document.getElementById('chatFileUpload').click()">📁 Send File / Document</button>
+          </div>
+
+          <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
+          <input type="file" id="chatVideoUpload" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
+          <input type="file" id="chatFileUpload" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" style="display:none;" onchange="handleCloudinaryUpload(event, 'raw')" />
+
+          <button class="icon-btn" onclick="toggleAttachMenu()" title="Attach Media or File">📎</button>
           <input type="text" id="outgoingMsgInput" class="input-field" style="margin-bottom:0;" placeholder="Type announcement or message..." />
           <button class="btn-emerald" id="btnSendMessage" onclick="dispatchMessage()">Send</button>
         </div>
@@ -625,7 +679,7 @@
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
 
-    // AUDIO BEEP EFFECT (For Long Press / Notifications)
+    // AUDIO BEEP EFFECT (For Long Press)
     function playBeepSound(frequency = 1200, duration = 0.2) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -690,7 +744,9 @@
     let activeGroupData = null;
     let chatListener = null;
     let groupDocListener = null;
-    let selectedImageFile = null;
+
+    let selectedMediaFile = null;
+    let selectedMediaType = "image";
 
     auth.onAuthStateChanged(async (user) => {
       if (!user && !loggedAccount) {
@@ -1039,35 +1095,54 @@
       }
     }
 
-    // 9. PHOTO SELECTION (CLOUDINARY READY)
-    document.getElementById('chatPhotoUpload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        selectedImageFile = file;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById('imgPreviewTag').src = evt.target.result;
-          document.getElementById('uploadStatusText').innerText = "Photo selected (" + (file.size / 1024).toFixed(0) + " KB)";
-          document.getElementById('imagePreviewBox').style.display = 'flex';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // 9. MEDIA & FILE ATTACHMENT HANDLING
+    function toggleAttachMenu() {
+      const menu = document.getElementById('attachMenu');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
 
-    function removeAttachedImage() {
-      selectedImageFile = null;
+    function handleCloudinaryUpload(e, type) {
+      const file = e.target.files[0];
+      if (!file) return;
+      toggleAttachMenu();
+
+      selectedMediaFile = file;
+      selectedMediaType = type;
+
+      document.getElementById('uploadStatusText').innerText = `Selected (${type.toUpperCase()}) : ${file.name}`;
+      document.getElementById('imagePreviewBox').style.display = 'flex';
+    }
+
+    function removeAttachedMedia() {
+      selectedMediaFile = null;
       document.getElementById('chatPhotoUpload').value = '';
+      document.getElementById('chatVideoUpload').value = '';
+      document.getElementById('chatFileUpload').value = '';
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // IN-APP FULLSCREEN MEDIA VIEW & LONG PRESS HANDLERS
+    // IN-APP FULLSCREEN MEDIA VIEWER & LONG PRESS (Media Only)
     let activeMediaUrl = "";
     let activeMsgDocId = "";
     let isMsgMine = false;
 
-    function openMediaModal(url) {
+    function openMediaModal(url, type) {
       const container = document.getElementById('mediaModalContentContainer');
-      container.innerHTML = `<img src="${url}" alt="Fullscreen Media" />`;
+      container.innerHTML = '';
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = url;
+        container.appendChild(img);
+      } else if (type === 'video') {
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.autoplay = true;
+        container.appendChild(vid);
+      } else {
+        window.open(url, '_blank');
+        return;
+      }
       document.getElementById('mediaModalOverlay').style.display = 'flex';
     }
 
@@ -1102,7 +1177,7 @@
       if (!activeMediaUrl) return;
       const a = document.createElement('a');
       a.href = activeMediaUrl;
-      a.download = 'DPharma_Group_Media_' + Date.now();
+      a.download = 'DPharma_Media_' + Date.now();
       a.target = '_blank';
       document.body.appendChild(a);
       a.click();
@@ -1113,7 +1188,7 @@
     function shareCurrentMedia() {
       if (!activeMediaUrl) return;
       navigator.clipboard.writeText(activeMediaUrl);
-      alert("Media link copied securely for internal use!");
+      alert("Media/File link copied securely for internal use!");
       closeContextMenu();
     }
 
@@ -1129,7 +1204,7 @@
       closeContextMenu();
     }
 
-    function attachLongPressHandlers(element, url, docId, mine) {
+    function attachMediaLongPress(element, url, docId, mine) {
       let pressTimer = null;
       element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
       element.onmouseup = () => clearTimeout(pressTimer);
@@ -1175,16 +1250,34 @@
               const textDiv = document.createElement('div');
               textDiv.innerText = m.text;
               bubble.appendChild(textDiv);
-              attachLongPressHandlers(bubble, "", docId, isMine);
             }
 
             if (m.image) {
               const img = document.createElement('img');
               img.src = m.image;
               img.className = 'msg-img-preview';
-              img.onclick = () => openMediaModal(m.image);
-              attachLongPressHandlers(img, m.image, docId, isMine);
+              img.onclick = () => openMediaModal(m.image, 'image');
+              attachMediaLongPress(img, m.image, docId, isMine);
               bubble.appendChild(img);
+            }
+
+            if (m.video) {
+              const vid = document.createElement('video');
+              vid.src = m.video;
+              vid.className = 'msg-video-preview';
+              vid.onclick = () => openMediaModal(m.video, 'video');
+              attachMediaLongPress(vid, m.video, docId, isMine);
+              bubble.appendChild(vid);
+            }
+
+            if (m.fileUrl) {
+              const fileLink = document.createElement('a');
+              fileLink.href = m.fileUrl;
+              fileLink.target = '_blank';
+              fileLink.style.cssText = "display:inline-block; margin-top:6px; color:#38bdf8; font-size:0.85rem; text-decoration:underline;";
+              fileLink.innerText = `📁 ${m.fileName || 'Download Attached File'}`;
+              attachMediaLongPress(fileLink, m.fileUrl, docId, isMine);
+              bubble.appendChild(fileLink);
             }
 
             const timeDiv = document.createElement('div');
@@ -1200,29 +1293,33 @@
         });
     }
 
-    // 11. DISPATCH MESSAGE (UPLOAD TO CLOUDINARY + TEXT TO FIRESTORE)
+    // 11. DISPATCH MESSAGE (WITH CLOUDINARY UPLOAD FOR MEDIA / FILES)
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
       const text = input.value.trim();
 
-      if (!text && !selectedImageFile) return;
+      if (!text && !selectedMediaFile) return;
       if (!activeGroupId) return;
 
       sendBtn.disabled = true;
       sendBtn.innerText = "...";
 
       let cloudinaryUrl = null;
+      let fileTypeFolder = "image";
 
       try {
-        if (selectedImageFile) {
-          document.getElementById('uploadStatusText').innerText = "Uploading photo to Cloudinary...";
+        if (selectedMediaFile) {
+          if (selectedMediaType === 'video') fileTypeFolder = "video";
+          else if (selectedMediaType === 'raw') fileTypeFolder = "raw";
+
+          document.getElementById('uploadStatusText').innerText = `Uploading ${selectedMediaType} to Cloudinary...`;
 
           const formData = new FormData();
-          formData.append("file", selectedImageFile);
+          formData.append("file", selectedMediaFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileTypeFolder}/upload`, {
             method: "POST",
             body: formData
           });
@@ -1238,17 +1335,27 @@
         const senderName = isDeveloper ? 'Developer Karan' : ((currentStudentData && currentStudentData.name) || 'Faculty/Teacher');
         const senderPhoto = isDeveloper ? 'https://via.placeholder.com/150' : ((currentStudentData && currentStudentData.photo) || 'https://via.placeholder.com/150');
 
-        await db.collection('groups').doc(activeGroupId).collection('messages').add({
+        let msgPayload = {
           text: text,
-          image: cloudinaryUrl,
           senderEmail: currentUser.email || DEVELOPER_EMAIL,
           senderName: senderName,
           senderPhoto: senderPhoto,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        };
+
+        if (cloudinaryUrl) {
+          if (selectedMediaType === 'image') msgPayload.image = cloudinaryUrl;
+          else if (selectedMediaType === 'video') msgPayload.video = cloudinaryUrl;
+          else if (selectedMediaType === 'raw') {
+            msgPayload.fileUrl = cloudinaryUrl;
+            msgPayload.fileName = selectedMediaFile.name;
+          }
+        }
+
+        await db.collection('groups').doc(activeGroupId).collection('messages').add(msgPayload);
 
         input.value = '';
-        removeAttachedImage();
+        removeAttachedMedia();
       } catch (err) {
         console.error("Sending error:", err);
         alert("Upload/Send failed: " + err.message);
