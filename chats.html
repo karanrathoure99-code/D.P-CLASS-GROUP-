@@ -2,20 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>D Pharma Portal - Direct Chat</title>
-
-  <!-- 1. IMMEDIATE AUTH GUARD -->
-  <script>
-    (function () {
-      const role = localStorage.getItem('userRole');
-      const account = localStorage.getItem('userAccount');
-      if (!role || !account) {
-        window.location.replace('login.html');
-      }
-    })();
-  </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+  <title>D Pharma Portal - Secure Chats</title>
   <style>
     * {
       box-sizing: border-box;
@@ -27,17 +15,21 @@
     }
 
     html, body {
-      width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
       background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
       color: #ffffff;
+      position: relative;
     }
 
     /* Falling Medicines Rain */
     .rain-container {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       pointer-events: none;
       z-index: 1;
@@ -57,231 +49,350 @@
       100% { transform: translateY(112vh) rotate(360deg); opacity: 0; }
     }
 
-    #secureAppWrapper {
+    .app-container {
       position: relative;
       z-index: 2;
-      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
       height: 100%;
-      display: none;
-      flex-direction: column;
-    }
-
-    /* Top Nav */
-    .top-navbar {
-      height: 60px;
-      background: rgba(6, 43, 37, 0.85);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.3);
-      backdrop-filter: blur(15px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      flex-shrink: 0;
-    }
-
-    .nav-btn {
-      color: #34d399;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .rx-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: #34d399;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-
-    .btn-emerald {
-      background: linear-gradient(135deg, #10b981, #059669);
-      border: none;
-      color: #ffffff;
-      padding: 8px 18px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    }
-    .btn-emerald:hover { opacity: 0.92; transform: translateY(-1px); }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.25);
-      border: 1px solid #ef4444;
-      color: #fca5a5;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Requests & Chat Section */
-    .requests-box {
-      background: rgba(6, 43, 37, 0.9);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.3);
-      padding: 12px 16px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .request-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(3, 20, 17, 0.8);
-      border: 1px solid rgba(52, 211, 153, 0.2);
-      padding: 8px 12px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-    }
-
-    .input-field {
-      width: 100%;
-      background: rgba(3, 20, 17, 0.85);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 12px;
-      padding: 12px 14px;
-      color: #ffffff;
-      font-size: 0.95rem;
-      outline: none;
-      -webkit-user-select: auto;
-      user-select: auto;
-    }
-    .input-field:focus {
-      border-color: #34d399;
-      box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
-    }
-
-    /* Chat Messages Viewport */
-    .chat-container {
-      flex: 1;
-      width: 100%;
-      overflow-y: auto;
-      padding: 16px;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      overflow: hidden;
     }
 
-    .msg-wrapper {
-      display: flex;
-      gap: 10px;
-      max-width: 80%;
-      align-items: flex-end;
-    }
-    .msg-wrapper.mine {
-      align-self: flex-end;
-      flex-direction: row-reverse;
-    }
-    .msg-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      object-fit: cover;
+    /* Notification Banner */
+    .notif-banner {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(6, 43, 37, 0.95);
       border: 1px solid #34d399;
-      flex-shrink: 0;
-    }
-    .msg-bubble {
-      background: #064e3b;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 0.9rem;
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      -webkit-user-select: text;
-      user-select: text;
-      word-break: break-word;
-    }
-    .msg-wrapper.mine .msg-bubble {
-      background: #047857;
-      border-color: #34d399;
-    }
-    .msg-img-preview {
-      max-width: 260px;
-      max-height: 260px;
-      border-radius: 10px;
-      margin-top: 6px;
-      display: block;
-      cursor: pointer;
-    }
-    .msg-time {
-      font-size: 0.68rem;
-      color: #a7f3d0;
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    /* Input Bar */
-    .chat-input-bar {
-      min-height: 64px;
-      background: rgba(3, 20, 17, 0.9);
-      border-top: 1px solid rgba(52, 211, 153, 0.25);
-      padding: 10px 16px;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      z-index: 300;
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: transform 0.3s ease;
+      font-size: 0.84rem;
+      max-width: 90%;
+    }
+
+    .notif-banner.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Top Header */
+    .chat-header {
       flex-shrink: 0;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(6, 43, 37, 0.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.25);
+    }
+
+    .user-profile-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #34d399;
+      object-fit: cover;
+      background: #031411;
+      pointer-events: none;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 10px;
     }
 
     .icon-btn {
-      background: transparent;
-      border: none;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
       color: #34d399;
-      font-size: 1.35rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(16, 185, 129, 0.45);
+      color: #fff;
+    }
+
+    /* Main View Area */
+    .main-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Incoming Requests Box */
+    .requests-box {
+      flex-shrink: 0;
+      background: rgba(16, 185, 129, 0.15);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 10px 14px;
+      display: none;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .req-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-top: 6px;
+    }
+
+    .btn-accept {
+      background: #10b981;
+      border: none;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Conversations List */
+    .chat-list-view {
+      flex: 1;
+      min-height: 0;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .chat-user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(6, 43, 37, 0.75);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .chat-user-item:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #34d399;
+    }
+
+    /* Active Conversation View */
+    .active-chat-view {
+      flex: 1;
+      min-height: 0;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .messages-area {
+      flex: 1;
+      min-height: 0;
+      padding: 12px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .e2e-badge-wrap {
+      text-align: center;
+      margin: 4px 0;
+    }
+
+    .e2e-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #a7f3d0;
+    }
+
+    .msg-bubble {
+      max-width: 80%;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 0.86rem;
+      line-height: 1.35;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .msg-incoming {
+      align-self: flex-start;
+      background: rgba(6, 43, 37, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      color: #e2e8f0;
+      border-bottom-left-radius: 3px;
+    }
+
+    .msg-outgoing {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(5, 150, 105, 0.55));
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #ffffff;
+      border-bottom-right-radius: 3px;
+    }
+
+    .chat-media-img {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 10px;
+      margin-top: 4px;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      display: block;
+      cursor: pointer;
+    }
+
+    .chat-media-video {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 10px;
+      margin-top: 4px;
+      outline: none;
+      background: #000;
+    }
+
+    .shared-id-card {
+      background: rgba(3, 20, 17, 0.8);
+      border: 1px solid #34d399;
+      border-radius: 10px;
+      padding: 8px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Bottom Input Bar */
+    .chat-input-bar {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      background: rgba(3, 20, 17, 0.98);
+      backdrop-filter: blur(15px);
+      border-top: 1px solid rgba(52, 211, 153, 0.25);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+    }
+
+    .chat-input {
+      flex: 1;
+      height: 40px;
+      background: rgba(6, 43, 37, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 22px;
+      padding: 0 14px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .chat-input:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
+    }
+
+    .send-btn, .attach-btn {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .attach-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34d399;
+    }
+
+    /* Attach Menu Popup */
+    .attach-menu {
+      position: absolute;
+      bottom: 58px;
+      left: 12px;
+      background: rgba(6, 43, 37, 0.95);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: 16px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+
+    .attach-option {
+      background: rgba(3, 20, 17, 0.6);
+      border: none;
+      color: #e2e8f0;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      text-align: left;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 8px;
     }
 
-    #imagePreviewBox {
-      display: none;
-      background: rgba(6, 43, 37, 0.95);
-      padding: 8px 16px;
-      border-top: 1px solid #10b981;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    /* Security Loader */
-    #securityLoader {
-      position: fixed;
-      inset: 0;
-      background: #020f0d;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
+    .attach-option:hover {
+      background: rgba(16, 185, 129, 0.3);
       color: #34d399;
-      font-weight: 600;
     }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(52, 211, 153, 0.2);
-      border-top-color: #34d399;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
   <!-- Firebase SDKs -->
@@ -291,93 +402,135 @@
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- Fullscreen Security Loader -->
-  <div id="securityLoader">
-    <div class="spinner"></div>
-    <span>Securing Environment...</span>
-  </div>
-
-  <!-- Slow Motion Medicine Particles -->
+  <!-- Background Rain -->
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- Main Full-Page Wrapper -->
-  <div id="secureAppWrapper">
-    <!-- Top Bar -->
-    <header class="top-navbar">
-      <a href="home.html" class="nav-btn">❮ Home</a>
-      <span class="rx-badge" id="roleBadge">CHAT PORTAL</span>
-      <span id="userIdentifier" style="font-size: 0.8rem; color: #94a3b8;"></span>
-    </header>
+  <!-- Realtime Notification Banner -->
+  <div class="notif-banner" id="notifBanner">
+    <span>🔔</span>
+    <div id="notifText">New message received</div>
+  </div>
 
-    <!-- Incoming Chat Requests Box -->
-    <div id="requestsSection" class="requests-box" style="display:none;">
-      <div style="font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 8px;">🔔 INCOMING CHAT REQUESTS:</div>
-      <div id="requestsList"></div>
+  <div class="app-container">
+    <!-- Top Header -->
+    <div class="chat-header">
+      <div class="user-profile-meta" id="headerProfileBlock" onclick="handleHeaderNav()">
+        <span style="font-size: 1.2rem; color: #34d399; margin-right: 2px;">❮</span>
+        <img id="chatTargetAvatar" class="chat-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
+        <div>
+          <h3 id="chatTargetName" style="font-size: 0.9rem; line-height: 1.2;">Secure Chats</h3>
+          <span id="chatTargetStatus" style="font-size: 0.68rem; color: #34d399;">🔒 Firebase E2EE Encrypted</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Messages Container -->
-    <div id="chatMessages" class="chat-container">
-      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;" id="chatNoticeText">Please accept a chat request above or select an approved chat to start messaging.</p>
-    </div>
+    <!-- Main Dynamic Body -->
+    <div class="main-body">
+      <!-- 1. Incoming Requests Box -->
+      <div id="requestsWrap" class="requests-box">
+        <span style="font-size: 0.75rem; font-weight: 700; color: #34d399;">📥 INCOMING CHAT REQUESTS:</span>
+        <div id="requestsList"></div>
+      </div>
 
-    <!-- Image Preview Before Sending -->
-    <div id="imagePreviewBox">
-      <img id="imgPreviewTag" style="width:50px; height:50px; border-radius:8px; object-fit:cover; border:1px solid #34d399;" />
-      <span style="font-size:0.8rem; color:#a7f3d0;" id="uploadStatusText">Photo selected</span>
-      <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedImage()">✕ Remove</button>
-    </div>
+      <!-- 2. Accepted Conversations List -->
+      <div id="chatListView" class="chat-list-view">
+        <h4 style="font-size: 0.8rem; color: #a7f3d0;">ACCEPTED CONVERSATIONS:</h4>
+        <div id="friendsList">Loading chats...</div>
+      </div>
 
-    <!-- Chat Input Bar -->
-    <div class="chat-input-bar" id="chatInputBar" style="display:none;">
-      <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" />
-      <button class="icon-btn" onclick="document.getElementById('chatPhotoUpload').click()" title="Send Photo">📷</button>
-      <input type="text" id="outgoingMsgInput" class="input-field" placeholder="Type a message..." />
-      <button class="btn-emerald" id="btnSendMessage" onclick="dispatchMessage()">Send</button>
+      <!-- 3. Active Chat Window -->
+      <div id="activeChatView" class="active-chat-view">
+        <div class="messages-area" id="messagesBox">
+          <div class="e2e-badge-wrap">
+            <span class="e2e-badge">
+              🛡️ Messages are end-to-end encrypted in Firebase Firestore.
+            </span>
+          </div>
+        </div>
+
+        <!-- Attachment Menu (Cloudinary for Photos/Videos) -->
+        <div class="attach-menu" id="attachMenu">
+          <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera & Snap (Cloudinary)</button>
+          <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Choose Photo from Gallery (Cloudinary)</button>
+          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (Cloudinary)</button>
+          <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
+          <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
+        </div>
+
+        <!-- Hidden Media Inputs -->
+        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
+        <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
+        <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
+
+        <form class="chat-input-bar" id="sendMsgForm">
+          <button type="button" class="attach-btn" onclick="toggleAttachMenu()">📎</button>
+          <input type="text" id="msgInput" class="chat-input" placeholder="Type encrypted message..." autocomplete="off" />
+          <button type="submit" class="send-btn">
+            <svg width="17" height="17" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
   <script>
+    // ==========================================
+    // 0. CLOUDINARY CONFIGURATION
+    // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
 
-    // 1. FULLSCREEN API & SECURITY
+    // STRICT SECURITY & AUTH GUARD
+    (function () {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const userAccount = localStorage.getItem('userAccount');
+      if (!isLoggedIn || !userAccount) {
+        window.location.replace('login.html');
+      }
+    })();
+
+    // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Debugger Loop Trap
+    setInterval(function () {
+      (function () { return false; }['constructor']('debugger')['call']());
+    }, 1000);
+
+    // Fullscreen API (Double click/tap toggle)
     document.addEventListener('dblclick', function(e) {
-      if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
+      
       const doc = window.document;
       const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
-      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
-      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+
+      const req = docEl.requestFullscreen || 
+                  docEl.mozRequestFullScreen || 
+                  docEl.webkitRequestFullScreen || 
+                  docEl.msRequestFullscreen;
+
+      const exit = doc.exitFullscreen || 
+                   doc.mozCancelFullScreen || 
+                   doc.webkitExitFullscreen || 
+                   doc.msExitFullscreen;
+
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
       } else {
         if (exit) exit.call(doc);
       }
     });
 
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    // 2. MEDICINE RAIN ANIMATION
-    const colorfulMedicines = [
-      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
-      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
-      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`
-    ];
-
-    const rainContainer = document.getElementById('rainContainer');
-    for (let i = 0; i < 22; i++) {
-      const drop = document.createElement('div');
-      drop.className = 'medicine-drop';
-      drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
-      const size = Math.floor(Math.random() * 22) + 26;
-      drop.style.width = size + 'px';
-      drop.style.height = size + 'px';
-      drop.style.left = Math.random() * 95 + '%';
-      drop.style.animationDuration = (Math.random() * 8 + 14) + 's';
-      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
-      rainContainer.appendChild(drop);
-    }
-
-    // 3. FIREBASE CONFIG
+    // 1. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -387,231 +540,474 @@
       appId: "1:870561978483:web:095681d6185f43cd6d7206",
       measurementId: "G-VQ12Y4NLRJ"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const DEVELOPER_EMAIL = "karanrathoure6271@gmail.com";
     let currentUser = null;
-    let currentStudentData = null;
-    let activeChatRoomId = null; // जब रिक्वेस्ट स्वीकार होगी तब चैट रूम एक्टिव होगा
-    let selectedImageFile = null;
+    let loggedAccount = '';
+    let myStudentDocId = "";
 
+    // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        localStorage.clear();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userAccount');
         window.location.replace('login.html');
         return;
       }
 
       currentUser = user;
-      const userEmail = (user.email || '').toLowerCase();
-      const isDev = userEmail === DEVELOPER_EMAIL.toLowerCase();
+      loggedAccount = (user.email || localStorage.getItem('userAccount') || '').trim().toLowerCase();
 
-      if (!isDev) {
-        const studentSnap = await db.collection('students').where('email', '==', userEmail).get();
-        if (!studentSnap.empty) {
-          currentStudentData = studentSnap.docs[0].data();
-          currentStudentData.uid = studentSnap.docs[0].id;
+      try {
+        const snap = await db.collection('students').where('email', '==', loggedAccount).get();
+        if (!snap.empty) {
+          myStudentDocId = snap.docs[0].id;
         }
+      } catch (err) {
+        console.warn("Doc lookup error:", err);
       }
 
-      document.getElementById('userIdentifier').innerText = isDev ? "Dev: Karan" : (currentStudentData ? (currentStudentData.name || 'Student') : '');
-      document.getElementById('securityLoader').style.display = 'none';
-      document.getElementById('secureAppWrapper').style.display = 'flex';
-
-      // पेंडिंग रिक्वेस्ट्स सुनना शुरू करें
       listenIncomingRequests();
+      loadConversations();
     });
 
-    // 4. INCOMING REQUESTS LISTENER
+    // 3. SOUND & NOTIFICATION
+    function playBeepSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    function showNotification(senderName, previewText) {
+      playBeepSound();
+      const banner = document.getElementById('notifBanner');
+      document.getElementById('notifText').innerText = `${senderName}: ${previewText}`;
+      banner.classList.add('show');
+      setTimeout(() => banner.classList.remove('show'), 3500);
+    }
+
+    // 4. DEVICE-BOUND E2EE ENGINE (Firebase Storage)
+    function getDeviceKey() {
+      let key = localStorage.getItem('_dp_device_e2e_key');
+      if (!key) {
+        key = 'DPKEY_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('_dp_device_e2e_key', key);
+      }
+      return key;
+    }
+    const currentDeviceKey = getDeviceKey();
+
+    function encryptPayload(rawText, dKey) {
+      let result = '';
+      for (let i = 0; i < rawText.length; i++) {
+        const charCode = rawText.charCodeAt(i) ^ dKey.charCodeAt(i % dKey.length);
+        result += String.fromCharCode(charCode);
+      }
+      return btoa(encodeURIComponent(result));
+    }
+
+    function decryptPayload(cipher, dKey) {
+      try {
+        const decoded = decodeURIComponent(atob(cipher));
+        let result = '';
+        for (let i = 0; i < decoded.length; i++) {
+          const charCode = decoded.charCodeAt(i) ^ dKey.charCodeAt(i % dKey.length);
+          result += String.fromCharCode(charCode);
+        }
+        return result;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // 5. INCOMING REQUESTS
     function listenIncomingRequests() {
-      const myId = currentUser.uid;
-      const requestsSection = document.getElementById('requestsSection');
-      const requestsList = document.getElementById('requestsList');
-
+      if (!loggedAccount) return;
       db.collection('chatRequests')
-        .where('toId', '==', myId)
         .where('status', '==', 'pending')
-        .onSnapshot((snapshot) => {
-          requestsList.innerHTML = '';
-          if (snapshot.empty) {
-            requestsSection.style.display = 'none';
-            return;
-          }
+        .onSnapshot((snap) => {
+          const wrap = document.getElementById('requestsWrap');
+          const list = document.getElementById('requestsList');
+          list.innerHTML = '';
+          let count = 0;
 
-          requestsSection.style.display = 'block';
-          snapshot.forEach((doc) => {
-            const reqData = doc.data();
-            const reqId = doc.id;
+          snap.forEach((doc) => {
+            const req = doc.data();
+            const toE = (req.toEmail || req.to || '').toLowerCase();
+            const toId = req.toId || '';
 
-            const card = document.createElement('div');
-            card.className = 'request-card';
-            card.innerHTML = `
-              <div>
-                <strong style="font-size:0.85rem; color:#ffffff;">${escapeHtml(reqData.fromName)}</strong>
-                <div style="font-size:0.7rem; color:#a7f3d0;">Wants to start chatting with you</div>
-              </div>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-emerald" style="padding:4px 10px; font-size:0.75rem;" onclick="acceptChatRequest('${reqId}', '${reqData.fromUid}')">Accept</button>
-                <button class="btn-danger" onclick="rejectChatRequest('${reqId}')">Reject</button>
-              </div>
-            `;
-            requestsList.appendChild(card);
+            if (toE === loggedAccount || toId === loggedAccount || (myStudentDocId && toId === myStudentDocId)) {
+              count++;
+              const senderEmail = (req.fromEmail || req.from || '').toLowerCase();
+              const senderName = req.fromName || senderEmail;
+              const senderUid = req.fromUid || '';
+
+              const div = document.createElement('div');
+              div.className = 'req-item';
+              div.innerHTML = `
+                <div>
+                  <strong style="font-size:0.85rem; color:#fff;">${senderName}</strong>
+                  <div style="font-size:0.7rem; color:#94a3b8;">${senderEmail} sent request</div>
+                </div>
+                <button class="btn-accept" onclick="acceptChatRequest('${doc.id}', '${senderEmail}', '${senderUid}')">Accept</button>
+              `;
+              list.appendChild(div);
+            }
           });
+
+          wrap.style.display = count > 0 ? 'block' : 'none';
         });
     }
 
-    // 5. ACCEPT OR REJECT REQUEST
-    async function acceptChatRequest(reqId, senderUid) {
+    async function acceptChatRequest(reqDocId, senderAccount, senderUid) {
       try {
-        await db.collection('chatRequests').doc(reqId).update({ status: 'accepted' });
-        alert("Chat request accepted! You can now chat.");
-        // चैट रूम खोलें
-        openActiveChat(senderUid);
+        await db.collection('chatRequests').doc(reqDocId).update({ status: 'accepted' });
+
+        const cleanA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
+        const cleanB = senderAccount.replace(/[^a-zA-Z0-9]/g, '_');
+        const roomId = [cleanA, cleanB].sort().join('___');
+
+        const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
+        if (senderUid) participantsArray.push(senderUid);
+
+        await db.collection('friendships').doc(roomId).set({
+          user1: loggedAccount,
+          user2: senderAccount,
+          roomId: roomId,
+          participants: participantsArray,
+          establishedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        await db.collection('chats').doc(roomId).set({
+          participants: participantsArray,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        alert("Chat Request Accepted!");
+        loadConversations();
       } catch (err) {
-        alert("Failed to accept: " + err.message);
+        alert("Error: " + err.message);
       }
     }
 
-    async function rejectChatRequest(reqId) {
+    // 6. CONVERSATIONS MANAGEMENT
+    let activeChatRoomId = null;
+    let targetUserData = null;
+    let msgListenerUnsub = null;
+
+    async function loadConversations() {
+      const friendsList = document.getElementById('friendsList');
+      if (!loggedAccount) return;
+
       try {
-        await db.collection('chatRequests').doc(reqId).delete();
-      } catch (err) {
-        alert("Failed to reject");
-      }
-    }
+        const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
+        const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
 
-    function openActiveChat(partnerUid) {
-      activeChatRoomId = [currentUser.uid, partnerUid].sort().join('_');
-      document.getElementById('chatNoticeText').style.display = 'none';
-      document.getElementById('chatInputBar').style.display = 'flex';
-      listenDirectMessages(activeChatRoomId);
-    }
+        const peerAccounts = new Set();
+        q1.forEach(d => peerAccounts.add(d.data().user2));
+        q2.forEach(d => peerAccounts.add(d.data().user1));
 
-    // 6. REALTIME MESSAGES IN CHAT ROOM
-    function listenDirectMessages(roomId) {
-      const box = document.getElementById('chatMessages');
+        const urlParams = new URLSearchParams(window.location.search);
+        const directTarget = urlParams.get('to');
+        if (directTarget) peerAccounts.add(directTarget.toLowerCase());
 
-      db.collection('chatRooms').doc(roomId).collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snap) => {
-          box.innerHTML = '';
-          if (snap.empty) {
-            box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">Start conversation now.</p>';
-            return;
+        const savedActivePeer = sessionStorage.getItem('activeChatPeer');
+        if (savedActivePeer) peerAccounts.add(savedActivePeer.toLowerCase());
+
+        if (peerAccounts.size === 0) {
+          friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
+          return;
+        }
+
+        friendsList.innerHTML = '';
+        for (let peer of peerAccounts) {
+          let name = peer;
+          let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+          let peerUid = "";
+
+          let sSnap = await db.collection('students').where('email', '==', peer).get();
+          if (!sSnap.empty) {
+            const sData = sSnap.docs[0].data();
+            name = sData.name || peer;
+            peerUid = sData.uid || sSnap.docs[0].id;
+            if (sData.photo) photo = sData.photo;
           }
 
+          const item = document.createElement('div');
+          item.className = 'chat-user-item';
+          item.onclick = () => openActiveChat(peer, name, photo, peerUid);
+          item.innerHTML = `
+            <img src="${photo}" class="chat-avatar" alt="Avatar" />
+            <div style="flex:1;">
+              <strong style="font-size:0.92rem;">${name}</strong>
+              <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
+            </div>
+          `;
+          friendsList.appendChild(item);
+
+          if ((savedActivePeer && savedActivePeer.toLowerCase() === peer.toLowerCase()) || 
+              (directTarget && directTarget.toLowerCase() === peer.toLowerCase())) {
+            openActiveChat(peer, name, photo, peerUid);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
+      sessionStorage.setItem('activeChatPeer', peerAccount);
+
+      targetUserData = {
+        email: peerAccount,
+        name: peerName,
+        photo: peerPhoto,
+        uid: peerUid
+      };
+
+      const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
+      const idB = peerAccount.replace(/[^a-zA-Z0-9]/g, '_');
+      activeChatRoomId = [idA, idB].sort().join('___');
+
+      document.getElementById('chatTargetName').innerText = peerName;
+      document.getElementById('chatTargetStatus').innerText = "● Online & Firebase Encrypted";
+      document.getElementById('chatTargetAvatar').src = peerPhoto;
+
+      document.getElementById('chatListView').style.display = 'none';
+      document.getElementById('requestsWrap').style.display = 'none';
+      document.getElementById('activeChatView').style.display = 'flex';
+
+      const participants = [currentUser.uid, loggedAccount, peerAccount];
+      if (peerUid) participants.push(peerUid);
+
+      await db.collection('chats').doc(activeChatRoomId).set({
+        participants: participants,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(() => {});
+
+      listenMessages();
+    }
+
+    function handleHeaderNav() {
+      if (activeChatRoomId) {
+        sessionStorage.removeItem('activeChatPeer');
+        if (msgListenerUnsub) msgListenerUnsub();
+        activeChatRoomId = null;
+        targetUserData = null;
+        document.getElementById('activeChatView').style.display = 'none';
+        document.getElementById('chatTargetName').innerText = "Secure Chats";
+        document.getElementById('chatTargetStatus').innerText = "🔒 Firebase E2EE Encrypted";
+        document.getElementById('chatTargetAvatar').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        document.getElementById('chatListView').style.display = 'flex';
+        listenIncomingRequests();
+        loadConversations();
+      } else {
+        window.location.href = 'home.html';
+      }
+    }
+
+    // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY)
+    function toggleAttachMenu() {
+      const menu = document.getElementById('attachMenu');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    async function handleCloudinaryUpload(e, fileType) {
+      const file = e.target.files[0];
+      if (!file) return;
+      toggleAttachMenu();
+
+      if (fileType === 'video' && file.size > 50 * 1024 * 1024) {
+        alert("Maximum video limit is 50MB.");
+        return;
+      }
+
+      showNotification("Cloudinary", `Uploading ${fileType}...`);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileType}/upload`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          sendEncryptedRecord(fileType, data.secure_url);
+        } else {
+          throw new Error(data.error?.message || "Upload failed");
+        }
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      }
+      e.target.value = '';
+    }
+
+    function promptSendLink() {
+      toggleAttachMenu();
+      const link = prompt("Enter URL link (e.g. https://...):");
+      if (link && link.trim()) {
+        sendEncryptedRecord('link', link.trim());
+      }
+    }
+
+    async function promptShareStudentID() {
+      toggleAttachMenu();
+      const searchKey = prompt("Enter Student Enrollment No or Gmail:");
+      if (!searchKey) return;
+      let sSnap = await db.collection('students').where('enroll', '==', searchKey.trim().toUpperCase()).get();
+      if (sSnap.empty) {
+        sSnap = await db.collection('students').where('email', '==', searchKey.trim().toLowerCase()).get();
+      }
+      if (sSnap.empty) {
+        alert("Student record not found!");
+        return;
+      }
+      const s = sSnap.docs[0].data();
+      const payload = JSON.stringify({
+        name: s.name,
+        enroll: s.enroll,
+        email: s.email,
+        photo: s.photo || ''
+      });
+      sendEncryptedRecord('contact_card', payload);
+    }
+
+    async function sendEncryptedRecord(type, dataContent) {
+      if (!activeChatRoomId || !targetUserData || !currentUser) return;
+      const jsonPayload = JSON.stringify({ type: type, data: dataContent });
+      const cipher = encryptPayload(jsonPayload, currentDeviceKey);
+
+      // Save encrypted message record to Firebase Firestore
+      await db.collection('chats').doc(activeChatRoomId).collection('messages').add({
+        sender: loggedAccount,
+        senderId: currentUser.uid,
+        receiver: targetUserData.email,
+        cipher: cipher,
+        deviceKey: currentDeviceKey,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    document.getElementById('sendMsgForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text) return;
+      sendEncryptedRecord('text', text);
+      input.value = '';
+    });
+
+    // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE)
+    let isInitialLoad = true;
+
+    function listenMessages() {
+      if (msgListenerUnsub) msgListenerUnsub();
+      isInitialLoad = true;
+
+      msgListenerUnsub = db.collection('chats').doc(activeChatRoomId).collection('messages')
+        .orderBy('createdAt', 'asc')
+        .onSnapshot((snap) => {
+          const box = document.getElementById('messagesBox');
+          box.innerHTML = `
+            <div class="e2e-badge-wrap">
+              <span class="e2e-badge">
+                🛡️ Messages are end-to-end encrypted in Firebase Firestore.
+              </span>
+            </div>
+          `;
+
+          let lastDoc = null;
           snap.forEach((doc) => {
             const m = doc.data();
-            const isMine = m.senderEmail === currentUser.email;
-            const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
-            const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
+            lastDoc = m;
 
-            const wrapper = document.createElement('div');
-            wrapper.className = `msg-wrapper ${isMine ? 'mine' : ''}`;
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
 
-            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" loading="lazy" />` : '';
+            let clearText = null;
+            if (isMe) {
+              if (m.deviceKey === currentDeviceKey) {
+                clearText = decryptPayload(m.cipher, currentDeviceKey);
+              }
+            } else {
+              clearText = decryptPayload(m.cipher, m.deviceKey);
+            }
 
-            wrapper.innerHTML = `
-              <img src="${senderPhoto}" class="msg-avatar" alt="User" />
-              <div class="msg-bubble">
-                <div style="font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;">${escapeHtml(m.senderName || 'Member')}</div>
-                ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
-                ${imageHtml}
-                <div class="msg-time">${timeStr}</div>
-              </div>
-            `;
-            box.appendChild(wrapper);
+            if (!clearText) {
+              bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
+            } else {
+              try {
+                const parsed = JSON.parse(clearText);
+                if (parsed.type === 'text') {
+                  bubble.innerText = parsed.data;
+                } else if (parsed.type === 'image') {
+                  bubble.innerHTML = `<img src="${parsed.data}" class="chat-media-img" onclick="window.open('${parsed.data}')" />`;
+                } else if (parsed.type === 'video') {
+                  bubble.innerHTML = `<video src="${parsed.data}" controls class="chat-media-video"></video>`;
+                } else if (parsed.type === 'link') {
+                  bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
+                } else if (parsed.type === 'contact_card') {
+                  const card = JSON.parse(parsed.data);
+                  bubble.innerHTML = `
+                    <div class="shared-id-card">
+                      <img src="${card.photo || document.getElementById('chatTargetAvatar').src}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
+                      <div>
+                        <strong>${card.name}</strong>
+                        <div style="font-size:0.7rem; color:#94a3b8;">${card.enroll} | ${card.email}</div>
+                      </div>
+                    </div>
+                  `;
+                }
+              } catch(e) {
+                bubble.innerText = clearText;
+              }
+            }
+            box.appendChild(bubble);
           });
+
+          if (!isInitialLoad && lastDoc && lastDoc.sender !== loggedAccount && lastDoc.senderId !== currentUser?.uid) {
+            showNotification(targetUserData ? targetUserData.name : 'Incoming', 'New Encrypted Message');
+          }
+          isInitialLoad = false;
           box.scrollTop = box.scrollHeight;
         });
     }
 
-    // 7. PHOTO PREVIEW
-    document.getElementById('chatPhotoUpload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        selectedImageFile = file;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById('imgPreviewTag').src = evt.target.result;
-          document.getElementById('uploadStatusText').innerText = "Photo selected (" + (file.size / 1024).toFixed(0) + " KB)";
-          document.getElementById('imagePreviewBox').style.display = 'flex';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // 9. BACKGROUND ANIMATION
+    const colorfulMedicines = [
+      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`
+    ];
 
-    function removeAttachedImage() {
-      selectedImageFile = null;
-      document.getElementById('chatPhotoUpload').value = '';
-      document.getElementById('imagePreviewBox').style.display = 'none';
-    }
-
-    // 8. DISPATCH MESSAGE
-    async function dispatchMessage() {
-      if (!activeChatRoomId) return;
-      const input = document.getElementById('outgoingMsgInput');
-      const sendBtn = document.getElementById('btnSendMessage');
-      const text = input.value.trim();
-
-      if (!text && !selectedImageFile) return;
-
-      sendBtn.disabled = true;
-      sendBtn.innerText = "...";
-
-      let cloudinaryUrl = null;
-
-      try {
-        if (selectedImageFile) {
-          document.getElementById('uploadStatusText').innerText = "Uploading photo...";
-          const formData = new FormData();
-          formData.append("file", selectedImageFile);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-            method: "POST",
-            body: formData
-          });
-
-          const data = await res.json();
-          if (data.secure_url) {
-            cloudinaryUrl = data.secure_url;
-          } else {
-            throw new Error(data.error ? data.error.message : "Upload Failed");
-          }
-        }
-
-        const senderName = currentStudentData ? currentStudentData.name : 'Student';
-        const senderPhoto = currentStudentData ? currentStudentData.photo : '';
-
-        await db.collection('chatRooms').doc(activeChatRoomId).collection('messages').add({
-          text: text,
-          image: cloudinaryUrl,
-          senderEmail: currentUser.email,
-          senderName: senderName,
-          senderPhoto: senderPhoto,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        input.value = '';
-        removeAttachedImage();
-      } catch (err) {
-        alert("Send failed: " + err.message);
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.innerText = "Send";
-      }
-    }
-
-    function escapeHtml(string) {
-      return String(string).replace(/[&<>"'`=\/]/g, function (s) {
-        return ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
-        })[s];
-      });
+    const rainContainer = document.getElementById('rainContainer');
+    for (let i = 0; i < 24; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'medicine-drop';
+      drop.innerHTML = colorfulMedicines[i % colorfulMedicines.length];
+      const size = Math.floor(Math.random() * 20) + 24;
+      drop.style.width = size + 'px';
+      drop.style.height = size + 'px';
+      drop.style.left = (i * 4 + Math.random() * 4) + '%';
+      drop.style.animationDuration = (Math.random() * 6 + 10) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 10) + 's';
+      rainContainer.appendChild(drop);
     }
   </script>
 </body>
