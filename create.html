@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D Pharma Portal - Developer Console & Account Creation</title>
+  <!-- PWA Manifest Link -->
+  <link rel="manifest" href="manifest.json">
   <style>
     * {
       box-sizing: border-box;
@@ -484,7 +486,7 @@
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
       const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
       if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
@@ -709,7 +711,7 @@
       const btnDelete = document.getElementById('btnDeleteUser');
       const deleteStatusBox = document.getElementById('deleteStatusBox');
 
-      const confirmDelete = confirm(`⚠️ DANGER ACTION ⚠️\n\nKya aap sach me "${target}" ko database से permanently delete karna chahte hain?\nIska account aur data kabhi wapas nahi aayega!`);
+      const confirmDelete = confirm(`⚠️ DANGER ACTION ⚠️\n\nKya aap sach me "${target}" ko database से permanently delete karna chahte hain?\nIska account aur data kabhi wapas नहीं aayega!`);
       if (!confirmDelete) return;
 
       deleteStatusBox.style.display = 'none';
