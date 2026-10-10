@@ -226,7 +226,7 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
   <div class="rain-container" id="rainContainer"></div>
 
@@ -367,6 +367,40 @@
   </div>
 
   <script>
+    // ==========================================
+    // SECURITY GUARDS (Anti-Inspect & Fullscreen API)
+    // ==========================================
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    setInterval(function () {
+      (function () { return false; }['constructor']('debugger')['call']());
+    }, 1000);
+
+    // Double-click Fullscreen API
+    document.addEventListener('dblclick', function(e) {
+      if (['A', 'BUTTON'].includes(e.target.tagName)) return;
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (requestFullScreen) requestFullScreen.call(docEl).catch(() => {});
+      } else {
+        if (cancelFullScreen) cancelFullScreen.call(doc);
+      }
+    });
+
     // Smart Back Button: Redirects to login.html by default
     const backBtn = document.getElementById('backBtn');
     if (localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('userRole') === 'student') {
@@ -399,21 +433,6 @@
       drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
       rainContainer.appendChild(drop);
     }
-
-    // Double-click Fullscreen API
-    document.addEventListener('dblclick', function(e) {
-      if (['A', 'BUTTON'].includes(e.target.tagName)) return;
-      const doc = window.document;
-      const docEl = doc.documentElement;
-      const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-      const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        if (requestFullScreen) requestFullScreen.call(docEl).catch(() => {});
-      } else {
-        if (cancelFullScreen) cancelFullScreen.call(doc);
-      }
-    });
   </script>
 </body>
 </html>
