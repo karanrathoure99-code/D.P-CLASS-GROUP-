@@ -34,7 +34,7 @@
       color: #ffffff;
     }
 
-    /* Falling Medicines Rain (Slow Motion) */
+    /* Falling Medicines Rain */
     .rain-container {
       position: fixed;
       inset: 0;
@@ -119,6 +119,37 @@
       box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
     .btn-emerald:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Requests & Chat Section */
+    .requests-box {
+      background: rgba(6, 43, 37, 0.9);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 12px 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .request-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(3, 20, 17, 0.8);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
 
     .input-field {
       width: 100%;
@@ -253,14 +284,14 @@
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Firebase Auth & Firestore SDKs (Only for Text Messages) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- Fullscreen Security Shield Loader -->
+  <!-- Fullscreen Security Loader -->
   <div id="securityLoader">
     <div class="spinner"></div>
     <span>Securing Environment...</span>
@@ -269,18 +300,24 @@
   <!-- Slow Motion Medicine Particles -->
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- Main Full-Page Viewport Wrapper -->
+  <!-- Main Full-Page Wrapper -->
   <div id="secureAppWrapper">
     <!-- Top Bar -->
     <header class="top-navbar">
       <a href="home.html" class="nav-btn">❮ Home</a>
-      <span class="rx-badge" id="roleBadge">DIRECT CHAT</span>
+      <span class="rx-badge" id="roleBadge">CHAT PORTAL</span>
       <span id="userIdentifier" style="font-size: 0.8rem; color: #94a3b8;"></span>
     </header>
 
+    <!-- Incoming Chat Requests Box -->
+    <div id="requestsSection" class="requests-box" style="display:none;">
+      <div style="font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 8px;">🔔 INCOMING CHAT REQUESTS:</div>
+      <div id="requestsList"></div>
+    </div>
+
     <!-- Messages Container -->
     <div id="chatMessages" class="chat-container">
-      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">Loading messages...</p>
+      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;" id="chatNoticeText">Please accept a chat request above or select an approved chat to start messaging.</p>
     </div>
 
     <!-- Image Preview Before Sending -->
@@ -291,7 +328,7 @@
     </div>
 
     <!-- Chat Input Bar -->
-    <div class="chat-input-bar">
+    <div class="chat-input-bar" id="chatInputBar" style="display:none;">
       <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" />
       <button class="icon-btn" onclick="document.getElementById('chatPhotoUpload').click()" title="Send Photo">📷</button>
       <input type="text" id="outgoingMsgInput" class="input-field" placeholder="Type a message..." />
@@ -300,44 +337,30 @@
   </div>
 
   <script>
-    // ==========================================
-    // CLOUDINARY CONFIGURATION (Updated)
-    // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
 
-    // 1. FULLSCREEN API
+    // 1. FULLSCREEN API & SECURITY
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
       } else {
         if (exit) exit.call(doc);
       }
     });
 
-    // 2. ANTI-INSPECT PROTECTION
     document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('keydown', function (e) {
-      if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode === 85)) {
-        e.preventDefault();
-        return false;
-      }
-    });
 
-    setInterval(function () {
-      (function () { return false; }['constructor']('debugger')['call']());
-    }, 1000);
-
-    // 3. SLOW MEDICINE RAIN ANIMATION
+    // 2. MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
-      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
-      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" /><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" /></g></svg>`,
-      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" /><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" /></svg>`
+      `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5"/><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8"/></svg>`
     ];
 
     const rainContainer = document.getElementById('rainContainer');
@@ -354,7 +377,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 4. FIREBASE CONFIG
+    // 3. FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -370,52 +393,143 @@
     const db = firebase.firestore();
 
     const DEVELOPER_EMAIL = "karanrathoure6271@gmail.com";
-    const loggedRole = localStorage.getItem('userRole');
-    const loggedAccount = localStorage.getItem('userAccount');
-
-    let isDeveloper = false;
     let currentUser = null;
     let currentStudentData = null;
+    let activeChatRoomId = null; // जब रिक्वेस्ट स्वीकार होगी तब चैट रूम एक्टिव होगा
     let selectedImageFile = null;
 
     auth.onAuthStateChanged(async (user) => {
-      if (!user && !loggedAccount) {
+      if (!user) {
         localStorage.clear();
         window.location.replace('login.html');
         return;
       }
 
-      const verifiedEmail = (user && user.email) ? user.email.toLowerCase() : (loggedAccount || '').toLowerCase();
+      currentUser = user;
+      const userEmail = (user.email || '').toLowerCase();
+      const isDev = userEmail === DEVELOPER_EMAIL.toLowerCase();
 
-      if (loggedRole === 'developer' && verifiedEmail === DEVELOPER_EMAIL) {
-        isDeveloper = true;
-        document.getElementById('roleBadge').innerText = "DEVELOPER";
-      } else {
-        const studentSnap = await db.collection('students').where('email', '==', verifiedEmail).get();
-        if (studentSnap.empty && !isDeveloper) {
-          alert("Unauthorized access!");
-          localStorage.clear();
-          auth.signOut();
-          window.location.replace('login.html');
-          return;
-        }
-
+      if (!isDev) {
+        const studentSnap = await db.collection('students').where('email', '==', userEmail).get();
         if (!studentSnap.empty) {
           currentStudentData = studentSnap.docs[0].data();
+          currentStudentData.uid = studentSnap.docs[0].id;
         }
-        document.getElementById('roleBadge').innerText = "STUDENT";
       }
 
-      currentUser = user || { email: verifiedEmail };
-      document.getElementById('userIdentifier').innerText = isDeveloper ? "Dev: Karan" : (currentStudentData ? (currentStudentData.enroll || currentStudentData.enrollNo) : '');
-
+      document.getElementById('userIdentifier').innerText = isDev ? "Dev: Karan" : (currentStudentData ? (currentStudentData.name || 'Student') : '');
       document.getElementById('securityLoader').style.display = 'none';
       document.getElementById('secureAppWrapper').style.display = 'flex';
 
-      listenDirectMessages();
+      // पेंडिंग रिक्वेस्ट्स सुनना शुरू करें
+      listenIncomingRequests();
     });
 
-    // 5. PHOTO SELECTION (CLOUDINARY READY)
+    // 4. INCOMING REQUESTS LISTENER
+    function listenIncomingRequests() {
+      const myId = currentUser.uid;
+      const requestsSection = document.getElementById('requestsSection');
+      const requestsList = document.getElementById('requestsList');
+
+      db.collection('chatRequests')
+        .where('toId', '==', myId)
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          requestsList.innerHTML = '';
+          if (snapshot.empty) {
+            requestsSection.style.display = 'none';
+            return;
+          }
+
+          requestsSection.style.display = 'block';
+          snapshot.forEach((doc) => {
+            const reqData = doc.data();
+            const reqId = doc.id;
+
+            const card = document.createElement('div');
+            card.className = 'request-card';
+            card.innerHTML = `
+              <div>
+                <strong style="font-size:0.85rem; color:#ffffff;">${escapeHtml(reqData.fromName)}</strong>
+                <div style="font-size:0.7rem; color:#a7f3d0;">Wants to start chatting with you</div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-emerald" style="padding:4px 10px; font-size:0.75rem;" onclick="acceptChatRequest('${reqId}', '${reqData.fromUid}')">Accept</button>
+                <button class="btn-danger" onclick="rejectChatRequest('${reqId}')">Reject</button>
+              </div>
+            `;
+            requestsList.appendChild(card);
+          });
+        });
+    }
+
+    // 5. ACCEPT OR REJECT REQUEST
+    async function acceptChatRequest(reqId, senderUid) {
+      try {
+        await db.collection('chatRequests').doc(reqId).update({ status: 'accepted' });
+        alert("Chat request accepted! You can now chat.");
+        // चैट रूम खोलें
+        openActiveChat(senderUid);
+      } catch (err) {
+        alert("Failed to accept: " + err.message);
+      }
+    }
+
+    async function rejectChatRequest(reqId) {
+      try {
+        await db.collection('chatRequests').doc(reqId).delete();
+      } catch (err) {
+        alert("Failed to reject");
+      }
+    }
+
+    function openActiveChat(partnerUid) {
+      activeChatRoomId = [currentUser.uid, partnerUid].sort().join('_');
+      document.getElementById('chatNoticeText').style.display = 'none';
+      document.getElementById('chatInputBar').style.display = 'flex';
+      listenDirectMessages(activeChatRoomId);
+    }
+
+    // 6. REALTIME MESSAGES IN CHAT ROOM
+    function listenDirectMessages(roomId) {
+      const box = document.getElementById('chatMessages');
+
+      db.collection('chatRooms').doc(roomId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot((snap) => {
+          box.innerHTML = '';
+          if (snap.empty) {
+            box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">Start conversation now.</p>';
+            return;
+          }
+
+          snap.forEach((doc) => {
+            const m = doc.data();
+            const isMine = m.senderEmail === currentUser.email;
+            const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
+            const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `msg-wrapper ${isMine ? 'mine' : ''}`;
+
+            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" loading="lazy" />` : '';
+
+            wrapper.innerHTML = `
+              <img src="${senderPhoto}" class="msg-avatar" alt="User" />
+              <div class="msg-bubble">
+                <div style="font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;">${escapeHtml(m.senderName || 'Member')}</div>
+                ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
+                ${imageHtml}
+                <div class="msg-time">${timeStr}</div>
+              </div>
+            `;
+            box.appendChild(wrapper);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    // 7. PHOTO PREVIEW
     document.getElementById('chatPhotoUpload').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
@@ -436,48 +550,9 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // 6. REALTIME DIRECT MESSAGES (FIRESTORE)
-    function listenDirectMessages() {
-      const box = document.getElementById('chatMessages');
-
-      db.collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snap) => {
-          box.innerHTML = '';
-          if (snap.empty) {
-            box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>';
-            return;
-          }
-
-          snap.forEach((doc) => {
-            const m = doc.data();
-            const isMine = (m.senderEmail || '').toLowerCase() === (currentUser.email || '').toLowerCase();
-            const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
-            const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-
-            const wrapper = document.createElement('div');
-            wrapper.className = `msg-wrapper ${isMine ? 'mine' : ''}`;
-
-            // Image loads from Cloudinary URL (Database never bloats)
-            let imageHtml = m.image ? `<img src="${m.image}" class="msg-img-preview" onclick="window.open('${m.image}')" loading="lazy" />` : '';
-
-            wrapper.innerHTML = `
-              <img src="${senderPhoto}" class="msg-avatar" alt="User" />
-              <div class="msg-bubble">
-                <div style="font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;">${escapeHtml(m.senderName || 'Member')}</div>
-                ${m.text ? `<div>${escapeHtml(m.text)}</div>` : ''}
-                ${imageHtml}
-                <div class="msg-time">${timeStr}</div>
-              </div>
-            `;
-            box.appendChild(wrapper);
-          });
-          box.scrollTop = box.scrollHeight;
-        });
-    }
-
-    // 7. DISPATCH MESSAGE (UPLOAD TO CLOUDINARY + SAVE TEXT/LINK TO FIRESTORE)
+    // 8. DISPATCH MESSAGE
     async function dispatchMessage() {
+      if (!activeChatRoomId) return;
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
       const text = input.value.trim();
@@ -490,10 +565,8 @@
       let cloudinaryUrl = null;
 
       try {
-        // Step 1: अगर फोटो है तो वह सीधे Cloudinary में अपलोड होगी
         if (selectedImageFile) {
-          document.getElementById('uploadStatusText').innerText = "Uploading photo to Cloudinary...";
-
+          document.getElementById('uploadStatusText').innerText = "Uploading photo...";
           const formData = new FormData();
           formData.append("file", selectedImageFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -505,20 +578,19 @@
 
           const data = await res.json();
           if (data.secure_url) {
-            cloudinaryUrl = data.secure_url; // Cloudinary से मिला सुरक्षित लिंक
+            cloudinaryUrl = data.secure_url;
           } else {
-            throw new Error(data.error ? data.error.message : "Cloudinary Upload Failed");
+            throw new Error(data.error ? data.error.message : "Upload Failed");
           }
         }
 
-        // Step 2: केवल टेक्स्ट और Cloudinary का यूआरएल Firestore डेटाबेस में जाएगा
-        const senderName = isDeveloper ? 'Developer Karan' : ((currentStudentData && currentStudentData.name) || 'Student');
-        const senderPhoto = isDeveloper ? 'https://via.placeholder.com/150' : ((currentStudentData && currentStudentData.photo) || 'https://via.placeholder.com/150');
+        const senderName = currentStudentData ? currentStudentData.name : 'Student';
+        const senderPhoto = currentStudentData ? currentStudentData.photo : '';
 
-        await db.collection('messages').add({
+        await db.collection('chatRooms').doc(activeChatRoomId).collection('messages').add({
           text: text,
-          image: cloudinaryUrl, // सिर्फ 1 लाइन का वेब लिंक जाएगा, भारी इमेज नहीं
-          senderEmail: currentUser.email || DEVELOPER_EMAIL,
+          image: cloudinaryUrl,
+          senderEmail: currentUser.email,
           senderName: senderName,
           senderPhoto: senderPhoto,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -527,26 +599,17 @@
         input.value = '';
         removeAttachedImage();
       } catch (err) {
-        console.error(err);
-        alert("Upload/Send failed: " + err.message);
+        alert("Send failed: " + err.message);
       } finally {
         sendBtn.disabled = false;
         sendBtn.innerText = "Send";
       }
     }
 
-    // XSS Sanitizer
     function escapeHtml(string) {
       return String(string).replace(/[&<>"'`=\/]/g, function (s) {
         return ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-          '/': '&#x2F;',
-          '`': '&#x60;',
-          '=': '&#x3D;'
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
         })[s];
       });
     }
