@@ -494,11 +494,11 @@
     }
 
     .msg-bubble {
-      max-width: 80%;
-      padding: 8px 12px;
+      max-width: 82%;
+      padding: 9px 13px;
       border-radius: 14px;
-      font-size: 0.86rem;
-      line-height: 1.35;
+      font-size: 0.88rem;
+      line-height: 1.38;
       word-break: break-word;
       position: relative;
       cursor: pointer;
@@ -537,19 +537,22 @@
       z-index: 5;
     }
 
+    /* HIGH DEFINITION MEDIA (Ultra-Clear Text / 100% Zoom) */
     .chat-media-img {
       max-width: 100%;
-      max-height: 220px;
+      max-height: 260px;
       border-radius: 10px;
       margin-top: 4px;
       border: 1px solid rgba(52, 211, 153, 0.4);
       display: block;
       cursor: pointer;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .chat-media-video {
       max-width: 100%;
-      max-height: 220px;
+      max-height: 260px;
       border-radius: 10px;
       margin-top: 4px;
       outline: none;
@@ -561,7 +564,7 @@
     .fullscreen-media-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0, 0, 0, 0.96);
       z-index: 2000;
       display: none;
       flex-direction: column;
@@ -575,6 +578,7 @@
       border-radius: 12px;
       object-fit: contain;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      image-rendering: -webkit-optimize-contrast;
     }
 
     /* ==========================================
@@ -855,12 +859,9 @@
     <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
-  <!-- ==========================================
-       LONG PRESS MODAL: 5 EMOJIS & CONTEXT ACTIONS
-       ========================================== -->
+  <!-- LONG PRESS MODAL: 5 EMOJIS & CONTEXT ACTIONS -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
-      <!-- 5 Emoji Reactions Bar -->
       <div class="emoji-reaction-bar">
         <button class="emoji-btn" onclick="applyEmojiReaction('❤️')">❤️</button>
         <button class="emoji-btn" onclick="applyEmojiReaction('👍')">👍</button>
@@ -868,10 +869,7 @@
         <button class="emoji-btn" onclick="applyEmojiReaction('🤔')">🤔</button>
         <button class="emoji-btn" onclick="applyEmojiReaction('😡')">😡</button>
       </div>
-
-      <!-- Action Buttons Container (Dynamically Filled) -->
       <div class="context-actions-wrap" id="contextActionsContainer"></div>
-      
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
     </div>
   </div>
@@ -933,12 +931,12 @@
           </div>
         </div>
 
-        <!-- Attachment Menu (Cloudinary for Photos/Videos/Files) -->
+        <!-- Attachment Menu (Cloudinary for Photos/Videos/PDFs/Files) -->
         <div class="attach-menu" id="attachMenu">
-          <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera & Snap (Cloudinary)</button>
-          <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Choose Photo from Gallery (Cloudinary)</button>
-          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (Cloudinary)</button>
-          <button class="attach-option" onclick="document.getElementById('fileDocInput').click()">📁 Send File / Document (Cloudinary)</button>
+          <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera (Ultra HD)</button>
+          <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Photo Gallery (High Resolution)</button>
+          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (HD Cloud)</button>
+          <button class="attach-option" onclick="document.getElementById('fileDocInput').click()">📁 PDF / Document (Cloud Compressed)</button>
           <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
           <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
         </div>
@@ -947,7 +945,7 @@
         <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
         <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
         <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
-        <input type="file" id="fileDocInput" accept="*/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'raw')" />
+        <input type="file" id="fileDocInput" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" style="display:none;" onchange="handleCloudinaryUpload(event, 'raw')" />
 
         <form class="chat-input-bar" id="sendMsgForm">
           <button type="button" class="attach-btn" onclick="toggleAttachMenu()">📎</button>
@@ -1088,7 +1086,7 @@
     });
 
     // ==========================================
-    // 0. CLOUDINARY CONFIGURATION
+    // 0. CLOUDINARY CONFIGURATION (ULTRA HD & PRESERVE TEXT CLARITY)
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
@@ -1134,7 +1132,11 @@
       loggedAccount = (user.email || localStorage.getItem('userAccount') || '').trim().toLowerCase();
 
       try {
-        const snap = await db.collection('students').where('email', '==', loggedAccount).get();
+        let snap = await db.collection('students').where('email', '==', loggedAccount).get();
+        if (snap.empty && user.email) {
+          snap = await db.collection('students').where('email', '==', user.email.trim()).get();
+        }
+
         if (!snap.empty) {
           myStudentDocId = snap.docs[0].id;
           const me = snap.docs[0].data();
@@ -1372,15 +1374,15 @@
         const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
 
         const peerAccounts = new Set();
-        q1.forEach(d => peerAccounts.add(d.data().user2));
-        q2.forEach(d => peerAccounts.add(d.data().user1));
+        q1.forEach(d => peerAccounts.add((d.data().user2 || '').trim()));
+        q2.forEach(d => peerAccounts.add((d.data().user1 || '').trim()));
 
         const urlParams = new URLSearchParams(window.location.search);
         const directTarget = urlParams.get('to');
-        if (directTarget) peerAccounts.add(directTarget.toLowerCase());
+        if (directTarget) peerAccounts.add(directTarget.trim());
 
         const savedActivePeer = sessionStorage.getItem('activeChatPeer');
-        if (savedActivePeer) peerAccounts.add(savedActivePeer.toLowerCase());
+        if (savedActivePeer) peerAccounts.add(savedActivePeer.trim());
 
         if (peerAccounts.size === 0) {
           friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
@@ -1391,16 +1393,23 @@
         const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
         for (let peer of peerAccounts) {
+          if (!peer) continue;
+          const cleanPeer = peer.toLowerCase();
           let realName = peer;
           let enrollNo = "N/A";
           let photoUrl = defaultPhoto;
           let peerUid = "";
 
-          let sSnap = await db.collection('students').where('email', '==', peer).get();
+          // Firebase 'students' कलेक्शन से सटीक केस-इंसेंसिटिव डाटा फेच
+          let sSnap = await db.collection('students').where('email', '==', cleanPeer).get();
+          if (sSnap.empty && peer !== cleanPeer) {
+            sSnap = await db.collection('students').where('email', '==', peer).get();
+          }
+
           if (!sSnap.empty) {
             const sData = sSnap.docs[0].data();
             realName = sData.name || sData.fullName || sData.realName || peer;
-            enrollNo = sData.enroll || sData.enrollment || sData.enrollmentNo || sData.enrollNo || sData.rollNo || "N/A";
+            enrollNo = sData.enroll || sData.enrollment || sData.enrollmentNo || sData.rollNo || sData.enrollNo || "N/A";
             if (sData.photo || sData.profilePic || sData.avatar || sData.photoURL) {
               photoUrl = sData.photo || sData.profilePic || sData.avatar || sData.photoURL;
             }
@@ -1408,7 +1417,8 @@
           }
 
           acceptedChatsListCache.push({
-            peer: peer,
+            peer: cleanPeer,
+            originalEmail: peer,
             name: realName,
             enroll: enrollNo,
             photo: photoUrl,
@@ -1419,10 +1429,10 @@
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
         if (savedActivePeer) {
-          const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === savedActivePeer.toLowerCase());
+          const found = acceptedChatsListCache.find(x => x.peer === savedActivePeer.toLowerCase());
           if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
         } else if (directTarget) {
-          const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === directTarget.toLowerCase());
+          const found = acceptedChatsListCache.find(x => x.peer === directTarget.toLowerCase());
           if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
         }
       } catch (err) {
@@ -1477,42 +1487,69 @@
     }
 
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "", peerEnroll = "") {
-      sessionStorage.setItem('activeChatPeer', peerAccount);
+      const cleanPeer = (peerAccount || '').trim().toLowerCase();
+      sessionStorage.setItem('activeChatPeer', cleanPeer);
+
+      // अगर डेटा अधूरा हो तो सीधे डेटाबेस से रीयल-टाइम फेच करके हेडर तुरंत पॉपुलेट करें
+      if (!peerName || peerName === cleanPeer || peerEnroll === "N/A" || !peerEnroll) {
+        try {
+          const snap = await db.collection('students').where('email', '==', cleanPeer).get();
+          if (!snap.empty) {
+            const d = snap.docs[0].data();
+            peerName = d.name || d.fullName || d.realName || cleanPeer;
+            peerEnroll = d.enroll || d.enrollment || d.enrollmentNo || d.rollNo || d.enrollNo || "N/A";
+            peerPhoto = d.photo || d.profilePic || d.avatar || d.photoURL || peerPhoto;
+            peerUid = d.uid || snap.docs[0].id;
+          }
+        } catch (e) {
+          console.warn("Direct student fetch error:", e);
+        }
+      }
 
       targetUserData = {
-        email: peerAccount,
-        name: peerName,
-        photo: peerPhoto,
+        email: cleanPeer,
+        name: peerName || cleanPeer,
+        photo: peerPhoto || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E",
         uid: peerUid,
-        enroll: peerEnroll
+        enroll: peerEnroll || "N/A"
       };
 
       const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
-      const idB = peerAccount.replace(/[^a-zA-Z0-9]/g, '_');
+      const idB = cleanPeer.replace(/[^a-zA-Z0-9]/g, '_');
       activeChatRoomId = [idA, idB].sort().join('___');
 
-      document.getElementById('chatTargetName').innerText = peerName;
-      document.getElementById('chatTargetStatus').innerText = peerEnroll && peerEnroll !== "N/A" 
-        ? `🪪 ${peerEnroll} ● Online & Encrypted` 
-        : "● Online & Firebase Encrypted";
-      
+      // हेडर में रियल नेम, एनरोलमेंट और फ़ोटो सेट करें
+      const nameEl = document.getElementById('chatTargetName');
+      const statusEl = document.getElementById('chatTargetStatus');
       const avatarEl = document.getElementById('chatTargetAvatar');
-      avatarEl.src = peerPhoto;
-      avatarEl.onerror = function() {
-        this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-      };
+
+      if (nameEl) nameEl.innerText = targetUserData.name;
+      if (statusEl) {
+        statusEl.innerText = (targetUserData.enroll && targetUserData.enroll !== "N/A")
+          ? `🪪 ${targetUserData.enroll} ● Online & Encrypted`
+          : "● Online & Firebase Encrypted";
+      }
+      if (avatarEl) {
+        avatarEl.src = targetUserData.photo;
+        avatarEl.onerror = function() {
+          this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        };
+      }
 
       document.getElementById('chatListView').style.display = 'none';
       document.getElementById('requestsWrap').style.display = 'none';
       document.getElementById('activeChatView').style.display = 'flex';
 
-      const participants = [currentUser.uid, loggedAccount, peerAccount];
+      const participants = [currentUser.uid, loggedAccount, cleanPeer];
       if (peerUid) participants.push(peerUid);
 
       await db.collection('chats').doc(activeChatRoomId).set({
         participants: participants,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true }).catch(() => {});
+
+      // 5-Day Server Cleanup Trigger on Chat Open
+      cleanOldServerMessages(activeChatRoomId);
 
       listenMessages();
     }
@@ -1528,7 +1565,9 @@
       loadConversations();
     }
 
-    // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY)
+    // ==========================================
+    // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY ULTRA HD & CLOUD COMPRESS)
+    // ==========================================
     function toggleAttachMenu() {
       const menu = document.getElementById('attachMenu');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
@@ -1547,8 +1586,8 @@
       const resourceFolder = fileType === 'image' ? 'image' : (fileType === 'video' ? 'video' : 'raw');
 
       sendSmartNotification({
-        title: "Uploading Attachment",
-        message: `Uploading file to secure cloud...`,
+        title: "Uploading Media",
+        message: `Compressing & uploading in Ultra HD...`,
         photo: targetUserData?.photo
       });
 
@@ -1563,8 +1602,15 @@
         });
         const data = await res.json();
         if (data.secure_url) {
+          let finalMediaUrl = data.secure_url;
+
+          // ULTRA HD 100% ZOOM TEXT PRESERVATION FOR IMAGES
+          if (fileType === 'image') {
+            finalMediaUrl = finalMediaUrl.replace('/upload/', '/upload/q_auto:best,f_auto,dpr_2.0,fl_preserve_transparency/');
+          }
+
           const typeToRecord = fileType === 'raw' ? 'file' : fileType;
-          sendEncryptedRecord(typeToRecord, data.secure_url, file.name);
+          sendEncryptedRecord(typeToRecord, finalMediaUrl, file.name);
         } else {
           throw new Error(data.error?.message || "Upload failed");
         }
@@ -1630,6 +1676,53 @@
     });
 
     // ==========================================
+    // 5-DAY AUTO-DELETE SERVER CLEANUP ENGINE (SAVES TO LOCAL CACHE)
+    // ==========================================
+    function getLocalCacheKey(roomId) {
+      return `_dp_chat_cache_${roomId}`;
+    }
+
+    function getLocalSavedMessages(roomId) {
+      try {
+        return JSON.parse(localStorage.getItem(getLocalCacheKey(roomId)) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLocalMessageToCache(roomId, msgObj) {
+      try {
+        const list = getLocalSavedMessages(roomId);
+        if (!list.some(m => m.id === msgObj.id)) {
+          list.push(msgObj);
+          localStorage.setItem(getLocalCacheKey(roomId), JSON.stringify(list));
+        }
+      } catch (e) {}
+    }
+
+    async function cleanOldServerMessages(roomId) {
+      if (!roomId) return;
+      const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+      const cutoffDate = new Date(Date.now() - FIVE_DAYS_MS);
+
+      try {
+        const snap = await db.collection('chats').doc(roomId).collection('messages')
+          .where('createdAt', '<', cutoffDate)
+          .get();
+
+        if (!snap.empty) {
+          const batch = db.batch();
+          snap.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          await batch.commit();
+        }
+      } catch (e) {
+        console.warn("Cleanup check:", e);
+      }
+    }
+
+    // ==========================================
     // LONG PRESS CONTEXT MENU & EMOJI REACTIONS
     // ==========================================
     let contextTarget = {
@@ -1652,11 +1745,11 @@
         // Media Action 1: Download
         const dlBtn = document.createElement('button');
         dlBtn.className = 'context-menu-btn';
-        dlBtn.innerText = '📥 Download';
+        dlBtn.innerText = '📥 Download Media';
         dlBtn.onclick = () => downloadMediaContent(content);
         container.appendChild(dlBtn);
 
-        // Media Action 2: Share
+        // Media Action 2: Share Link
         const shBtn = document.createElement('button');
         shBtn.className = 'context-menu-btn';
         shBtn.innerText = '🔗 Share Link';
@@ -1777,7 +1870,6 @@
       element.ontouchend = cancelPress;
     }
 
-    // Media Modal Functions
     function openMediaModal(url, type) {
       const container = document.getElementById('mediaModalContentContainer');
       container.innerHTML = '';
@@ -1801,7 +1893,7 @@
     }
 
     // ==========================================
-    // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE)
+    // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE & LOCAL PRESERVATION)
     // ==========================================
     let isInitialLoad = true;
 
@@ -1831,14 +1923,23 @@
             </div>
           `;
 
+          // 1. Render Local Storage Cached Messages First (For older than 5 days preserved locally)
+          const localCached = getLocalSavedMessages(activeChatRoomId);
+          const currentDocIds = new Set();
+          snap.forEach(d => currentDocIds.add(d.id));
+
+          localCached.forEach(localM => {
+            if (!currentDocIds.has(localM.id)) {
+              renderSingleMessageBubble(box, localM.id, localM.sender, localM.clearText, localM.reaction, localM.isMe, true);
+            }
+          });
+
+          // 2. Render Server Live Messages & Persist them locally
           snap.forEach((doc) => {
             const m = doc.data();
             const docId = doc.id;
             const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
             const messageReaction = m.reaction || "";
-
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
 
             let clearText = null;
             if (isMe) {
@@ -1849,75 +1950,17 @@
               clearText = decryptPayload(m.cipher, m.deviceKey);
             }
 
-            if (!clearText) {
-              bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
-            } else {
-              try {
-                const parsed = JSON.parse(clearText);
-                const msgType = parsed.type;
-                const msgData = parsed.data;
-
-                if (msgType === 'text') {
-                  bubble.innerText = msgData;
-                  attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
-                } else if (msgType === 'image') {
-                  const img = document.createElement('img');
-                  img.src = msgData;
-                  img.className = 'chat-media-img';
-                  img.onclick = () => openMediaModal(msgData, 'image');
-                  bubble.appendChild(img);
-                  attachUniversalLongPress(bubble, docId, 'image', msgData, isMe);
-                } else if (msgType === 'video') {
-                  const vid = document.createElement('video');
-                  vid.src = msgData;
-                  vid.className = 'chat-media-video';
-                  vid.controls = true;
-                  bubble.appendChild(vid);
-                  attachUniversalLongPress(bubble, docId, 'video', msgData, isMe);
-                } else if (msgType === 'file') {
-                  const fileName = parsed.fileName || "Download Document";
-                  bubble.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:1.2rem;">📁</span>
-                      <div>
-                        <strong style="font-size:0.85rem; color:#ffffff;">${fileName}</strong>
-                        <div style="font-size:0.7rem; color:#34d399;">Tap to view file</div>
-                      </div>
-                    </div>
-                  `;
-                  bubble.onclick = () => window.open(msgData, '_blank');
-                  attachUniversalLongPress(bubble, docId, 'file', msgData, isMe);
-                } else if (msgType === 'link') {
-                  bubble.innerHTML = `<a href="${msgData}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${msgData}</a>`;
-                  attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
-                } else if (msgType === 'contact_card') {
-                  const card = JSON.parse(msgData);
-                  bubble.innerHTML = `
-                    <div class="shared-id-card">
-                      <img src="${card.photo || document.getElementById('chatTargetAvatar').src}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
-                      <div>
-                        <strong>${card.name}</strong>
-                        <div style="font-size:0.7rem; color:#94a3b8;">${card.enroll} | ${card.email}</div>
-                      </div>
-                    </div>
-                  `;
-                  attachUniversalLongPress(bubble, docId, 'text', `Student Card: ${card.name} (${card.enroll})`, isMe);
-                }
-
-                // If Reaction exists, render badge
-                if (messageReaction) {
-                  const rBadge = document.createElement('div');
-                  rBadge.className = 'msg-reaction-tag';
-                  rBadge.innerText = messageReaction;
-                  bubble.appendChild(rBadge);
-                }
-
-              } catch(e) {
-                bubble.innerText = clearText;
-                attachUniversalLongPress(bubble, docId, 'text', clearText, isMe);
-              }
+            if (clearText) {
+              saveLocalMessageToCache(activeChatRoomId, {
+                id: docId,
+                sender: m.sender,
+                clearText: clearText,
+                reaction: messageReaction,
+                isMe: isMe
+              });
             }
-            box.appendChild(bubble);
+
+            renderSingleMessageBubble(box, docId, m.sender, clearText, messageReaction, isMe, false);
           });
 
           box.scrollTop = box.scrollHeight;
@@ -1933,6 +1976,87 @@
 
           isInitialLoad = false;
         });
+    }
+
+    function renderSingleMessageBubble(box, docId, sender, clearText, messageReaction, isMe, isLocalOnly) {
+      const bubble = document.createElement('div');
+      bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
+
+      if (!clearText) {
+        bubble.innerHTML = `<span style="font-size:0.75rem; color:#fca5a5;">🔒 Encrypted on another device</span>`;
+      } else {
+        try {
+          const parsed = JSON.parse(clearText);
+          const msgType = parsed.type;
+          const msgData = parsed.data;
+
+          if (msgType === 'text') {
+            bubble.innerText = msgData;
+            attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
+          } else if (msgType === 'image') {
+            const img = document.createElement('img');
+            img.src = msgData;
+            img.className = 'chat-media-img';
+            img.onclick = () => openMediaModal(msgData, 'image');
+            bubble.appendChild(img);
+            attachUniversalLongPress(bubble, docId, 'image', msgData, isMe);
+          } else if (msgType === 'video') {
+            const vid = document.createElement('video');
+            vid.src = msgData;
+            vid.className = 'chat-media-video';
+            vid.controls = true;
+            bubble.appendChild(vid);
+            attachUniversalLongPress(bubble, docId, 'video', msgData, isMe);
+          } else if (msgType === 'file') {
+            const fileName = parsed.fileName || "Download Document";
+            bubble.innerHTML = `
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.3rem;">📄</span>
+                <div>
+                  <strong style="font-size:0.86rem; color:#ffffff;">${fileName}</strong>
+                  <div style="font-size:0.7rem; color:#34d399;">Cloud PDF / Document (Tap to view)</div>
+                </div>
+              </div>
+            `;
+            bubble.onclick = () => window.open(msgData, '_blank');
+            attachUniversalLongPress(bubble, docId, 'file', msgData, isMe);
+          } else if (msgType === 'link') {
+            bubble.innerHTML = `<a href="${msgData}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${msgData}</a>`;
+            attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
+          } else if (msgType === 'contact_card') {
+            const card = JSON.parse(msgData);
+            bubble.innerHTML = `
+              <div class="shared-id-card">
+                <img src="${card.photo || document.getElementById('chatTargetAvatar').src}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
+                <div>
+                  <strong>${card.name}</strong>
+                  <div style="font-size:0.7rem; color:#94a3b8;">${card.enroll} | ${card.email}</div>
+                </div>
+              </div>
+            `;
+            attachUniversalLongPress(bubble, docId, 'text', `Student Card: ${card.name} (${card.enroll})`, isMe);
+          }
+
+          if (messageReaction) {
+            const rBadge = document.createElement('div');
+            rBadge.className = 'msg-reaction-tag';
+            rBadge.innerText = messageReaction;
+            bubble.appendChild(rBadge);
+          }
+
+          if (isLocalOnly) {
+            const localIndicator = document.createElement('span');
+            localIndicator.style.cssText = "font-size:0.6rem; color:#94a3b8; display:block; text-align:right; margin-top:2px;";
+            localIndicator.innerText = "📁 Saved locally";
+            bubble.appendChild(localIndicator);
+          }
+
+        } catch(e) {
+          bubble.innerText = clearText;
+          attachUniversalLongPress(bubble, docId, 'text', clearText, isMe);
+        }
+      }
+      box.appendChild(bubble);
     }
 
     // 9. BACKGROUND ANIMATION
