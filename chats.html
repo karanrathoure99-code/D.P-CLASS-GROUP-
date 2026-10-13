@@ -435,13 +435,14 @@
     }
 
     .chat-avatar {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       border: 2px solid #34d399;
       object-fit: cover;
       background: #031411;
       pointer-events: none;
+      flex-shrink: 0;
     }
 
     /* Active Conversation View */
@@ -454,7 +455,7 @@
     }
 
     .active-chat-header-bar {
-      height: 52px;
+      height: 54px;
       background: rgba(4, 28, 23, 0.95);
       border-bottom: 1px solid rgba(52, 211, 153, 0.35);
       display: flex;
@@ -824,7 +825,7 @@
       </a>
 
       <div class="search-container">
-        <input type="text" id="chatSearchInput" class="search-input" placeholder="Search chats..." autocomplete="off" oninput="filterAcceptedChats(this.value)" />
+        <input type="text" id="chatSearchInput" class="search-input" placeholder="Search chats by name, enroll, email..." autocomplete="off" oninput="filterAcceptedChats(this.value)" />
       </div>
 
       <a href="profile.html" class="profile-nav-btn">
@@ -851,10 +852,10 @@
         <div class="active-chat-header-bar">
           <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="exitActiveChat()">
             <span style="font-size:1.2rem; color:#34d399;">❮</span>
-            <img id="chatTargetAvatar" class="chat-avatar" style="width:36px; height:36px;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
-            <div>
-              <h3 id="chatTargetName" style="font-size:0.88rem; font-weight:700; color:#ffffff;">Secure Chats</h3>
-              <span id="chatTargetStatus" style="font-size:0.66rem; color:#34d399;">● Online & Firebase Encrypted</span>
+            <img id="chatTargetAvatar" class="chat-avatar" style="width:38px; height:38px;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
+            <div style="min-width:0;">
+              <h3 id="chatTargetName" style="font-size:0.9rem; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Secure Chats</h3>
+              <span id="chatTargetStatus" style="font-size:0.68rem; color:#34d399;">● Online & Firebase Encrypted</span>
             </div>
           </div>
           <button class="attach-btn" style="width:34px; height:34px; font-size:0.75rem;" onclick="exitActiveChat()">Back</button>
@@ -1071,7 +1072,8 @@
         if (!snap.empty) {
           myStudentDocId = snap.docs[0].id;
           const me = snap.docs[0].data();
-          if (me.photo) document.getElementById('navProfilePic').src = me.photo;
+          const myPic = me.photo || me.profilePic || me.avatar || me.photoURL;
+          if (myPic) document.getElementById('navProfilePic').src = myPic;
         }
       } catch (err) {
         console.warn("Doc lookup error:", err);
@@ -1288,7 +1290,9 @@
       }
     }
 
-    // 6. CONVERSATIONS MANAGEMENT & SEARCH
+    // ==========================================
+    // 6. CONVERSATIONS MANAGEMENT (FIREBASE REAL DATA MATCH)
+    // ==========================================
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
@@ -1318,33 +1322,53 @@
         }
 
         acceptedChatsListCache = [];
+        const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
         for (let peer of peerAccounts) {
-          let name = peer;
-          let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+          let realName = peer;
+          let enrollNo = "N/A";
+          let photoUrl = defaultPhoto;
           let peerUid = "";
 
+          // Firebase 'students' कलेक्शन से सटीक डाटा फेच
           let sSnap = await db.collection('students').where('email', '==', peer).get();
           if (!sSnap.empty) {
             const sData = sSnap.docs[0].data();
-            name = sData.name || peer;
+            
+            // रियल नेम
+            realName = sData.name || sData.fullName || sData.realName || peer;
+            
+            // एनरोलमेंट नंबर
+            enrollNo = sData.enroll || sData.enrollment || sData.enrollmentNo || sData.enrollNo || sData.rollNo || "N/A";
+            
+            // यूज़र प्रोफ़ाइल पिक्चर
+            if (sData.photo || sData.profilePic || sData.avatar || sData.photoURL) {
+              photoUrl = sData.photo || sData.profilePic || sData.avatar || sData.photoURL;
+            }
+            
             peerUid = sData.uid || sSnap.docs[0].id;
-            if (sData.photo) photo = sData.photo;
           }
 
-          acceptedChatsListCache.push({ peer, name, photo, peerUid });
+          acceptedChatsListCache.push({
+            peer: peer,
+            name: realName,
+            enroll: enrollNo,
+            photo: photoUrl,
+            peerUid: peerUid
+          });
         }
 
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
         if (savedActivePeer) {
           const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === savedActivePeer.toLowerCase());
-          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
         } else if (directTarget) {
           const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === directTarget.toLowerCase());
-          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Error loading conversations:", err);
       }
     }
 
@@ -1357,15 +1381,23 @@
         return;
       }
 
-      list.forEach(({ peer, name, photo, peerUid }) => {
+      const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      list.forEach(({ peer, name, enroll, photo, peerUid }) => {
         const item = document.createElement('div');
         item.className = 'chat-user-item';
-        item.onclick = () => openActiveChat(peer, name, photo, peerUid);
+        item.onclick = () => openActiveChat(peer, name, photo, peerUid, enroll);
         item.innerHTML = `
-          <img src="${photo}" class="chat-avatar" alt="Avatar" />
-          <div style="flex:1;">
-            <strong style="font-size:0.92rem;">${name}</strong>
-            <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
+          <img src="${photo}" class="chat-avatar" alt="${name}" onerror="this.onerror=null; this.src='${defaultPhoto}';" />
+          <div style="flex:1; min-width:0;">
+            <strong style="font-size:0.92rem; color:#ffffff; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</strong>
+            <div style="font-size:0.72rem; color:#94a3b8; display:flex; align-items:center; gap:6px; margin-top:3px;">
+              <span style="background:rgba(52,211,153,0.15); color:#34d399; padding:2px 7px; border-radius:6px; font-weight:700; font-size:0.68rem; border:1px solid rgba(52,211,153,0.35);">
+                🪪 ${enroll}
+              </span>
+              <span style="color:#64748b;">•</span>
+              <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#cbd5e1;">${peer}</span>
+            </div>
           </div>
         `;
         friendsList.appendChild(item);
@@ -1379,19 +1411,22 @@
         return;
       }
       const filtered = acceptedChatsListCache.filter(item => {
-        return item.name.toLowerCase().includes(q) || item.peer.toLowerCase().includes(q);
+        return item.name.toLowerCase().includes(q) || 
+               item.peer.toLowerCase().includes(q) || 
+               item.enroll.toLowerCase().includes(q);
       });
       renderFilteredAcceptedChats(filtered);
     }
 
-    async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
+    async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "", peerEnroll = "") {
       sessionStorage.setItem('activeChatPeer', peerAccount);
 
       targetUserData = {
         email: peerAccount,
         name: peerName,
         photo: peerPhoto,
-        uid: peerUid
+        uid: peerUid,
+        enroll: peerEnroll
       };
 
       const idA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
@@ -1399,8 +1434,15 @@
       activeChatRoomId = [idA, idB].sort().join('___');
 
       document.getElementById('chatTargetName').innerText = peerName;
-      document.getElementById('chatTargetStatus').innerText = "● Online & Firebase Encrypted";
-      document.getElementById('chatTargetAvatar').src = peerPhoto;
+      document.getElementById('chatTargetStatus').innerText = peerEnroll && peerEnroll !== "N/A" 
+        ? `🪪 ${peerEnroll} ● Online & Encrypted` 
+        : "● Online & Firebase Encrypted";
+      
+      const avatarEl = document.getElementById('chatTargetAvatar');
+      avatarEl.src = peerPhoto;
+      avatarEl.onerror = function() {
+        this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+      };
 
       document.getElementById('chatListView').style.display = 'none';
       document.getElementById('requestsWrap').style.display = 'none';
@@ -1493,10 +1535,10 @@
       }
       const s = sSnap.docs[0].data();
       const payload = JSON.stringify({
-        name: s.name,
-        enroll: s.enroll,
+        name: s.name || s.fullName || 'Student',
+        enroll: s.enroll || s.enrollment || 'N/A',
         email: s.email,
-        photo: s.photo || ''
+        photo: s.photo || s.profilePic || ''
       });
       sendEncryptedRecord('contact_card', payload);
     }
