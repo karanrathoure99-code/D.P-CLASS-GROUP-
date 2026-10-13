@@ -48,7 +48,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      pointer-events: none; /* टच व क्लिक तुरंत एक्टिव रहेंगे */
+      pointer-events: none;
       animation: autoDismissSplash 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
@@ -1491,68 +1491,112 @@
     }
 
     // ==========================================
-    // 9. ACCEPTED CONVERSATIONS & SEARCH FILTER
+    // 9. HIGH-SPEED BULLETPROOF CONVERSATIONS LOADER
     // ==========================================
-    let activeChatRoomId = null;
-    let targetUserData = null;
-    let msgListenerUnsub = null;
-
     async function loadConversations() {
       const friendsList = document.getElementById('friendsList');
-      if (!loggedAccount) return;
+      if (!friendsList) return;
+
+      if (!loggedAccount) {
+        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.82rem; padding:12px; text-align:center;'>लॉगिन सत्र नहीं मिला। कृपया दोबारा लॉगिन करें।</p>";
+        return;
+      }
+
+      // सेफ़्टी टाइमआउट: 2.5 सेकंड में रिस्पॉन्स न आने पर स्क्रीन तुरंत अनफ्रीज़ होगी
+      let isRendered = false;
+      const fallbackTimer = setTimeout(() => {
+        if (!isRendered && friendsList.innerHTML.includes("Loading chats...")) {
+          friendsList.innerHTML = `
+            <div style="text-align:center; padding:16px;">
+              <p style="color:#94a3b8; font-size:0.82rem;">कोई पुरानी चैट नहीं मिली या नेटवर्क धीमा है।</p>
+              <button onclick="loadConversations()" style="margin-top:8px; background:rgba(16,185,129,0.2); border:1px solid #34d399; color:#34d399; padding:5px 12px; border-radius:12px; font-size:0.75rem; cursor:pointer;">पुनः प्रयास करें 🔄</button>
+            </div>
+          `;
+        }
+      }, 2500);
 
       try {
-        const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
-        const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
+        // दोनों तरफ की फ्रेंडशिप एक साथ सुरक्षित फेच करें
+        const [q1, q2] = await Promise.all([
+          db.collection('friendships').where('user1', '==', loggedAccount).get().catch(() => ({ docs: [] })),
+          db.collection('friendships').where('user2', '==', loggedAccount).get().catch(() => ({ docs: [] }))
+        ]);
 
         const peerAccounts = new Set();
-        q1.forEach(d => peerAccounts.add(d.data().user2));
-        q2.forEach(d => peerAccounts.add(d.data().user1));
+        if (q1 && q1.docs) {
+          q1.docs.forEach(d => {
+            const val = d.data()?.user2;
+            if (val && typeof val === 'string') peerAccounts.add(val.trim().toLowerCase());
+          });
+        }
+        if (q2 && q2.docs) {
+          q2.docs.forEach(d => {
+            const val = d.data()?.user1;
+            if (val && typeof val === 'string') peerAccounts.add(val.trim().toLowerCase());
+          });
+        }
 
         const urlParams = new URLSearchParams(window.location.search);
         const directTarget = urlParams.get('to');
-        if (directTarget) peerAccounts.add(directTarget.toLowerCase());
+        if (directTarget && typeof directTarget === 'string') {
+          peerAccounts.add(directTarget.trim().toLowerCase());
+        }
 
         const savedActivePeer = sessionStorage.getItem('activeChatPeer');
-        if (savedActivePeer) peerAccounts.add(savedActivePeer.toLowerCase());
+        if (savedActivePeer && typeof savedActivePeer === 'string') {
+          peerAccounts.add(savedActivePeer.trim().toLowerCase());
+        }
 
         if (peerAccounts.size === 0) {
-          friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
+          clearTimeout(fallbackTimer);
+          isRendered = true;
+          friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.82rem; padding:14px; text-align:center;'>अभी कोई बातचीत शुरू नहीं हुई है।</p>";
           return;
         }
 
-        acceptedChatsListCache = [];
-        for (let peer of peerAccounts) {
+        // सभी यूज़र्स का डेटा एक साथ (Parallel) लोड करें
+        const peerList = Array.from(peerAccounts);
+        const fetchPromises = peerList.map(async (peer) => {
           let name = peer;
           let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
           let peerUid = "";
 
-          let sSnap = await db.collection('students').where('email', '==', peer).get();
-          if (!sSnap.empty) {
-            const sData = sSnap.docs[0].data();
-            name = sData.name || peer;
-            peerUid = sData.uid || sSnap.docs[0].id;
-            if (sData.photo) photo = sData.photo;
-          }
+          try {
+            const sSnap = await db.collection('students').where('email', '==', peer).limit(1).get();
+            if (!sSnap.empty) {
+              const sData = sSnap.docs[0].data();
+              name = sData.name || peer;
+              peerUid = sData.uid || sSnap.docs[0].id;
+              if (sData.photo) photo = sData.photo;
+            }
+          } catch (e) {}
 
-          acceptedChatsListCache.push({ peer, name, photo, peerUid });
-        }
+          return { peer, name, photo, peerUid };
+        });
 
+        acceptedChatsListCache = await Promise.all(fetchPromises);
+        clearTimeout(fallbackTimer);
+        isRendered = true;
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
+        // एक्टिव चैट रीस्टोर
         if (savedActivePeer) {
           const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === savedActivePeer.toLowerCase());
-          if (found) {
-            openActiveChat(found.peer, found.name, found.photo, found.peerUid);
-          }
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
         } else if (directTarget) {
           const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === directTarget.toLowerCase());
-          if (found) {
-            openActiveChat(found.peer, found.name, found.photo, found.peerUid);
-          }
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
         }
+
       } catch (err) {
-        console.error(err);
+        clearTimeout(fallbackTimer);
+        isRendered = true;
+        friendsList.innerHTML = `
+          <div style="text-align:center; padding:16px;">
+            <p style="color:#fca5a5; font-size:0.82rem;">चैट लोड करने में समस्या आई।</p>
+            <button onclick="loadConversations()" style="margin-top:8px; background:rgba(16,185,129,0.2); border:1px solid #34d399; color:#34d399; padding:5px 12px; border-radius:12px; font-size:0.75rem; cursor:pointer;">दोबारा लोड करें 🔄</button>
+          </div>
+        `;
       }
     }
 
