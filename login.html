@@ -75,6 +75,7 @@
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.18);
       position: relative;
       z-index: 2;
+      transition: transform 0.3s ease;
     }
 
     .brand-header {
@@ -138,6 +139,19 @@
       border-color: #34d399;
       box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
       background: rgba(6, 43, 37, 0.9);
+    }
+
+    /* इनपुट एरर शेक क्लास */
+    .input-field.input-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.45) !important;
+      animation: fieldShake 0.35s ease-in-out;
+    }
+
+    @keyframes fieldShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
     }
 
     .error-msg {
@@ -227,6 +241,66 @@
       color: #64748b;
       margin-top: 18px;
     }
+
+    /* ========================================== */
+    /* एनिमेटेड इन-ऐप नोटिफिकेशन (Toast Popup)    */
+    /* ========================================== */
+    .top-toast-alert {
+      position: fixed;
+      top: -130px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      background: rgba(10, 28, 24, 0.96);
+      border: 1.5px solid #ef4444;
+      border-radius: 20px;
+      padding: 14px 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(239, 68, 68, 0.35);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      z-index: 99999;
+      pointer-events: none;
+      transition: top 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .top-toast-alert.active {
+      top: 25px;
+      pointer-events: auto;
+      animation: dropVibrate 0.45s ease-in-out;
+    }
+
+    .toast-inner-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-bell-icon {
+      font-size: 1.6rem;
+      filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+    }
+
+    .toast-texts h4 {
+      font-size: 0.95rem;
+      color: #f87171;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .toast-texts p {
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      margin-top: 2px;
+    }
+
+    @keyframes dropVibrate {
+      0% { transform: translate(-50%, -10px); }
+      30% { transform: translate(calc(-50% - 6px), 0); }
+      50% { transform: translate(calc(-50% + 6px), 0); }
+      70% { transform: translate(calc(-50% - 3px), 0); }
+      100% { transform: translate(-50%, 0); }
+    }
   </style>
 
   <!-- Firebase App, Auth & Firestore SDKs -->
@@ -235,6 +309,17 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body oncontextmenu="return false;">
+
+  <!-- टॉप इन-ऐप नोटिफिकेशन बैनर -->
+  <div id="toastNotification" class="top-toast-alert">
+    <div class="toast-inner-box">
+      <span class="toast-bell-icon">🔔</span>
+      <div class="toast-texts">
+        <h4>Authentication Alert</h4>
+        <p id="toastBodyText">Please re-enter your right details!</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Falling Medicine Animation Container -->
   <div class="rain-container" id="rainContainer"></div>
@@ -304,6 +389,68 @@
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
+
+    // ==========================================
+    // 0. सिस्टम नोटिफिकेशन परमिशन
+    // ==========================================
+    window.addEventListener('load', () => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    });
+
+    let toastDismissTimer;
+
+    // 3-चरणीय एरर हैंडलर फ़ंक्शन
+    function triggerThreeStepError(boxMessage, notificationMessage = "Please re-enter your right details!") {
+      const errorMsg = document.getElementById('errorMsg');
+      const userInput = document.getElementById('userIdentifier');
+      const passInput = document.getElementById('userPassword');
+      const toast = document.getElementById('toastNotification');
+      const toastBody = document.getElementById('toastBodyText');
+
+      // स्टेप 1: उसी जगह तुरंत एरर दिखाना + इनपुट शेक
+      errorMsg.innerHTML = boxMessage;
+      errorMsg.style.display = 'block';
+
+      userInput.classList.add('input-error');
+      passInput.classList.add('input-error');
+      setTimeout(() => {
+        userInput.classList.remove('input-error');
+        passInput.classList.remove('input-error');
+      }, 500);
+
+      // स्टेप 2: 0.6 सेकंड बाद स्क्रीन पर एनीमेशन टोस्ट आना
+      setTimeout(() => {
+        if (toast) {
+          toastBody.innerText = notificationMessage;
+          toast.classList.add('active');
+
+          clearTimeout(toastDismissTimer);
+          toastDismissTimer = setTimeout(() => {
+            toast.classList.remove('active');
+          }, 4000);
+        }
+      }, 600);
+
+      // स्टेप 3: 1.5 सेकंड बाद असली फ़ोन/पीसी का सिस्टम नोटिफिकेशन ट्रिगर होना
+      setTimeout(() => {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const options = {
+            body: notificationMessage,
+            icon: './logo.png',
+            badge: './logo.png',
+            vibrate: [250, 100, 250]
+          };
+
+          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => reg.showNotification("D.Pharma Portal Alert", options));
+          } else {
+            new Notification("D.Pharma Portal Alert", options);
+          }
+        }
+      }, 1500);
+    }
 
     // 1. Firebase Initialization
     const firebaseConfig = {
@@ -383,7 +530,6 @@
           loginBtn.disabled = true;
           loginBtn.innerText = "Authenticating Developer...";
           try {
-            // Sign in or create Developer in Firebase Auth
             try {
               await auth.signInWithEmailAndPassword(DEVELOPER_ID, DEVELOPER_PASS);
             } catch (authErr) {
@@ -401,15 +547,19 @@
             return;
           } catch (devErr) {
             console.error("Developer Auth Error:", devErr);
-            errorMsg.innerHTML = `❌ 🔐 <b>Developer Auth Failed:</b> ${devErr.message}`;
-            errorMsg.style.display = 'block';
+            triggerThreeStepError(
+              `❌ 🔐 <b>Developer Auth Failed:</b> ${devErr.message}`,
+              "Please re-enter your right details!"
+            );
             loginBtn.disabled = false;
             loginBtn.innerText = "Log In";
             return;
           }
         } else {
-          errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password!</b> Developer access denied. 🛑";
-          errorMsg.style.display = 'block';
+          triggerThreeStepError(
+            "❌ 🔐 <b>Wrong Password!</b> Developer access denied. 🛑",
+            "Please re-enter your right details!"
+          );
           return;
         }
       }
@@ -444,8 +594,10 @@
         }
 
         if (!targetEmail) {
-          errorMsg.innerHTML = "❌ 👤 <b>Student ID not registered!</b> Contact class developer. 🚫";
-          errorMsg.style.display = 'block';
+          triggerThreeStepError(
+            "❌ 👤 <b>Student ID not registered!</b> Contact class developer. 🚫",
+            "Please re-enter your right details!"
+          );
           loginBtn.disabled = false;
           loginBtn.innerText = "Log In";
           return;
@@ -479,14 +631,18 @@
         window.location.replace('home.html');
       } catch (err) {
         console.error("Auth error:", err);
-        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-          errorMsg.innerHTML = "❌ 🔐 <b>Wrong Password or ID!</b> Please check and re-enter. 💊";
+        let errorBoxText = "";
+        
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') {
+          errorBoxText = "❌ 🔐 <b>Wrong Password or ID!</b> Please check and re-enter. 💊";
         } else if (err.code === 'auth/network-request-failed') {
-          errorMsg.innerHTML = "⚠️ 🌐 <b>Network error!</b> Please check your internet connection. 📡";
+          errorBoxText = "⚠️ 🌐 <b>Network error!</b> Please check your internet connection. 📡";
         } else {
-          errorMsg.innerHTML = `⚠️ 🌐 <b>Authentication error!</b> (${err.message}) 📡`;
+          errorBoxText = `⚠️ 🌐 <b>Authentication error!</b> (${err.message}) 📡`;
         }
-        errorMsg.style.display = 'block';
+
+        // 3-चरणीय फ़्लो ट्रिगर करें
+        triggerThreeStepError(errorBoxText, "Please re-enter your right details!");
       } finally {
         loginBtn.disabled = false;
         loginBtn.innerText = "Log In";
