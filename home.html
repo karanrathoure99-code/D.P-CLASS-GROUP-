@@ -28,8 +28,95 @@
     }
 
     /* =========================================================
-       NEW 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION
+       TOP POP-UP NOTIFICATION BANNER WITH LOGO BADGE
        ========================================================= */
+    #topNotificationBanner {
+      position: fixed;
+      top: -110px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 440px;
+      background: rgba(4, 34, 28, 0.96);
+      border: 1.5px solid #34d399;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(52, 211, 153, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      transition: top 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    #topNotificationBanner.show {
+      top: 16px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .banner-avatar-cluster {
+      position: relative;
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+    }
+
+    .banner-user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1.5px solid #34d399;
+      object-fit: cover;
+      background: #021a15;
+    }
+
+    /* D-Pharma लोगो बैज अवतार के कोने पर */
+    .banner-logo-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 6px;
+      border: 1.5px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+    }
+
+    .banner-text-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .banner-text-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .banner-text-sub {
+      font-size: 0.76rem;
+      color: #e2e8f0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -53,7 +140,6 @@
       perspective: 800px;
     }
 
-    /* Radiant Burst Core in the Center */
     .capsule-energy-core {
       position: absolute;
       width: 16px;
@@ -77,7 +163,6 @@
       z-index: 2;
     }
 
-    /* Left Shell - Emerald Metallic */
     .capsule-shell-left {
       left: 25px;
       background: linear-gradient(145deg, #10b981 0%, #064e3b 100%);
@@ -88,7 +173,6 @@
       transform-origin: left center;
     }
 
-    /* Right Shell - Platinum Frosted */
     .capsule-shell-right {
       right: 25px;
       background: linear-gradient(145deg, #ffffff 0%, #94a3b8 100%);
@@ -99,7 +183,6 @@
       transform-origin: right center;
     }
 
-    /* Cracking & Separation Trigger */
     .cracked .capsule-shell-left {
       transform: translateX(-110px) translateY(-10px) rotate(-35deg) scale(0.85);
       opacity: 0;
@@ -170,7 +253,7 @@
       transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
-    /* Top Bar - Highlighted Floating Glowing Dock */
+    /* Top Bar */
     .top-navbar {
       display: flex;
       align-items: center;
@@ -238,7 +321,6 @@
       background: rgba(3, 24, 19, 0.95);
     }
 
-    /* Protected Profile Avatar */
     .profile-nav-btn {
       width: 44px;
       height: 44px;
@@ -388,7 +470,7 @@
       user-select: text;
     }
 
-    /* NOTICE BOARD LOGO HEADER */
+    /* Notice Board Logo Header */
     .notice-board-brand {
       display: flex;
       align-items: center;
@@ -412,7 +494,7 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* WHATSAPP STORY STYLE NOTICE VIEWER */
+    /* Story Card Wrapper */
     .story-card-wrapper {
       position: relative;
       background: linear-gradient(180deg, rgba(8, 48, 41, 0.95) 0%, rgba(2, 20, 17, 0.98) 100%);
@@ -546,7 +628,7 @@
       cursor: pointer;
     }
 
-    /* FULLSCREEN HIGH-QUALITY MEDIA MODAL VIEWER */
+    /* Media Fullscreen Modal */
     .image-modal-overlay {
       position: fixed;
       inset: 0;
@@ -589,7 +671,7 @@
       cursor: zoom-out;
     }
 
-    /* LONG PRESS CONTEXT MENU MODAL */
+    /* Long Press Context Menu */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
@@ -669,7 +751,7 @@
       transform: none;
     }
 
-    /* Profile Dropdown / Modal */
+    /* Profile Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -762,7 +844,7 @@
       flex: 1;
     }
 
-    /* Floating Bottom Nav Dock */
+    /* Floating Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
@@ -833,7 +915,7 @@
     }
   </style>
 
-  <!-- Firebase SDKs (Auth + Firestore Compat) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -841,8 +923,24 @@
 <body oncontextmenu="return false;">
 
   <!-- =========================================================
-       NEW 3D CAPSULE CRACKING OVERLAY (Always on Load)
+       TOP POP-UP NOTIFICATION BANNER WITH D-PHARMA BADGE
        ========================================================= -->
+  <div id="topNotificationBanner" onclick="handleNotificationClick()">
+    <div class="banner-avatar-cluster">
+      <img id="bannerSenderPhoto" class="banner-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Sender" />
+      <div class="banner-logo-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
+          <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="banner-text-wrap">
+      <div class="banner-text-title" id="bannerTitle">New Notification</div>
+      <div class="banner-text-sub" id="bannerSub">You have a new message from New User</div>
+    </div>
+  </div>
+
+  <!-- 3D Capsule Overlay -->
   <div id="capsuleSplashOverlay">
     <div class="capsule-wrapper-3d" id="capsuleWrapper">
       <div class="capsule-half-shell capsule-shell-left"></div>
@@ -852,16 +950,16 @@
     <div class="capsule-badge-label">D-PHARMA PORTAL</div>
   </div>
 
-  <!-- Falling Medicines Background Animation -->
+  <!-- Medicine Rain -->
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- FULLSCREEN HIGH QUALITY MEDIA MODAL VIEWER (Image 50% Zoom & Video Player) -->
+  <!-- Media Modal -->
   <div class="image-modal-overlay" id="imageModalOverlay" onclick="closeImageModal()">
     <div class="image-zoom-box" id="modalMediaContainer"></div>
     <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 12px;">Tap outside to close • Tap photo to toggle 50% Zoom</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU -->
+  <!-- Context Menu -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
       <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
@@ -896,9 +994,9 @@
       <div id="usersList"></div>
     </div>
 
-    <!-- Protected Notice Creation Area (Cloudinary Attached with public_id Tracking) -->
+    <!-- Protected Notice Creation Area -->
     <div id="createNoticePanel" class="glass-card">
-      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Auto-Expiring Cloud Media)</h3>
+      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (5-Day Auto-Expiring Media)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
       <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
       <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
@@ -909,7 +1007,7 @@
       <button onclick="publishNotice()" id="btnPublish" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
     </div>
 
-    <!-- NOTICE BOARD LOGO BRANDING -->
+    <!-- Official Notice Board -->
     <div class="notice-board-brand">
       <div class="notice-logo-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
@@ -919,12 +1017,10 @@
       <span style="font-size: 0.88rem; font-weight: 800; color: #34d399; letter-spacing: 0.5px;">OFFICIAL ℞ NOTICE BOARD</span>
     </div>
 
-    <!-- WHATSAPP STORY STYLE NOTICE SECTION -->
+    <!-- WhatsApp Story Viewer Box -->
     <div class="story-card-wrapper" id="storyNoticeBox">
-      <!-- Story Segments Progress -->
       <div class="story-progress-bar" id="storyProgress"></div>
 
-      <!-- Story Header -->
       <div class="story-header">
         <div class="story-author">
           <img id="storyAuthorPhoto" class="story-avatar protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Author" />
@@ -936,7 +1032,6 @@
         <div id="devDeleteWrap"></div>
       </div>
 
-      <!-- Story Body -->
       <div class="story-content-body">
         <div class="story-title" id="storyTitle">Notice Board</div>
         <div class="story-desc" id="storyDesc">Loading updates...</div>
@@ -944,7 +1039,6 @@
         <div id="storyLinkWrap" style="margin-top:10px;"></div>
       </div>
 
-      <!-- Story Footer -->
       <div class="story-footer-nav">
         <button class="arrow-btn" id="prevStoryBtn" onclick="navigateStory(-1)">◀</button>
         <span id="storyCounter" style="font-size:0.8rem; color:#94a3b8; font-weight:600;">0 / 0</span>
@@ -955,7 +1049,7 @@
     <div class="fullscreen-hint">📱 Double tap anywhere on screen for Fullscreen mode</div>
   </div>
 
-  <!-- Read-Only Profile View Modal with 'My Profile ➔' Button -->
+  <!-- Profile Modal -->
   <div class="modal-overlay" id="profileModal" onclick="handleProfileBackdropClick(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <img id="modalProfileImg" class="modal-photo protected-img" src="" alt="Profile" />
@@ -975,7 +1069,7 @@
     </div>
   </div>
 
-  <!-- Floating Bottom Navigation Bar (With Sound & Haptic Feedback) -->
+  <!-- Bottom Navigation Dock -->
   <div class="bottom-nav">
     <div class="nav-item active" onclick="navWithFeedback('home.html')">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -993,74 +1087,184 @@
 
   <script>
     // =========================================================
-    // 1. UNIQUE 3D CAPSULE CRACK & ENTRANCE CONTROLLER (Every Load)
+    // 1. INLINE SERVICE WORKER (NO SEPARATE SW.JS FILE NEEDED)
+    // =========================================================
+    const swCode = `
+      self.addEventListener('notificationclick', function(event) {
+        event.notification.close();
+        event.waitUntil(
+          clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            for (let i = 0; i < clientList.length; i++) {
+              let client = clientList[i];
+              if (client.url && 'focus' in client) {
+                return client.focus();
+              }
+            }
+            if (clients.openWindow) {
+              return clients.openWindow(event.notification.data ? event.notification.data.url : 'chats.html');
+            }
+          })
+        );
+      });
+    `;
+
+    // रनटाइम पर बिना अलग फाइल के सर्विस वर्कर चालू करना
+    if ('serviceWorker' in navigator) {
+      try {
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(e => {
+          // अगर Blob ब्लॉक हो तो लोकल sw.js पर फॉलबैक
+          navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+      } catch(err) {}
+    }
+
+    // =========================================================
+    // 2. 3D CAPSULE CRACK CONTROLLER
     // =========================================================
     window.addEventListener('DOMContentLoaded', () => {
       const splash = document.getElementById('capsuleSplashOverlay');
       const wrapper = document.getElementById('capsuleWrapper');
       
-      // Capsule fractures with energy burst at 320ms
       setTimeout(() => {
         wrapper.classList.add('cracked');
-        triggerTapFeedback(); // Haptic pulse at crack
+        triggerTapFeedback();
       }, 320);
 
-      // Smooth dissolve into the main view
       setTimeout(() => {
         if (splash) {
           splash.style.opacity = '0';
           setTimeout(() => splash.style.display = 'none', 450);
         }
       }, 1050);
+
+      // पहली बार परमिशन चेक
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
     });
 
-    // ==========================================
-    // AUDIO POP & HAPTIC VIBRATION FEEDBACK
-    // ==========================================
+    // =========================================================
+    // SMART NOTIFICATION ENGINE (IN-APP vs REAL BACKGROUND)
+    // =========================================================
+    let bannerHideTimer = null;
+    let currentBannerRedirectUrl = 'chats.html';
+
+    function sendSmartNotification({ title, message, photo, redirectUrl = 'chats.html' }) {
+      const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      // 1. अगर ऐप बैकग्राउंड में है या स्क्रीन बंद है -> REAL SYSTEM NOTIFICATION
+      if (document.hidden) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: message,
+              icon: photo || defaultPhoto,
+              badge: photo || defaultPhoto,
+              vibrate: [100, 50, 100],
+              data: { url: redirectUrl }
+            });
+          }).catch(() => {
+            // डायरेक्ट ब्राउज़र नोटिफिकेशन फॉलबैक
+            new Notification(title, {
+              body: message,
+              icon: photo || defaultPhoto
+            });
+          });
+        }
+        return;
+      }
+
+      // 2. अगर यूजर ऐप के अंदर है -> इन-ऐप टॉप फ्लोटिंग कार्ड
+      const banner = document.getElementById('topNotificationBanner');
+      const bannerTitle = document.getElementById('bannerTitle');
+      const bannerSub = document.getElementById('bannerSub');
+      const bannerPhoto = document.getElementById('bannerSenderPhoto');
+
+      bannerTitle.innerText = title;
+      bannerSub.innerText = message;
+      bannerPhoto.src = photo || defaultPhoto;
+      currentBannerRedirectUrl = redirectUrl;
+
+      banner.classList.add('show');
+      triggerNotificationAlert(); // रियल फोन साउंड और वाइब्रेशन
+
+      clearTimeout(bannerHideTimer);
+      bannerHideTimer = setTimeout(() => {
+        banner.classList.remove('show');
+      }, 4000);
+    }
+
+    function handleNotificationClick() {
+      triggerTapFeedback();
+      const banner = document.getElementById('topNotificationBanner');
+      banner.classList.remove('show');
+      window.location.href = currentBannerRedirectUrl;
+    }
+
+    // =========================================================
+    // AUDIO & HAPTIC VIBRATION
+    // =========================================================
     let audioCtx = null;
 
     function triggerTapFeedback() {
       try {
-        if (navigator.vibrate) {
-          navigator.vibrate(25);
-        }
+        if (navigator.vibrate) navigator.vibrate(25);
       } catch (e) {}
 
       try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
 
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.type = 'sine';
         const startTime = audioCtx.currentTime;
         osc.frequency.setValueAtTime(850, startTime);
         osc.frequency.exponentialRampToValueAtTime(1250, startTime + 0.05);
-
         gain.gain.setValueAtTime(0.18, startTime);
         gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.07);
-
         osc.start(startTime);
         osc.stop(startTime + 0.07);
       } catch (e) {}
     }
 
+    function triggerNotificationAlert() {
+      try {
+        if (navigator.vibrate) navigator.vibrate([40, 60, 100]);
+      } catch (e) {}
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const playTone = (freq, start, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.connect(audioCtx.destination);
+          osc.connect(gain);
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(0.35, start + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.start(start);
+          osc.stop(start + duration);
+        };
+
+        const t = audioCtx.currentTime;
+        playTone(880, t, 0.18);
+        playTone(1318.5, t + 0.09, 0.35);
+      } catch (e) {}
+    }
+
     function navWithFeedback(targetUrl) {
       triggerTapFeedback();
-      if (targetUrl === 'home.html' && window.location.pathname.endsWith('home.html')) {
-        return;
-      }
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 70);
+      if (targetUrl === 'home.html' && window.location.pathname.endsWith('home.html')) return;
+      setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
     // ==========================================
@@ -1068,8 +1272,10 @@
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq";
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
+    const CLOUDINARY_API_KEY = "282264657557848";
+    const CLOUDINARY_API_SECRET = "D6Q6z5A5lK2LQsc8NIUlPAaQsZU";
 
-    // SECURITY GUARDS (Anti-Inspect / F12 Block)
+    // Anti-Inspect Guards
     document.addEventListener('keydown', function (e) {
       if (
         e.keyCode === 123 ||
@@ -1087,7 +1293,7 @@
 
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
 
-    // FAST LOCAL PROFILE PRELOAD
+    // Fast Profile Preload
     const cachedProfile = localStorage.getItem('cachedUserObj');
     let currentUserData = cachedProfile ? JSON.parse(cachedProfile) : null;
     let authUser = null;
@@ -1115,6 +1321,15 @@
     try {
       db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     } catch(e) {}
+
+    // LOCAL STORAGE CACHE PRE-RENDER
+    let activeNotices = JSON.parse(localStorage.getItem('portal_notices_cache')) || [];
+    let currentStoryIndex = 0;
+    let activeMediaUrl = "";
+
+    if (activeNotices.length > 0) {
+      renderCurrentStory();
+    }
 
     // AUTH STATE
     auth.onAuthStateChanged(async (user) => {
@@ -1164,10 +1379,187 @@
       }
 
       preloadStudentsForFastSearch();
-      loadStoryNotices();
+      loadStoryNoticesRealtime();
+      listenIncomingChatMessages(user.uid);
+      triggerAutoCleanupExpired();
     });
 
+    // =========================================================
+    // REAL-TIME INCOMING CHAT NOTIFICATION LISTENER
+    // =========================================================
+    let isChatListenerInitialized = false;
+
+    function listenIncomingChatMessages(currentUserId) {
+      db.collection('chatRequests')
+        .where('toId', '==', currentUserId)
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added' && isChatListenerInitialized) {
+              const reqData = change.doc.data();
+              const sender = reqData.fromName || 'New User';
+              sendSmartNotification({
+                title: "New Message Received",
+                message: `You have a new message from ${sender}`,
+                photo: reqData.fromPhoto || '',
+                redirectUrl: `chats.html?to=${reqData.fromUid}`
+              });
+            }
+          });
+          isChatListenerInitialized = true;
+        }, (err) => {
+          console.error("Chat notification listen error:", err);
+        });
+    }
+
+    // =========================================================
+    // 5-DAY AUTOMATIC CLEANUP & REAL-TIME DELETION ENGINE
+    // =========================================================
+    async function triggerAutoCleanupExpired() {
+      try {
+        const now = Date.now();
+        const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+        const cutoff = new Date(now - FIVE_DAYS_MS);
+
+        const snap = await db.collection('notices')
+          .where('createdAt', '<=', cutoff)
+          .get();
+
+        if (snap.empty) return;
+
+        for (const doc of snap.docs) {
+          const data = doc.data();
+          await purgeNoticeMediaAndDoc(doc.id, data);
+        }
+      } catch (err) {
+        console.error("Auto cleanup error:", err);
+      }
+    }
+
+    async function purgeNoticeMediaAndDoc(docId, noticeData) {
+      try {
+        const mediaList = noticeData.media || [];
+        for (const item of mediaList) {
+          if (item.public_id) {
+            await deleteFromCloudinaryDirect(item.public_id, item.type || 'image');
+          }
+        }
+        await db.collection('notices').doc(docId).delete();
+
+        let localCache = JSON.parse(localStorage.getItem('portal_notices_cache')) || [];
+        localCache = localCache.filter(n => n.id !== docId);
+        localStorage.setItem('portal_notices_cache', JSON.stringify(localCache));
+
+        console.log("Completely Purged notice:", docId);
+      } catch (e) {
+        console.error("Purge failure for", docId, e);
+      }
+    }
+
+    async function deleteFromCloudinaryDirect(publicId, resourceType) {
+      try {
+        const timestamp = Math.round(Date.now() / 1000);
+        const signatureString = `public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+        const signature = await generateSha1Hash(signatureString);
+
+        const formData = new FormData();
+        formData.append("public_id", publicId);
+        formData.append("api_key", CLOUDINARY_API_KEY);
+        formData.append("timestamp", timestamp);
+        formData.append("signature", signature);
+
+        await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/destroy`, {
+          method: "POST",
+          body: formData
+        });
+      } catch (err) {
+        console.error("Cloudinary destroy error:", err);
+      }
+    }
+
+    async function generateSha1Hash(str) {
+      const buffer = new TextEncoder("utf-8").encode(str);
+      const digest = await crypto.subtle.digest("SHA-1", buffer);
+      return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    // =========================================================
+    // REAL-TIME NOTICES LISTENER WITH SMART NOTIFICATION
+    // =========================================================
+    let isInitialNoticeLoad = true;
+
+    function loadStoryNoticesRealtime() {
+      db.collection('notices').orderBy('createdAt', 'desc').limit(20).onSnapshot((snap) => {
+        const currentTime = Date.now();
+        let freshList = [];
+        let hasNewNoticeAdded = false;
+        let newestNoticeAuthor = 'Authority';
+        let newestAuthorPhoto = '';
+
+        snap.docChanges().forEach((change) => {
+          if (change.type === 'added' && !isInitialNoticeLoad) {
+            hasNewNoticeAdded = true;
+            newestNoticeAuthor = change.doc.data().postedBy || 'Authority';
+            newestAuthorPhoto = change.doc.data().authorPhoto || '';
+          }
+        });
+
+        snap.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          
+          if (data.expiresAt) {
+            const expTime = data.expiresAt.toDate().getTime();
+            if (currentTime >= expTime) {
+              purgeNoticeMediaAndDoc(doc.id, data);
+              return;
+            }
+          }
+          freshList.push(data);
+        });
+
+        activeNotices = freshList;
+        localStorage.setItem('portal_notices_cache', JSON.stringify(activeNotices));
+
+        if (hasNewNoticeAdded) {
+          sendSmartNotification({
+            title: "New Notice Published",
+            message: `You have a new notice from ${newestNoticeAuthor}`,
+            photo: newestAuthorPhoto,
+            redirectUrl: 'home.html'
+          });
+        }
+
+        if (currentStoryIndex >= activeNotices.length) {
+          currentStoryIndex = Math.max(0, activeNotices.length - 1);
+        }
+        
+        renderCurrentStory();
+        isInitialNoticeLoad = false;
+      });
+    }
+
+    async function deleteNoticeDirect(noticeId) {
+      if (!confirm("Are you sure you want to permanently delete this notice?")) return;
+      try {
+        const docRef = await db.collection('notices').doc(noticeId).get();
+        if (docRef.exists) {
+          await purgeNoticeMediaAndDoc(noticeId, docRef.data());
+        }
+        activeNotices = activeNotices.filter(n => n.id !== noticeId);
+        localStorage.setItem('portal_notices_cache', JSON.stringify(activeNotices));
+        renderCurrentStory();
+        alert("Notice successfully deleted from Cloud, Firestore and Local Storage!");
+      } catch (err) {
+        alert("Delete failed: " + err.message);
+      }
+    }
+
+    // =========================================================
     // SEARCH LOGIC
+    // =========================================================
     let cachedStudents = [];
     let isStudentsLoaded = false;
 
@@ -1293,7 +1685,7 @@
     }
 
     // =========================================================
-    // 2. CLOUDINARY UPLOAD WITH PUBLIC_ID RETENTION (Auto-Delete Ready)
+    // CLOUDINARY UPLOAD & PUBLISH NOTICE
     // =========================================================
     async function uploadFileToCloudinary(file) {
       const isVideo = file.type.startsWith('video');
@@ -1316,7 +1708,7 @@
       if (data.secure_url) {
         return {
           url: data.secure_url,
-          public_id: data.public_id, // Saved for permanent Cloudinary destruction
+          public_id: data.public_id,
           type: resourceType
         };
       } else {
@@ -1366,13 +1758,13 @@
         }
 
         const now = new Date();
-        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24-Hour Expiration Boundary
+        const expiresAt = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
 
         await db.collection('notices').add({
           title,
           content,
           link,
-          media: mediaList, // Holds array of { url, public_id, type }
+          media: mediaList,
           images: mediaList.map(m => m.url),
           postedBy: currentUserData ? currentUserData.name : 'Authority',
           authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
@@ -1380,7 +1772,7 @@
           expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
         });
 
-        alert("Notice published successfully with Cloud Media!");
+        alert("Notice published successfully (5-day active period)!");
         document.getElementById('noticeTitle').value = '';
         document.getElementById('noticeContent').value = '';
         document.getElementById('noticeLink').value = '';
@@ -1394,40 +1786,8 @@
     }
 
     // =========================================================
-    // 3. NOTICE ENGINE WITH REALTIME 24-HOUR AUTO-CLEANUP
+    // NOTICE STORY RENDERER
     // =========================================================
-    let activeNotices = [];
-    let currentStoryIndex = 0;
-    let activeMediaUrl = "";
-
-    function loadStoryNotices() {
-      db.collection('notices').orderBy('createdAt', 'desc').limit(15).onSnapshot((snap) => {
-        const currentTime = Date.now();
-        activeNotices = [];
-
-        snap.forEach((doc) => {
-          const data = doc.data();
-          data.id = doc.id;
-          
-          if (data.expiresAt) {
-            const expTime = data.expiresAt.toDate().getTime();
-            // Automatically purge expired documents in real-time if encountered
-            if (currentTime >= expTime) {
-              // Delete expired document record from Firestore
-              db.collection('notices').doc(doc.id).delete().catch(() => {});
-              return;
-            }
-          }
-          activeNotices.push(data);
-        });
-
-        if (currentStoryIndex >= activeNotices.length) {
-          currentStoryIndex = Math.max(0, activeNotices.length - 1);
-        }
-        renderCurrentStory();
-      });
-    }
-
     function renderCurrentStory() {
       const isDev = authUser && authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
 
@@ -1521,7 +1881,7 @@
       document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
     }
 
-    // FULLSCREEN & 50% ZOOM HANDLER (Images & Videos)
+    // Modal & Media Zoom
     function openImageModal(url, type) {
       const container = document.getElementById('modalMediaContainer');
       container.innerHTML = '';
@@ -1595,16 +1955,6 @@
       if (newIndex >= 0 && newIndex < activeNotices.length) {
         currentStoryIndex = newIndex;
         renderCurrentStory();
-      }
-    }
-
-    async function deleteNoticeDirect(noticeId) {
-      if (!confirm("Are you sure you want to delete this notice?")) return;
-      try {
-        await db.collection('notices').doc(noticeId).delete();
-        alert("Notice removed!");
-      } catch (err) {
-        alert("Delete failed: " + err.message);
       }
     }
 
