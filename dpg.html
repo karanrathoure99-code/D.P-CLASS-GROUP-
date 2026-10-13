@@ -68,24 +68,189 @@
       flex-direction: column;
     }
 
-    /* Top Nav */
+    /* =========================================================
+       FIXED TOP FLOATING NAVBAR (MATCHING HOME.HTML THEME)
+       ========================================================= */
     .top-navbar {
-      height: 60px;
-      background: rgba(6, 43, 37, 0.85);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.3);
-      backdrop-filter: blur(15px);
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 30px);
+      max-width: 720px;
+      height: 66px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      gap: 12px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 35px;
+      padding: 8px 16px;
+      z-index: 95;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .app-logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #34d399;
+      cursor: pointer;
+      text-decoration: none;
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .app-logo-badge:active {
+      transform: scale(0.92);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .top-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.55);
       flex-shrink: 0;
     }
+
+    .search-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(2, 18, 14, 0.85);
+      border: 1.2px solid rgba(52, 211, 153, 0.5);
+      border-radius: 25px;
+      padding: 9px 16px;
+      color: #ffffff;
+      font-size: 0.86rem;
+      outline: none;
+      transition: all 0.3s ease;
+      -webkit-user-select: text;
+      user-select: text;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .search-input:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.5);
+      background: rgba(3, 24, 19, 0.95);
+    }
+
+    .profile-nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid #34d399;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.6);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+
+    .profile-nav-btn:active {
+      transform: scale(0.90);
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+    }
+
+    .profile-nav-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.85);
+    }
+
+    .protected-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    /* Floating Badges & Action Buttons */
+    .rx-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1.2px solid #34d399;
+      color: #34d399;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.25);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: 1px solid #34d399;
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-emerald:active { transform: scale(0.94); opacity: 0.9; }
+
+    .btn-glass {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #34d399;
+      color: #34d399;
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-glass:active { transform: scale(0.94); background: rgba(52, 211, 153, 0.35); color: #fff; }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-danger:active { transform: scale(0.94); background: rgba(239, 68, 68, 0.45); color: #fff; }
 
     .nav-btn {
       color: #34d399;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -94,117 +259,139 @@
       gap: 6px;
     }
 
-    .rx-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: #34d399;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-
-    .btn-emerald {
-      background: linear-gradient(135deg, #10b981, #059669);
-      border: none;
-      color: #ffffff;
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    }
-    .btn-emerald:hover { opacity: 0.92; transform: translateY(-1px); }
-
-    .btn-glass {
-      background: rgba(52, 211, 153, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      color: #34d399;
-      padding: 6px 14px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-glass:hover { background: rgba(52, 211, 153, 0.3); color: #fff; }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: #fca5a5;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
-
+    /* Main Viewport Container */
     .viewport-box {
       flex: 1;
       width: 100%;
-      height: calc(100% - 60px);
+      height: 100%;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      padding-top: 86px;   /* Top bar clearance */
+      padding-bottom: 84px; /* Bottom dock clearance */
     }
 
+    /* =========================================================
+       SHINING GLOWING GROUPS CARD DESIGN (MATCHING BOTTOM NAV)
+       ========================================================= */
     #viewGroupList {
       width: 100%;
       height: 100%;
-      padding: 20px;
+      padding: 10px 16px 20px 16px;
       overflow-y: auto;
-      max-width: 900px;
+      max-width: 720px;
       margin: 0 auto;
     }
 
     .group-card {
-      background: rgba(6, 43, 37, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(52, 211, 153, 0.25);
-      border-radius: 16px;
-      padding: 16px 20px;
-      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(6, 43, 37, 0.9) 0%, rgba(3, 22, 18, 0.95) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 24px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      transition: all 0.25s ease;
-    }
-    .group-card:hover {
-      border-color: #34d399;
-      background: rgba(16, 185, 129, 0.18);
-      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), 0 0 18px rgba(52, 211, 153, 0.22);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
 
+    /* Shining reflective line accent */
+    .group-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.15), transparent);
+      transform: skewX(-25deg);
+      transition: left 0.75s ease;
+      pointer-events: none;
+    }
+
+    .group-card:hover::before {
+      left: 140%;
+    }
+
+    .group-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(52, 211, 153, 0.4);
+    }
+
+    .group-info-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(6, 78, 59, 0.65));
+      border: 1.5px solid #34d399;
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .group-text-box {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-title {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .group-desc {
+      font-size: 0.78rem;
+      color: #a7f3d0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal Form for Create Group */
     #viewCreateGroup {
-      width: 100%;
+      width: calc(100% - 32px);
       max-width: 600px;
-      margin: 30px auto;
+      margin: 20px auto;
       padding: 24px;
-      background: rgba(6, 43, 37, 0.8);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 20px;
+      background: rgba(6, 43, 37, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 26px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
     }
 
     .input-field {
       width: 100%;
-      background: rgba(3, 20, 17, 0.85);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 12px;
-      padding: 12px 14px;
+      background: rgba(2, 18, 14, 0.9);
+      border: 1.2px solid rgba(52, 211, 153, 0.5);
+      border-radius: 14px;
+      padding: 12px 16px;
       color: #ffffff;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       outline: none;
       margin-bottom: 14px;
       -webkit-user-select: auto;
@@ -212,20 +399,26 @@
     }
     .input-field:focus {
       border-color: #34d399;
-      box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
     }
 
+    /* Inside Group Chat Viewport */
     #viewInsideGroup {
       width: 100%;
       height: 100%;
       display: none;
       flex-direction: column;
+      max-width: 720px;
+      margin: 0 auto;
     }
 
     .group-subnav {
-      height: 60px;
-      background: rgba(3, 20, 17, 0.85);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.2);
+      height: 62px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1.2px solid rgba(52, 211, 153, 0.35);
+      border-radius: 20px 20px 0 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -241,7 +434,7 @@
     }
 
     #developerAddStudentBox {
-      background: rgba(6, 43, 37, 0.95);
+      background: rgba(4, 30, 25, 0.96);
       border-bottom: 1px solid rgba(52, 211, 153, 0.3);
       padding: 12px 16px;
       display: none;
@@ -250,7 +443,7 @@
     .user-search-card {
       background: rgba(3, 20, 17, 0.9);
       border: 1px solid #10b981;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 10px 14px;
       display: flex;
       align-items: center;
@@ -278,7 +471,7 @@
     .msg-wrapper {
       display: flex;
       gap: 10px;
-      max-width: 80%;
+      max-width: 82%;
       align-items: flex-end;
     }
     .msg-wrapper.mine {
@@ -294,131 +487,39 @@
       flex-shrink: 0;
     }
     .msg-bubble {
-      background: #064e3b;
+      background: rgba(6, 78, 59, 0.9);
       padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 0.9rem;
-      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 16px;
+      font-size: 0.88rem;
+      border: 1px solid rgba(52, 211, 153, 0.35);
       -webkit-user-select: text;
       user-select: text;
       word-break: break-word;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
     .msg-wrapper.mine .msg-bubble {
-      background: #047857;
+      background: linear-gradient(135deg, #047857 0%, #065f46 100%);
       border-color: #34d399;
     }
     .msg-img-preview {
       max-width: 250px;
       max-height: 250px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-top: 6px;
       display: block;
       cursor: pointer;
+      border: 1px solid rgba(52, 211, 153, 0.3);
     }
     .msg-video-preview {
       max-width: 250px;
       max-height: 200px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-top: 6px;
       display: block;
       background: #000;
       outline: none;
       cursor: pointer;
-    }
-
-    /* IN-APP FULLSCREEN MEDIA VIEWER MODAL */
-    .fullscreen-media-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 2000;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .fullscreen-media-modal img, .fullscreen-media-modal video {
-      max-width: 100%;
-      max-height: 85vh;
-      border-radius: 12px;
-      object-fit: contain;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-    }
-
-    /* LONG PRESS CONTEXT MENU MODAL */
-    .context-menu-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 2100;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(5px);
-    }
-    .context-menu-box {
-      background: rgba(6, 43, 37, 0.98);
-      border: 1px solid #34d399;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 380px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-    }
-    .context-menu-btn {
-      background: rgba(3, 20, 17, 0.9);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: #ffffff;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: 0.2s;
-    }
-    .context-menu-btn:hover {
-      background: rgba(16, 185, 129, 0.35);
-      border-color: #34d399;
-    }
-
-    /* ATTACHMENT MENU POPUP */
-    .attach-menu {
-      position: absolute;
-      bottom: 75px;
-      left: 16px;
-      background: rgba(6, 43, 37, 0.96);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      border-radius: 16px;
-      padding: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 6px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-      backdrop-filter: blur(12px);
-      z-index: 50;
-    }
-    .attach-option {
-      background: rgba(3, 20, 17, 0.7);
-      border: none;
-      color: #e2e8f0;
-      padding: 9px 14px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .attach-option:hover {
-      background: rgba(16, 185, 129, 0.35);
-      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
     }
 
     .msg-time {
@@ -429,9 +530,10 @@
     }
 
     .chat-input-bar {
-      min-height: 60px;
-      background: rgba(3, 20, 17, 0.9);
-      border-top: 1px solid rgba(52, 211, 153, 0.25);
+      min-height: 64px;
+      background: rgba(4, 28, 23, 0.95);
+      border-top: 1.5px solid rgba(52, 211, 153, 0.3);
+      border-radius: 0 0 20px 20px;
       padding: 10px 16px;
       display: flex;
       align-items: center;
@@ -444,37 +546,203 @@
       background: transparent;
       border: none;
       color: #34d399;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    .icon-btn:active { transform: scale(0.9); }
+
+    /* Attachment Menu */
+    .attach-menu {
+      position: absolute;
+      bottom: 75px;
+      left: 16px;
+      background: rgba(4, 30, 25, 0.98);
+      border: 1.5px solid #34d399;
+      border-radius: 18px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+      backdrop-filter: blur(16px);
+      z-index: 50;
+    }
+    .attach-option {
+      background: rgba(3, 20, 17, 0.7);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      color: #e2e8f0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+    .attach-option:hover {
+      background: rgba(16, 185, 129, 0.35);
+      color: #34d399;
     }
 
+    /* Members Modal */
     #membersModal {
       position: absolute;
       inset: 0;
-      background: rgba(2, 15, 13, 0.95);
-      backdrop-filter: blur(15px);
-      z-index: 10;
+      background: rgba(2, 15, 13, 0.96);
+      backdrop-filter: blur(20px);
+      z-index: 100;
       display: none;
       flex-direction: column;
-      padding: 18px;
+      padding: 20px;
       overflow-y: auto;
     }
 
     .member-item {
-      background: rgba(6, 43, 37, 0.8);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 14px;
+      background: rgba(6, 43, 37, 0.85);
+      border: 1.5px solid rgba(52, 211, 153, 0.3);
+      border-radius: 18px;
       padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       gap: 10px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
 
+    /* Media Fullscreen Viewer Modal */
+    .fullscreen-media-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.96);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .fullscreen-media-modal img, .fullscreen-media-modal video {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 14px;
+      object-fit: contain;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    /* Long Press Context Menu */
+    .context-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+    .context-menu-box {
+      background: rgba(4, 30, 25, 0.98);
+      border: 1.5px solid #34d399;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 380px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.85);
+    }
+    .context-menu-btn {
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #ffffff;
+      padding: 12px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .context-menu-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: #34d399;
+    }
+
+    /* =========================================================
+       FLOATING BOTTOM NAVIGATION DOCK (ACTIVE: D.P.G)
+       ========================================================= */
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      height: 66px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 35px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 90;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+      padding: 0 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      gap: 4px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      transition: all 0.25s ease;
+    }
+
+    .nav-item:active {
+      transform: scale(0.92);
+    }
+
+    .nav-item svg {
+      transition: transform 0.2s ease;
+    }
+
+    .nav-item:hover svg {
+      transform: translateY(-2px);
+    }
+
+    .nav-item.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
+      border: 1px solid #34d399;
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
+    }
+
+    .nav-item:not(.active):hover {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    /* Security Loader */
     #securityLoader {
       position: fixed;
       inset: 0;
@@ -486,7 +754,7 @@
       justify-content: center;
       gap: 12px;
       color: #34d399;
-      font-weight: 600;
+      font-weight: 700;
     }
     .spinner {
       width: 40px;
@@ -509,7 +777,7 @@
   <!-- Fullscreen Security Shield Loader -->
   <div id="securityLoader">
     <div class="spinner"></div>
-    <span>Securing Environment...</span>
+    <span>Connecting D.P.G Portal...</span>
   </div>
 
   <!-- Slow Motion Medicine Particles -->
@@ -518,7 +786,7 @@
   <!-- IN-APP FULLSCREEN MEDIA VIEWER MODAL -->
   <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
     <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
-    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
+    <span style="color: #94a3b8; font-size: 0.82rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
   <!-- LONG PRESS CONTEXT MENU MODAL -->
@@ -532,42 +800,58 @@
     </div>
   </div>
 
-  <!-- Main Full-Page Viewport Wrapper -->
+  <!-- Main Viewport App Wrapper -->
   <div id="secureAppWrapper">
-    <!-- Top Bar -->
+
+    <!-- =========================================================
+         FIXED TOP FLOATING NAVBAR DOCK
+         ========================================================= -->
     <header class="top-navbar">
-      <a href="home.html" class="nav-btn">❮ Home</a>
-      <span class="rx-badge" id="roleBadge">VERIFYING...</span>
-      <span id="userIdentifier" style="font-size: 0.8rem; color: #94a3b8;"></span>
+      <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.href='home.html';">
+        <div class="top-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        </div>
+        <span>D-PHARMA</span>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="groupSearchInput" class="search-input" placeholder="Search groups..." autocomplete="off" oninput="filterGroups(this.value)" />
+      </div>
+
+      <div class="profile-nav-btn" onclick="triggerTapFeedback(); window.location.href='profile.html';">
+        <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
+      </div>
     </header>
 
     <div class="viewport-box">
       <!-- VIEW 1: Groups List -->
       <section id="viewGroupList">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding:0 4px;">
           <div>
-            <h2 style="font-size:1.4rem; color:#34d399; font-weight:800;">D.P.G Groups</h2>
-            <p style="font-size:0.82rem; color:#94a3b8;">Classrooms & Academic Discussion Hubs</p>
+            <h2 style="font-size:1.25rem; color:#34d399; font-weight:800; letter-spacing:0.5px;">D.P.G CHANNELS</h2>
+            <p style="font-size:0.78rem; color:#94a3b8;">Academic Hubs & Official Classrooms</p>
           </div>
-          <button id="btnCreateGroupToggle" class="btn-emerald" style="display:none;" onclick="showGroupCreateForm()">➕ Create Group</button>
+          <button id="btnCreateGroupToggle" class="btn-emerald" style="display:none;" onclick="showGroupCreateForm()">➕ New Group</button>
         </div>
 
         <div id="groupsListContainer">
-          <p style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 30px;">Loading groups...</p>
+          <p style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 40px;">Loading groups...</p>
         </div>
       </section>
 
       <!-- VIEW 2: Create Group Modal Form -->
       <section id="viewCreateGroup" style="display:none;">
-        <h3 style="color:#34d399; margin-bottom:6px; font-weight:800;">Create New Group</h3>
-        <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:16px;">Create an academic channel for student announcements and notes.</p>
+        <h3 style="color:#34d399; margin-bottom:6px; font-weight:800;">Create Academic Channel</h3>
+        <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:16px;">Set up a verified classroom channel for notes and updates.</p>
 
-        <input type="text" id="groupNameInput" class="input-field" placeholder="Group Name (e.g. D.Pharma 1st Year)" />
-        <textarea id="groupBioInput" class="input-field" rows="3" placeholder="Group Bio / Purpose"></textarea>
+        <input type="text" id="groupNameInput" class="input-field" placeholder="Channel / Group Name (e.g. D.Pharma 1st Year)" />
+        <textarea id="groupBioInput" class="input-field" rows="3" placeholder="Channel Description / Purpose"></textarea>
 
         <div style="display:flex; gap:12px; justify-content:flex-end;">
           <button class="nav-btn" onclick="hideGroupCreateForm()">Cancel</button>
-          <button class="btn-emerald" id="btnSubmitGroup" onclick="createGroupOnFirestore()">Create Now</button>
+          <button class="btn-emerald" id="btnSubmitGroup" onclick="createGroupOnFirestore()">Create Channel</button>
         </div>
       </section>
 
@@ -575,22 +859,22 @@
       <section id="viewInsideGroup">
         <div class="group-subnav">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 50%;">
-            <h3 id="currentGroupName" style="color:#34d399; font-size:1.05rem; font-weight:800; overflow:hidden; text-overflow:ellipsis;">Group Name</h3>
+            <h3 id="currentGroupName" style="color:#34d399; font-size:1rem; font-weight:800; overflow:hidden; text-overflow:ellipsis;">Group Name</h3>
             <p id="currentGroupBio" style="font-size:0.72rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis;"></p>
           </div>
           
           <div class="group-nav-actions">
             <button class="btn-glass" onclick="openMembersModal()">👥 Members</button>
             <button id="btnToggleAddMember" class="btn-emerald" style="display:none; font-size:0.78rem; padding:6px 12px;" onclick="toggleAddStudentBar()">+ Add</button>
-            <button class="nav-btn" onclick="exitGroupView()">❮ All Groups</button>
+            <button class="nav-btn" onclick="exitGroupView()">❮ Exit</button>
           </div>
         </div>
 
-        <!-- Dev Search Bar (Profile Card Result) -->
+        <!-- Dev Search Bar -->
         <div id="developerAddStudentBox">
-          <label style="font-size:0.8rem; color:#a7f3d0; font-weight:600; display:block; margin-bottom:6px;">Search Student by 6-Digit Enrollment No:</label>
+          <label style="font-size:0.8rem; color:#a7f3d0; font-weight:700; display:block; margin-bottom:6px;">Add Student by Enrollment ID:</label>
           <div style="display:flex; gap:8px;">
-            <input type="text" id="searchEnrollInput" class="input-field" style="margin-bottom:0;" placeholder="Enter 6-digit Enrollment No..." />
+            <input type="text" id="searchEnrollInput" class="input-field" style="margin-bottom:0;" placeholder="Enter Enrollment ID..." />
             <button class="btn-emerald" onclick="findStudentByEnroll()">Search</button>
           </div>
           <div id="searchResultArea"></div>
@@ -602,37 +886,36 @@
         </div>
 
         <!-- Attached Media Preview Before Sending -->
-        <div id="imagePreviewBox" style="display:none; background:rgba(6,43,37,0.9); padding:8px 16px; border-top:1px solid #10b981; align-items:center; gap:12px;">
+        <div id="imagePreviewBox" style="display:none; background:rgba(6,43,37,0.95); padding:8px 16px; border-top:1.5px solid #10b981; align-items:center; gap:12px;">
           <span id="uploadStatusText" style="font-size:0.8rem; color:#a7f3d0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Media selected</span>
           <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedMedia()">✕ Remove</button>
         </div>
 
-        <!-- Authorized Chat Input Bar (Developer & Teachers) -->
+        <!-- Authorized Chat Input Bar -->
         <div id="devMessageInputRow" class="chat-input-bar" style="display:none;">
-          <!-- Attachment Popup Menu -->
           <div class="attach-menu" id="attachMenu">
-            <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Send Photo</button>
-            <button class="attach-option" onclick="document.getElementById('chatVideoUpload').click()">🎥 Send Video</button>
-            <button class="attach-option" onclick="document.getElementById('chatFileUpload').click()">📁 Send File / Document</button>
+            <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Photo</button>
+            <button class="attach-option" onclick="document.getElementById('chatVideoUpload').click()">🎥 Video</button>
+            <button class="attach-option" onclick="document.getElementById('chatFileUpload').click()">📁 Document / File</button>
           </div>
 
           <input type="file" id="chatPhotoUpload" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
           <input type="file" id="chatVideoUpload" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
           <input type="file" id="chatFileUpload" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" style="display:none;" onchange="handleCloudinaryUpload(event, 'raw')" />
 
-          <button class="icon-btn" onclick="toggleAttachMenu()" title="Attach Media or File">📎</button>
+          <button class="icon-btn" onclick="toggleAttachMenu()" title="Attach File">📎</button>
           <input type="text" id="outgoingMsgInput" class="input-field" style="margin-bottom:0;" placeholder="Type announcement or message..." />
           <button class="btn-emerald" id="btnSendMessage" onclick="dispatchMessage()">Send</button>
         </div>
 
         <!-- Student Read-Only Notice -->
-        <div id="studentReadOnlyNotice" class="chat-input-bar" style="display:none; justify-content:center; color:#94a3b8; font-size:0.85rem;">
-          🔒 Read-only group. Only Developer & Faculty can post updates here.
+        <div id="studentReadOnlyNotice" class="chat-input-bar" style="display:none; justify-content:center; color:#94a3b8; font-size:0.82rem;">
+          🔒 Read-only channel. Only Verified Faculty & Developers can post.
         </div>
 
         <!-- MEMBERS LIST MODAL -->
         <div id="membersModal">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(52,211,153,0.3); padding-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1.5px solid rgba(52,211,153,0.3); padding-bottom:10px;">
             <div>
               <h3 style="color:#34d399; font-weight:800;">Group Members</h3>
               <p style="font-size:0.75rem; color:#94a3b8;" id="modalMembersCount">Loading...</p>
@@ -645,9 +928,62 @@
         </div>
       </section>
     </div>
+
+    <!-- =========================================================
+         FLOATING BOTTOM NAVIGATION DOCK (ACTIVE: D.P.G)
+         ========================================================= -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="navWithFeedback('home.html')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>HOME</span>
+      </div>
+      <div class="nav-item active" onclick="navWithFeedback('dpg.html')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+        <span>D.P.G</span>
+      </div>
+      <div class="nav-item" onclick="navWithFeedback('chats.html')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span>CHATS</span>
+      </div>
+    </div>
   </div>
 
   <script>
+    // ==========================================
+    // AUDIO POP & HAPTIC VIBRATION FEEDBACK
+    // ==========================================
+    let audioCtx = null;
+
+    function triggerTapFeedback() {
+      try {
+        if (navigator.vibrate) navigator.vibrate(25);
+      } catch (e) {}
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        const startTime = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(850, startTime);
+        osc.frequency.exponentialRampToValueAtTime(1250, startTime + 0.05);
+        gain.gain.setValueAtTime(0.18, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.07);
+        osc.start(startTime);
+        osc.stop(startTime + 0.07);
+      } catch (e) {}
+    }
+
+    function navWithFeedback(targetUrl) {
+      triggerTapFeedback();
+      if (targetUrl === 'dpg.html' && window.location.pathname.endsWith('dpg.html')) return;
+      setTimeout(() => { window.location.href = targetUrl; }, 70);
+    }
+
     // ==========================================
     // CLOUDINARY CONFIGURATION
     // ==========================================
@@ -659,9 +995,9 @@
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
       const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
-      const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
         if (req) req.call(docEl).catch(() => {});
       } else {
         if (exit) exit.call(doc);
@@ -681,10 +1017,10 @@
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
 
-    // AUDIO BEEP EFFECT (For Long Press)
     function playBeepSound(frequency = 1200, duration = 0.2) {
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -702,21 +1038,20 @@
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" /><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" /></g></svg>`,
-      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" /><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" /></svg>`,
-      `<svg viewBox="0 0 32 32"><rect x="13" y="3" width="6" height="3" fill="#ffffff" opacity="0.8" rx="1" /><path d="M10 9 C8.5 9 8 10 8 11.5 V25 C8 26.5 9.5 28 11 28 H21 C22.5 28 24 26.5 24 25 V11.5 C24 10 23.5 9 22 9 Z" fill="#0284c7" opacity="0.45" stroke="#38bdf8" stroke-width="1.2" /></svg>`
+      `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#0ea5e9" opacity="0.5" stroke="#38bdf8" stroke-width="1.5" /><line x1="8" y1="16" x2="24" y2="16" stroke="#e0f2fe" stroke-width="1.5" opacity="0.8" /></svg>`
     ];
 
     const rainContainer = document.getElementById('rainContainer');
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 20; i++) {
       const drop = document.createElement('div');
       drop.className = 'medicine-drop';
       drop.innerHTML = colorfulMedicines[Math.floor(Math.random() * colorfulMedicines.length)];
-      const size = Math.floor(Math.random() * 22) + 26;
+      const size = Math.floor(Math.random() * 20) + 24;
       drop.style.width = size + 'px';
       drop.style.height = size + 'px';
       drop.style.left = Math.random() * 95 + '%';
-      drop.style.animationDuration = (Math.random() * 8 + 14) + 's';
-      drop.style.animationDelay = '-' + (Math.random() * 12) + 's';
+      drop.style.animationDuration = (Math.random() * 8 + 12) + 's';
+      drop.style.animationDelay = '-' + (Math.random() * 10) + 's';
       rainContainer.appendChild(drop);
     }
 
@@ -746,9 +1081,19 @@
     let activeGroupData = null;
     let chatListener = null;
     let groupDocListener = null;
+    let allGroupsCached = [];
 
     let selectedMediaFile = null;
     let selectedMediaType = "image";
+
+    // Fast local profile preload
+    const cachedProfile = localStorage.getItem('cachedUserObj');
+    if (cachedProfile) {
+      try {
+        const u = JSON.parse(cachedProfile);
+        if (u.photo) document.getElementById('navProfilePic').src = u.photo;
+      } catch(e) {}
+    }
 
     auth.onAuthStateChanged(async (user) => {
       if (!user && !loggedAccount) {
@@ -761,8 +1106,7 @@
 
       if (loggedRole === 'developer' && verifiedEmail === DEVELOPER_EMAIL) {
         isDeveloper = true;
-        document.getElementById('roleBadge').innerText = "DEVELOPER";
-        document.getElementById('btnCreateGroupToggle').style.display = "block";
+        document.getElementById('btnCreateGroupToggle').style.display = "inline-flex";
       } else {
         const studentSnap = await db.collection('students').where('email', '==', verifiedEmail).get();
         if (studentSnap.empty && !isDeveloper) {
@@ -775,62 +1119,90 @@
 
         if (!studentSnap.empty) {
           currentStudentData = studentSnap.docs[0].data();
+          if (currentStudentData.photo) {
+            document.getElementById('navProfilePic').src = currentStudentData.photo;
+          }
         }
-        document.getElementById('roleBadge').innerText = "STUDENT";
       }
 
       currentUser = user || { email: verifiedEmail };
-      document.getElementById('userIdentifier').innerText = isDeveloper ? "Dev: Karan" : (currentStudentData ? (currentStudentData.enroll || currentStudentData.enrollNo) : '');
-
       document.getElementById('securityLoader').style.display = 'none';
       document.getElementById('secureAppWrapper').style.display = 'flex';
 
       renderGroupsList();
     });
 
-    // 5. RENDER GROUPS
+    // 5. RENDER GROUPS WITH SHINING GLASS CARDS
     function renderGroupsList() {
       db.collection('groups').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
-        const container = document.getElementById('groupsListContainer');
-        container.innerHTML = '';
-
-        if (snapshot.empty) {
-          container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 30px;">No groups found.</p>';
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const members = data.members || [];
-          const enroll = currentStudentData ? (currentStudentData.enroll || currentStudentData.enrollNo) : '';
-          const userEmail = (currentUser.email || '').toLowerCase();
-
-          const hasAccess = isDeveloper || members.includes(userEmail) || (enroll && members.includes(enroll));
-
-          if (hasAccess) {
-            const card = document.createElement('div');
-            card.className = 'group-card';
-            card.onclick = () => openGroup(doc.id, data);
-            card.innerHTML = `
-              <div>
-                <h4 style="color:#34d399; font-weight:800; font-size:1.1rem;">👥 ${escapeHtml(data.name)}</h4>
-                <p style="font-size:0.8rem; color:#94a3b8; margin-top:3px;">${escapeHtml(data.bio || 'Official Academic Group')}</p>
-              </div>
-              <span class="rx-badge">${members.length} Members</span>
-            `;
-            container.appendChild(card);
-          }
+        allGroupsCached = [];
+        snapshot.forEach(doc => {
+          allGroupsCached.push({ id: doc.id, ...doc.data() });
         });
+        displayFilteredGroups(allGroupsCached);
       });
+    }
+
+    function displayFilteredGroups(groupsToRender) {
+      const container = document.getElementById('groupsListContainer');
+      container.innerHTML = '';
+
+      if (groupsToRender.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 40px;">No groups found.</p>';
+        return;
+      }
+
+      const enroll = currentStudentData ? (currentStudentData.enroll || currentStudentData.enrollNo) : '';
+      const userEmail = (currentUser.email || '').toLowerCase();
+
+      groupsToRender.forEach((data) => {
+        const members = data.members || [];
+        const hasAccess = isDeveloper || members.includes(userEmail) || (enroll && members.includes(enroll));
+
+        if (hasAccess) {
+          const card = document.createElement('div');
+          card.className = 'group-card';
+          card.onclick = () => { triggerTapFeedback(); openGroup(data.id, data); };
+
+          card.innerHTML = `
+            <div class="group-info-wrap">
+              <div class="group-icon-badge">℞</div>
+              <div class="group-text-box">
+                <div class="group-title">${escapeHtml(data.name)}</div>
+                <div class="group-desc">${escapeHtml(data.bio || 'Official Academic Hub')}</div>
+              </div>
+            </div>
+            <span class="rx-badge">${members.length} Members</span>
+          `;
+          container.appendChild(card);
+        }
+      });
+    }
+
+    // Real-Time Group Search Filter
+    function filterGroups(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        displayFilteredGroups(allGroupsCached);
+        return;
+      }
+      const filtered = allGroupsCached.filter(g => {
+        const name = (g.name || '').toLowerCase();
+        const bio = (g.bio || '').toLowerCase();
+        return name.includes(q) || bio.includes(q);
+      });
+      displayFilteredGroups(filtered);
     }
 
     function showGroupCreateForm() {
       if (!isDeveloper) return;
+      triggerTapFeedback();
       document.getElementById('viewGroupList').style.display = 'none';
       document.getElementById('viewCreateGroup').style.display = 'block';
     }
 
     function hideGroupCreateForm() {
+      triggerTapFeedback();
       document.getElementById('viewCreateGroup').style.display = 'none';
       document.getElementById('viewGroupList').style.display = 'block';
     }
@@ -866,7 +1238,7 @@
         alert("Failed to create group: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = "Create Now";
+        btn.innerText = "Create Channel";
       }
     }
 
@@ -918,6 +1290,7 @@
     }
 
     function exitGroupView() {
+      triggerTapFeedback();
       if (chatListener) chatListener();
       if (groupDocListener) groupDocListener();
       activeGroupId = null;
@@ -928,12 +1301,14 @@
     }
 
     function toggleAddStudentBar() {
+      triggerTapFeedback();
       const box = document.getElementById('developerAddStudentBox');
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
     // 7. MEMBERS MODAL LOGIC
     async function openMembersModal() {
+      triggerTapFeedback();
       if (!activeGroupId || !activeGroupData) return;
       const modal = document.getElementById('membersModal');
       const listContainer = document.getElementById('membersListContainer');
@@ -1002,7 +1377,7 @@
             <div style="overflow:hidden;">
               <div style="font-weight:700; color:#ffffff; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(name)}</div>
               <div style="font-size:0.75rem; color:#94a3b8;">Enroll: <b style="color:#34d399;">${escapeHtml(enrollNo)}</b></div>
-              <div style="font-size:0.72rem; color:${isCurrentTeacher ? '#34d399' : '#64748b'}; font-weight:600;">
+              <div style="font-size:0.72rem; color:${isCurrentTeacher ? '#34d399' : '#64748b'}; font-weight:700;">
                 ${isCurrentTeacher ? '👨‍🏫 Teacher / Faculty' : '🎓 Student'}
               </div>
             </div>
@@ -1015,6 +1390,7 @@
     }
 
     function closeMembersModal() {
+      triggerTapFeedback();
       document.getElementById('membersModal').style.display = 'none';
     }
 
@@ -1099,6 +1475,7 @@
 
     // 9. MEDIA & FILE ATTACHMENT HANDLING
     function toggleAttachMenu() {
+      triggerTapFeedback();
       const menu = document.getElementById('attachMenu');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
     }
@@ -1116,6 +1493,7 @@
     }
 
     function removeAttachedMedia() {
+      triggerTapFeedback();
       selectedMediaFile = null;
       document.getElementById('chatPhotoUpload').value = '';
       document.getElementById('chatVideoUpload').value = '';
@@ -1123,12 +1501,12 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // IN-APP FULLSCREEN MEDIA VIEWER & LONG PRESS (Media Only)
     let activeMediaUrl = "";
     let activeMsgDocId = "";
     let isMsgMine = false;
 
     function openMediaModal(url, type) {
+      triggerTapFeedback();
       const container = document.getElementById('mediaModalContentContainer');
       container.innerHTML = '';
       if (type === 'image') {
@@ -1154,7 +1532,7 @@
     }
 
     function openContextMenu(url, docId, mine) {
-      playBeepSound(1200, 0.2); // Beep sound on long press
+      playBeepSound(1200, 0.2);
       activeMediaUrl = url;
       activeMsgDocId = docId;
       isMsgMine = mine;
@@ -1244,7 +1622,7 @@
             bubble.className = 'msg-bubble';
 
             const nameDiv = document.createElement('div');
-            nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:700; margin-bottom:2px;";
+            nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:800; margin-bottom:2px;";
             nameDiv.innerText = m.senderName || 'Faculty';
             bubble.appendChild(nameDiv);
 
