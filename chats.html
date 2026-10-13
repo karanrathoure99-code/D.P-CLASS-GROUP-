@@ -1086,7 +1086,7 @@
     });
 
     // ==========================================
-    // 0. CLOUDINARY CONFIGURATION (ULTRA HD & PRESERVE TEXT CLARITY)
+    // 0. CLOUDINARY CONFIGURATION (ULTRA HD & TEXT PRESERVATION)
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
@@ -1288,9 +1288,13 @@
       }
     }
 
-    // 5. INCOMING REQUESTS
+    // ==========================================
+    // 5. INCOMING REQUESTS & SINGLE ACCEPTANCE ENGINE
+    // ==========================================
     function listenIncomingRequests() {
       if (!loggedAccount) return;
+      const cleanMyAccount = loggedAccount.trim().toLowerCase();
+
       db.collection('chatRequests')
         .where('status', '==', 'pending')
         .onSnapshot((snap) => {
@@ -1301,12 +1305,12 @@
 
           snap.forEach((doc) => {
             const req = doc.data();
-            const toE = (req.toEmail || req.to || '').toLowerCase();
+            const toE = (req.toEmail || req.to || '').trim().toLowerCase();
             const toId = req.toId || '';
 
-            if (toE === loggedAccount || toId === loggedAccount || (myStudentDocId && toId === myStudentDocId)) {
+            if (toE === cleanMyAccount || toId === cleanMyAccount || (myStudentDocId && toId === myStudentDocId)) {
               count++;
-              const senderEmail = (req.fromEmail || req.from || '').toLowerCase();
+              const senderEmail = (req.fromEmail || req.from || '').trim().toLowerCase();
               const senderName = req.fromName || senderEmail;
               const senderUid = req.fromUid || '';
 
@@ -1327,34 +1331,44 @@
         });
     }
 
+    // SINGLE ACCEPTANCE: एक यूज़र के Accept दबाते ही दोनों के लिए चैट परमानेंट लाइव हो जाएगी
     async function acceptChatRequest(reqDocId, senderAccount, senderUid) {
       try {
-        await db.collection('chatRequests').doc(reqDocId).update({ status: 'accepted' });
+        const cleanMyAccount = loggedAccount.trim().toLowerCase();
+        const cleanSender = senderAccount.trim().toLowerCase();
 
-        const cleanA = loggedAccount.replace(/[^a-zA-Z0-9]/g, '_');
-        const cleanB = senderAccount.replace(/[^a-zA-Z0-9]/g, '_');
-        const roomId = [cleanA, cleanB].sort().join('___');
+        // 1. रिक्वेस्ट को accepted मार्क करें
+        await db.collection('chatRequests').doc(reqDocId).update({
+          status: 'accepted',
+          acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-        const participantsArray = [currentUser.uid, loggedAccount, senderAccount];
-        if (senderUid) participantsArray.push(senderUid);
+        // 2. फिक्स और यूनीक रूम आईडी बनाएँ (A और B दोनों के लिए एक समान)
+        const idA = cleanMyAccount.replace(/[^a-zA-Z0-9]/g, '_');
+        const idB = cleanSender.replace(/[^a-zA-Z0-9]/g, '_');
+        const roomId = [idA, idB].sort().join('___');
 
+        // 3. 'friendships' में participants ऐरे और user1/user2 दोनों रखें
         await db.collection('friendships').doc(roomId).set({
-          user1: loggedAccount,
-          user2: senderAccount,
+          user1: cleanMyAccount,
+          user2: cleanSender,
+          participants: [cleanMyAccount, cleanSender],
           roomId: roomId,
-          participants: participantsArray,
+          status: 'accepted',
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
+        // 4. मुख्य चैट्स डॉक्युमेंट को एक्टिवेट करें
         await db.collection('chats').doc(roomId).set({
-          participants: participantsArray,
+          participants: [currentUser.uid, cleanMyAccount, cleanSender],
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        alert("Chat Request Accepted!");
+        alert("Chat Request Accepted! दोनों के लिए बातचीत शुरू हो चुकी है।");
         loadConversations();
       } catch (err) {
-        alert("Error: " + err.message);
+        console.error("Accept error:", err);
+        alert("Error accepting request: " + err.message);
       }
     }
 
@@ -1374,13 +1388,25 @@
       try {
         const cleanMyAccount = loggedAccount.trim().toLowerCase();
 
-        // दोनों तरफ की फ्रेंडशिप एक साथ पैरेलल चेक करें
-        const [q1, q2] = await Promise.all([
+        // दोनों तरह से चेक करें: 1. participants ऐरे 2. user1/user2 बैकवर्ड कम्पैटिबिलिटी
+        const [qParts, q1, q2] = await Promise.all([
+          db.collection('friendships').where('participants', 'array-contains', cleanMyAccount).get(),
           db.collection('friendships').where('user1', '==', cleanMyAccount).get(),
           db.collection('friendships').where('user2', '==', cleanMyAccount).get()
         ]);
 
         const peerAccounts = new Set();
+
+        // participants ऐरे से निकालें
+        qParts.forEach(d => {
+          const parts = d.data().participants || [];
+          parts.forEach(p => {
+            const cleanP = (p || '').trim().toLowerCase();
+            if (cleanP && cleanP !== cleanMyAccount) peerAccounts.add(cleanP);
+          });
+        });
+
+        // user1 और user2 से निकालें
         q1.forEach(d => {
           const u2 = (d.data().user2 || '').trim().toLowerCase();
           if (u2 && u2 !== cleanMyAccount) peerAccounts.add(u2);
@@ -1437,13 +1463,13 @@
             openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
           }
         } else {
-          // अगर बाहर रिफ्रेश किया है तो चैट विंडो हमेशा बंद रहेगी
+          // अगर बाहर रिफ्रेश किया है तो चैट विंडो बंद रहेगी
           exitActiveChat(false);
         }
 
       } catch (err) {
         console.error("Error loading conversations:", err);
-        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.8rem; padding:10px;'>Failed to load chats. Please pull to refresh.</p>";
+        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.8rem; padding:10px;'>Failed to load chats.</p>";
       }
     }
 
