@@ -36,7 +36,7 @@
       position: relative;
     }
 
-    /* 3D CAPSULE CRACK OVERLAY */
+    /* 3D CAPSULE CRACK OVERLAY (TOUCH-SAFE) */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -46,8 +46,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      pointer-events: all;
-      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      touch-action: none;
+      transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .capsule-wrapper-3d {
@@ -1033,33 +1033,55 @@
     }
 
     // ==========================================
-    // 1. 3D CAPSULE CRACK CONTROLLER
+    // 1. FAIL-SAFE 3D CAPSULE CRACK CONTROLLER (NO-FREEZE)
     // ==========================================
-    window.addEventListener('DOMContentLoaded', () => {
+    function startCapsuleAnimation() {
       const splash = document.getElementById('capsuleSplashOverlay');
       const wrapper = document.getElementById('capsuleWrapper');
-      
+      if (!splash) return;
+
       setTimeout(() => {
-        wrapper.classList.add('cracked');
+        if (wrapper) wrapper.classList.add('cracked');
         triggerTapFeedback();
-      }, 320);
+      }, 250);
 
       setTimeout(() => {
-        if (splash) {
-          splash.style.opacity = '0';
-          setTimeout(() => splash.style.display = 'none', 450);
-        }
-      }, 1050);
+        splash.style.opacity = '0';
+        splash.style.pointerEvents = 'none';
+        setTimeout(() => {
+          splash.style.display = 'none';
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 450);
+      }, 950);
+    }
 
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startCapsuleAnimation);
+    } else {
+      startCapsuleAnimation();
+    }
+
+    // Fail-safe backup
+    setTimeout(() => {
+      const splash = document.getElementById('capsuleSplashOverlay');
+      if (splash) {
+        splash.style.display = 'none';
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
       }
-    });
+    }, 1500);
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
 
     ['touchstart', 'touchend', 'click'].forEach(evt => {
       window.addEventListener(evt, () => {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
       }, { once: false, passive: true });
     });
 
@@ -1242,7 +1264,6 @@
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
 
-    // Fullscreen toggle on double-click
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
       const doc = window.document;
@@ -1283,7 +1304,6 @@
     let myStudentDocId = "";
     let acceptedChatsListCache = [];
 
-    // Preload top profile picture
     const cachedProfile = localStorage.getItem('cachedUserObj');
     if (cachedProfile) {
       try {
@@ -1535,7 +1555,6 @@
 
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
-        // AUTO-RESTORE ACTIVE CHAT IF PAGE REFRESHED INSIDE CHAT
         if (savedActivePeer) {
           const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === savedActivePeer.toLowerCase());
           if (found) {
@@ -1577,7 +1596,6 @@
       });
     }
 
-    // TOP SEARCH BAR: FILTERS ONLY ACCEPTED CHATS
     function filterAcceptedChats(query) {
       const q = query.trim().toLowerCase();
       if (!q) {
@@ -1594,7 +1612,7 @@
     // 11. ACTIVE CHAT CONTROLLER
     // ==========================================
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
-      sessionStorage.setItem('activeChatPeer', peerAccount); // Lock state on refresh
+      sessionStorage.setItem('activeChatPeer', peerAccount);
 
       targetUserData = {
         email: peerAccount,
@@ -1628,7 +1646,7 @@
 
     function exitActiveChat() {
       triggerTapFeedback();
-      sessionStorage.removeItem('activeChatPeer'); // Unlock on manual exit
+      sessionStorage.removeItem('activeChatPeer');
       if (msgListenerUnsub) msgListenerUnsub();
       activeChatRoomId = null;
       targetUserData = null;
@@ -1714,7 +1732,6 @@
       sendEncryptedRecord('contact_card', payload);
     }
 
-    // DISPATCH MESSAGE
     async function sendEncryptedRecord(type, dataContent, cloudinaryPublicId = "", resourceType = "image") {
       if (!activeChatRoomId || !targetUserData || !currentUser) return;
       const jsonPayload = JSON.stringify({ type: type, data: dataContent });
@@ -1813,7 +1830,6 @@
       activePublicId = "";
     }
 
-    // 5 EMOJIS REACTION HANDLER
     async function addReactionToMessage(emoji) {
       if (!activeMsgDocId || !activeChatRoomId) return;
       triggerTapFeedback();
@@ -1878,7 +1894,6 @@
       closeContextMenu();
     }
 
-    // 1.2s Long Press Touch Listener
     function attachGlobalLongPress(element, docId, mediaUrl, publicId, resType, mine) {
       let pressTimer = null;
       let isMoved = false;
@@ -1994,7 +2009,6 @@
               }
             }
 
-            // Render Reactions
             if (m.reactions && Object.keys(m.reactions).length > 0) {
               const reactRow = document.createElement('div');
               reactRow.className = 'msg-reactions-row';
@@ -2009,7 +2023,6 @@
               bubble.appendChild(reactRow);
             }
 
-            // Attach 1.2s Hold Listener
             attachGlobalLongPress(bubble, docId, mediaUrl, publicId, resType, isMe);
             box.appendChild(bubble);
           });
