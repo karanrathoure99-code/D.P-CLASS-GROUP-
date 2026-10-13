@@ -22,9 +22,84 @@
       background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
       color: #ffffff;
       min-height: 100vh;
-      padding-bottom: 90px;
+      padding-bottom: 110px;
       overflow-x: hidden;
       position: relative;
+    }
+
+    /* 1. THEME OPENING SPLASH ANIMATION */
+    #portalSplashOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .splash-logo-box {
+      width: 76px;
+      height: 76px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3);
+      animation: splashPulse 1.6s infinite alternate;
+    }
+
+    @keyframes splashPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+      100% { transform: scale(1.05); box-shadow: 0 0 45px rgba(16, 185, 129, 0.85); }
+    }
+
+    .splash-badge {
+      margin-top: 18px;
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+
+    .splash-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #34d399;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .splash-progress-track {
+      width: 140px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      margin-top: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .splash-progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 4px;
+      animation: splashLoad 1.6s ease-in-out forwards;
+    }
+
+    @keyframes splashLoad {
+      0% { width: 0%; }
+      60% { width: 75%; }
+      100% { width: 100%; }
     }
 
     /* Falling Medicines Rain */
@@ -154,6 +229,12 @@
       justify-content: space-between;
       padding: 10px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.15);
+      transition: background 0.2s;
+    }
+
+    .user-card:hover {
+      background: rgba(16, 185, 129, 0.08);
+      border-radius: 10px;
     }
 
     .user-card:last-child {
@@ -164,6 +245,8 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
+      flex: 1;
     }
 
     .user-avatar-sm {
@@ -234,6 +317,30 @@
       outline: none;
       -webkit-user-select: text;
       user-select: text;
+    }
+
+    /* NOTICE BOARD LOGO HEADER */
+    .notice-board-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(3, 20, 17, 0.7);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 16px;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+    }
+
+    .notice-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     /* WHATSAPP STORY STYLE NOTICE VIEWER */
@@ -355,19 +462,31 @@
       object-fit: contain;
       cursor: pointer;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
     }
 
-    /* FULLSCREEN IMAGE MODAL VIEWER */
+    /* FULLSCREEN HIGH-QUALITY IMAGE MODAL VIEWER */
     .image-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0, 0, 0, 0.96);
       z-index: 1000;
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 12px;
+      touch-action: pan-x pan-y;
+    }
+
+    .image-zoom-box {
+      max-width: 100%;
+      max-height: 85vh;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .image-modal-overlay img {
@@ -376,9 +495,18 @@
       border-radius: 12px;
       object-fit: contain;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      image-rendering: high-quality;
+      image-rendering: -webkit-optimize-contrast;
+      transition: transform 0.25s ease;
+      cursor: zoom-in;
     }
 
-    /* LONG PRESS CONTEXT MENU MODAL (Download & Share Only) */
+    .image-modal-overlay img.zoomed-50 {
+      transform: scale(1.5); /* 50% Zoom - crystal clear without pixelation */
+      cursor: zoom-out;
+    }
+
+    /* LONG PRESS CONTEXT MENU MODAL */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
@@ -458,7 +586,7 @@
       transform: none;
     }
 
-    /* Modal */
+    /* Profile Dropdown / Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -483,6 +611,7 @@
       width: 100%;
       max-width: 380px;
       text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
     }
 
     .modal-photo {
@@ -517,48 +646,95 @@
       margin-top: 15px;
     }
 
+    .btn-view-profile {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.4));
+      border: 1px solid #34d399;
+      color: #ffffff;
+      padding: 11px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+
+    .btn-view-profile:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.6));
+    }
+
     .btn-logout {
       background: rgba(239, 68, 68, 0.25);
       border: 1px solid #ef4444;
       color: #fca5a5;
-      padding: 10px;
+      padding: 11px;
       border-radius: 12px;
-      font-size: 0.85rem;
+      font-size: 0.86rem;
       font-weight: 700;
       cursor: pointer;
       flex: 1;
     }
 
-    /* Fixed Bottom Nav */
+    /* 5. HIGH-VISIBILITY FLOATING BOTTOM NAVIGATION DOCK */
     .bottom-nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 62px;
-      background: rgba(3, 20, 17, 0.95);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(52, 211, 153, 0.3);
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      height: 66px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 35px;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      z-index: 50;
+      z-index: 90;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+      padding: 0 10px;
     }
 
     .nav-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #94a3b8;
+      justify-content: center;
+      color: #cbd5e1;
       text-decoration: none;
-      font-size: 0.75rem;
-      font-weight: 700;
+      font-size: 0.78rem;
+      font-weight: 800;
       cursor: pointer;
-      gap: 3px;
+      gap: 4px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      transition: all 0.25s ease;
     }
 
-    .nav-item.active, .nav-item:hover {
+    .nav-item svg {
+      transition: transform 0.2s ease;
+    }
+
+    .nav-item:hover svg {
+      transform: translateY(-2px);
+    }
+
+    .nav-item.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
+      border: 1px solid #34d399;
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
+    }
+
+    .nav-item:not(.active):hover {
       color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
     }
 
     .fullscreen-hint {
@@ -577,20 +753,36 @@
 </head>
 <body oncontextmenu="return false;">
 
+  <!-- 1. THEME OPENING INTRO SPLASH SCREEN -->
+  <div id="portalSplashOverlay">
+    <div class="splash-logo-box">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="#ffffff">
+        <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+      </svg>
+    </div>
+    <div class="splash-badge">℞ SECURE NETWORK</div>
+    <div class="splash-title">D Pharma Hub</div>
+    <div class="splash-progress-track">
+      <div class="splash-progress-bar"></div>
+    </div>
+  </div>
+
   <!-- Falling Medicines Background Animation -->
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- FULLSCREEN IMAGE MODAL VIEWER -->
+  <!-- FULLSCREEN HIGH QUALITY IMAGE MODAL VIEWER (50% Zoom Clarity) -->
   <div class="image-modal-overlay" id="imageModalOverlay" onclick="closeImageModal()">
-    <img id="fullscreenImageTag" src="" alt="Fullscreen Notice" />
-    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 12px;">Tap anywhere to close</span>
+    <div class="image-zoom-box">
+      <img id="fullscreenImageTag" src="" alt="Fullscreen Notice" onclick="toggle50Zoom(event)" />
+    </div>
+    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 12px;">Tap image to toggle 50% Zoom • Tap outside to close</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU (Download & Internal Share Only) -->
+  <!-- LONG PRESS CONTEXT MENU -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
       <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Image</button>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download High-Res Image</button>
       <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy / Internal Share</button>
       <button class="context-menu-btn" style="color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="closeContextMenu()">Cancel</button>
     </div>
@@ -603,7 +795,7 @@
         <span>℞</span> D-PHARMA
       </div>
       <div class="search-container">
-        <input type="text" id="userSearchInput" class="search-input" placeholder="Search registered students (Name/Enroll)..." autocomplete="off" />
+        <input type="text" id="userSearchInput" class="search-input" placeholder="Search students (Name/Enroll)..." autocomplete="off" />
       </div>
       <div class="profile-nav-btn" onclick="openProfileModal()">
         <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
@@ -612,7 +804,7 @@
 
     <!-- Search Results View -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS (Tap user to view profile):</div>
       <div id="usersList"></div>
     </div>
 
@@ -623,10 +815,20 @@
       <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
       <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
       
-      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Images (Max 10):</label>
+      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach High-Res Images (Max 10):</label>
       <input type="file" id="noticeImages" class="input-field-custom" accept="image/*" multiple />
       
       <button onclick="publishNotice()" id="btnPublish" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
+    </div>
+
+    <!-- NOTICE BOARD LOGO BRANDING -->
+    <div class="notice-board-brand">
+      <div class="notice-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+          <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+        </svg>
+      </div>
+      <span style="font-size: 0.88rem; font-weight: 800; color: #34d399; letter-spacing: 0.5px;">OFFICIAL ℞ NOTICE BOARD</span>
     </div>
 
     <!-- WHATSAPP STORY STYLE NOTICE SECTION -->
@@ -665,9 +867,9 @@
     <div class="fullscreen-hint">📱 Double tap anywhere on screen for Fullscreen mode</div>
   </div>
 
-  <!-- Read-Only Profile View Modal -->
-  <div class="modal-overlay" id="profileModal">
-    <div class="modal-content">
+  <!-- Read-Only Profile View Modal with 'My Profile ➔' Button -->
+  <div class="modal-overlay" id="profileModal" onclick="handleProfileBackdropClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
       <img id="modalProfileImg" class="modal-photo protected-img" src="" alt="Profile" />
       <h3 id="modalName" style="margin-bottom: 4px;">Student Name</h3>
       <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">VERIFIED ID</p>
@@ -677,29 +879,46 @@
       <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
 
       <div class="modal-btn-row">
-        <button onclick="closeProfileModal()" class="btn-action" style="flex:1; justify-content:center; padding:10px;">Close</button>
+        <!-- Replaced Close button with My Profile ➔ -->
+        <button onclick="goToMyProfile()" class="btn-view-profile">
+          <span>My Profile</span> <span>➔</span>
+        </button>
         <button onclick="logoutUser()" class="btn-logout">Log Out</button>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- 5. HIGH-VISIBILITY FLOATING BOTTOM NAVIGATION BAR -->
   <div class="bottom-nav">
     <div class="nav-item active">
-      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      HOME
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>HOME</span>
     </div>
     <div class="nav-item" onclick="window.location.href='dpg.html'">
-      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
-      D.P.G
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+      <span>D.P.G</span>
     </div>
     <div class="nav-item" onclick="window.location.href='chats.html'">
-      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-      CHATS
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      <span>CHATS</span>
     </div>
   </div>
 
   <script>
+    // ==========================================
+    // 1. OPENING SPLASH SCREEN TRANSITION
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('portalSplashOverlay');
+        if (splash) {
+          splash.style.opacity = '0';
+          splash.style.transform = 'scale(1.08)';
+          setTimeout(() => splash.style.display = 'none', 500);
+        }
+      }, 1600); // 1.6s smooth intro
+    });
+
     // ==========================================
     // SECURITY GUARDS (Anti-Inspect / F12 Block)
     // ==========================================
@@ -721,7 +940,7 @@
 
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
 
-    // 1. FAST LOCAL PROFILE PRELOAD (Zero Delay)
+    // FAST LOCAL PROFILE PRELOAD
     const cachedProfile = localStorage.getItem('cachedUserObj');
     let currentUserData = cachedProfile ? JSON.parse(cachedProfile) : null;
     let authUser = null;
@@ -731,7 +950,7 @@
       document.getElementById('modalProfileImg').src = currentUserData.photo;
     }
 
-    // 2. FIREBASE CONFIG
+    // FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -746,12 +965,11 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Enable offline persistence for faster repeated visits
     try {
       db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     } catch(e) {}
 
-    // 3. AUTH STATE & FAST IDENTITY RESOLUTION
+    // AUTH STATE & IDENTITY RESOLUTION
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.clear();
@@ -777,7 +995,6 @@
         localStorage.setItem('cachedUserObj', JSON.stringify(currentUserData));
         document.getElementById('createNoticePanel').style.display = 'block';
       } else {
-        // Fetch from students collection using UID or Email
         let docSnap = await db.collection('students').doc(user.uid).get();
         if (!docSnap.exists) {
           const qSnap = await db.collection('students').where('email', '==', userEmail).limit(1).get();
@@ -799,13 +1016,11 @@
         }
       }
 
-      // Preload student database once for lightning fast search
       preloadStudentsForFastSearch();
-      // Load Notices
       loadStoryNotices();
     });
 
-    // 4. IN-MEMORY FAST SEARCH (No lag, instant response)
+    // 4. SEARCH WITH DIRECT PROFILE REDIRECTION
     let cachedStudents = [];
     let isStudentsLoaded = false;
 
@@ -863,21 +1078,22 @@
 
         let partnerBtn = '';
         if (isDev) {
-          partnerBtn = `<button class="btn-action btn-partner" onclick="toggleMainPartner('${data.id}', ${!data.isMainPartner})">
+          partnerBtn = `<button class="btn-action btn-partner" onclick="event.stopPropagation(); toggleMainPartner('${data.id}', ${!data.isMainPartner})">
             ${data.isMainPartner ? 'Revoke Partner' : '★ Partner'}
           </button>`;
         }
 
+        // Tap on user opens their profile.html?uid=...
         card.innerHTML = `
-          <div class="user-info-left">
+          <div class="user-info-left" onclick="openUserProfile('${data.id}')">
             <img class="user-avatar-sm protected-img" src="${photo}" alt="User" />
             <div>
               <strong style="font-size:0.88rem;">${data.name}</strong>
-              <div style="font-size:0.72rem; color:#34d399;">${data.enroll || 'Student'}</div>
+              <div style="font-size:0.72rem; color:#34d399;">${data.enroll || 'Student'} • <span style="text-decoration:underline;">View Profile</span></div>
             </div>
           </div>
           <div class="action-btns">
-            <button class="btn-action" onclick="sendChatRequest('${data.id}', '${escapeHtml(data.name)}')">Chat Request</button>
+            <button class="btn-action" onclick="event.stopPropagation(); sendChatRequest('${data.id}', '${escapeHtml(data.name)}')">Chat</button>
             ${partnerBtn}
           </div>
         `;
@@ -885,6 +1101,12 @@
       });
 
       searchResultsBox.style.display = 'block';
+    }
+
+    function openUserProfile(targetUid) {
+      if (targetUid) {
+        window.location.href = `profile.html?uid=${targetUid}`;
+      }
     }
 
     function escapeHtml(text) {
@@ -924,7 +1146,7 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // 5. NOTICE PUBLISHING WITH COMPRESSION & LINK 404 FIX
+    // 2. HIGH QUALITY NOTICE COMPRESSION (Retains 50% Zoom Clarity)
     async function publishNotice() {
       if (!authUser) return;
       const isDev = authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
@@ -945,7 +1167,6 @@
         return;
       }
 
-      // Fix 404 error by ensuring http/https prefix
       if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
         link = 'https://' + link;
       }
@@ -956,13 +1177,13 @@
       }
 
       const btn = document.getElementById('btnPublish');
-      btn.innerText = "Publishing...";
+      btn.innerText = "Publishing High-Res...";
       btn.disabled = true;
 
       try {
         const compressedImages = [];
         for (let i = 0; i < files.length; i++) {
-          const b64 = await toBase64Compressed(files[i]);
+          const b64 = await toHighResCompressed(files[i]);
           compressedImages.push(b64);
         }
 
@@ -980,7 +1201,7 @@
           expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
         });
 
-        alert("Notice published! Available in status view for 24h.");
+        alert("Notice published in Full-HD quality! Active for 24h.");
         document.getElementById('noticeTitle').value = '';
         document.getElementById('noticeContent').value = '';
         document.getElementById('noticeLink').value = '';
@@ -993,21 +1214,25 @@
       }
     }
 
-    function toBase64Compressed(file) {
+    // High quality: 2200px max bounds, 0.92 quality (No blur up to 50% zoom)
+    function toHighResCompressed(file) {
       return new Promise((res) => {
         const r = new FileReader();
         r.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const max = 700;
+            const max = 2200; 
             let w = img.width, h = img.height;
             if (w > h && w > max) { h *= max / w; w = max; }
             else if (h > max) { w *= max / h; h = max; }
-            canvas.width = w; canvas.height = h;
+            canvas.width = Math.round(w);
+            canvas.height = Math.round(h);
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            res(canvas.toDataURL('image/jpeg', 0.65));
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            res(canvas.toDataURL('image/jpeg', 0.92));
           };
           img.src = e.target.result;
         };
@@ -1015,7 +1240,7 @@
       });
     }
 
-    // 6. WHATSAPP STORY NOTICES ENGINE
+    // WHATSAPP STORY NOTICES ENGINE
     let activeNotices = [];
     let currentStoryIndex = 0;
     let activeMediaUrl = "";
@@ -1089,7 +1314,6 @@
           ${notice.images.length > 1 ? `<div style="font-size:0.75rem; color:#6ee7b7; margin-top:4px;">+${notice.images.length - 1} more photos</div>` : ''}
         `;
 
-        // Attach Fullscreen & Long Press Handlers (1 to 1.5s delay)
         const imgEl = document.getElementById('activeStoryImg');
         let pressTimer = null;
 
@@ -1124,14 +1348,23 @@
       document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
     }
 
-    // FULLSCREEN & INTERNAL CONTEXT MENU HANDLERS
+    // FULLSCREEN & 50% ZOOM HANDLER
     function openImageModal(url) {
-      document.getElementById('fullscreenImageTag').src = url;
+      const fullImg = document.getElementById('fullscreenImageTag');
+      fullImg.src = url;
+      fullImg.classList.remove('zoomed-50');
       document.getElementById('imageModalOverlay').style.display = 'flex';
+    }
+
+    function toggle50Zoom(event) {
+      event.stopPropagation();
+      const fullImg = document.getElementById('fullscreenImageTag');
+      fullImg.classList.toggle('zoomed-50');
     }
 
     function closeImageModal() {
       document.getElementById('imageModalOverlay').style.display = 'none';
+      document.getElementById('fullscreenImageTag').classList.remove('zoomed-50');
     }
 
     let menuMediaUrl = "";
@@ -1144,7 +1377,6 @@
       document.getElementById('contextMenuOverlay').style.display = 'none';
     }
 
-    // Download locally
     function downloadCurrentMedia() {
       if (!menuMediaUrl) return;
       const a = document.createElement('a');
@@ -1156,7 +1388,6 @@
       closeContextMenu();
     }
 
-    // Internal Share (Copies link or internal sharing without external social media redirection)
     function shareCurrentMedia() {
       if (!menuMediaUrl) return;
       navigator.clipboard.writeText(menuMediaUrl);
@@ -1181,7 +1412,7 @@
       }
     }
 
-    // 7. PROFILE MODAL & LOGOUT
+    // 4. PROFILE MODAL & MY PROFILE NAVIGATION
     function openProfileModal() {
       if (!currentUserData) return;
       document.getElementById('modalName').innerText = currentUserData.name || 'Student';
@@ -1198,6 +1429,21 @@
       document.getElementById('profileModal').style.display = 'none';
     }
 
+    function handleProfileBackdropClick(e) {
+      if (e.target.id === 'profileModal') {
+        closeProfileModal();
+      }
+    }
+
+    function goToMyProfile() {
+      if (currentUserData && (currentUserData.uid || authUser)) {
+        const uid = currentUserData.uid || authUser.uid;
+        window.location.href = `profile.html?uid=${uid}`;
+      } else {
+        closeProfileModal();
+      }
+    }
+
     async function logoutUser() {
       localStorage.clear();
       sessionStorage.clear();
@@ -1207,7 +1453,7 @@
       window.location.replace('login.html');
     }
 
-    // 8. OPTIMIZED MEDICINES RAIN
+    // MEDICINES RAIN ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
@@ -1230,7 +1476,7 @@
     }
     rainContainer.appendChild(frag);
 
-    // 9. DOUBLE CLICK FULLSCREEN
+    // DOUBLE CLICK FULLSCREEN
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
