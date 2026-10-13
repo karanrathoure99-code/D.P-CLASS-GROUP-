@@ -399,6 +399,48 @@
       }
     });
 
+    // ==========================================
+    // आईफ़ोन स्टाइल साउंड और हैप्टिक फ़ीडबैक
+    // ==========================================
+    let audioCtx = null;
+
+    function playIPhoneClickSound() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.type = 'sine';
+        // iPhone Taptic इंजन जैसा क्रिस्प लो-पिच टैप साउंड
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.07);
+
+        gainNode.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.07);
+      } catch (e) {
+        console.log("Audio not allowed yet:", e);
+      }
+    }
+
+    function triggerIPhoneHaptic() {
+      if ('vibrate' in navigator) {
+        // iPhone जैसा अल्ट्रा-शॉर्ट 12ms क्रिस्प टैप
+        navigator.vibrate(12);
+      }
+    }
+
     let toastDismissTimer;
 
     // 3-चरणीय एरर हैंडलर फ़ंक्शन
@@ -408,6 +450,10 @@
       const passInput = document.getElementById('userPassword');
       const toast = document.getElementById('toastNotification');
       const toastBody = document.getElementById('toastBodyText');
+
+      // 🔊 तुरंत आईफ़ोन स्टाइल साउंड और अल्ट्रा-शॉर्ट हैप्टिक वाइब्रेशन
+      playIPhoneClickSound();
+      triggerIPhoneHaptic();
 
       // स्टेप 1: उसी जगह तुरंत एरर दिखाना + इनपुट शेक
       errorMsg.innerHTML = boxMessage;
@@ -426,6 +472,9 @@
           toastBody.innerText = notificationMessage;
           toast.classList.add('active');
 
+          // टोस्ट ड्रॉप होते समय भी एक हल्का सा आईफ़ोन माइक्रोटैप
+          triggerIPhoneHaptic();
+
           clearTimeout(toastDismissTimer);
           toastDismissTimer = setTimeout(() => {
             toast.classList.remove('active');
@@ -440,7 +489,7 @@
             body: notificationMessage,
             icon: './logo.png',
             badge: './logo.png',
-            vibrate: [250, 100, 250]
+            vibrate: [15, 60, 15] // क्रिस्प डबल-टैप वाइब्रेशन
           };
 
           if (navigator.serviceWorker && navigator.serviceWorker.controller) {
