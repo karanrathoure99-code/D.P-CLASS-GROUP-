@@ -25,6 +25,104 @@
       position: relative;
     }
 
+    /* ==========================================
+       JS CONTROLLED 3D CAPSULE SPLASH OVERLAY
+       ========================================== */
+    #capsuleSplashOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #062b25 0%, #010a08 100%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .capsule-wrapper-3d {
+      position: relative;
+      width: 240px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 800px;
+    }
+
+    .capsule-energy-core {
+      position: absolute;
+      width: 16px;
+      height: 60px;
+      background: #34d399;
+      border-radius: 8px;
+      box-shadow: 0 0 35px 15px #10b981, 0 0 60px 30px rgba(52, 211, 153, 0.6);
+      opacity: 0;
+      transform: scale(0.2);
+      z-index: 1;
+      transition: all 0.5s ease-out;
+    }
+
+    .capsule-energy-core.burst {
+      opacity: 1;
+      transform: scale(14);
+    }
+
+    .capsule-half-shell {
+      width: 95px;
+      height: 74px;
+      position: absolute;
+      top: 13px;
+      box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+      transition: transform 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.5s ease;
+    }
+
+    .capsule-shell-left {
+      left: 25px;
+      background: linear-gradient(145deg, #10b981 0%, #064e3b 100%);
+      border-top-left-radius: 45px;
+      border-bottom-left-radius: 45px;
+      border: 2px solid #34d399;
+      border-right: 1px dashed rgba(255, 255, 255, 0.3);
+      transform-origin: left center;
+    }
+
+    .capsule-shell-left.open {
+      transform: translateX(-100px) translateY(-10px) rotate(-35deg) scale(0.85);
+      opacity: 0;
+    }
+
+    .capsule-shell-right {
+      right: 25px;
+      background: linear-gradient(145deg, #ffffff 0%, #94a3b8 100%);
+      border-top-right-radius: 45px;
+      border-bottom-right-radius: 45px;
+      border: 2px solid #ffffff;
+      border-left: 1px dashed rgba(0, 0, 0, 0.2);
+      transform-origin: right center;
+    }
+
+    .capsule-shell-right.open {
+      transform: translateX(100px) translateY(10px) rotate(35deg) scale(0.85);
+      opacity: 0;
+    }
+
+    .capsule-badge-label {
+      margin-top: 30px;
+      font-size: 0.82rem;
+      color: #34d399;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      transition: opacity 0.3s ease;
+    }
+
     /* Falling Medicines Rain */
     .rain-container {
       position: fixed;
@@ -442,6 +540,16 @@
 </head>
 <body oncontextmenu="return false;">
 
+  <!-- 3D CAPSULE CRACK OVERLAY (JS CONTROLLED) -->
+  <div id="capsuleSplashOverlay">
+    <div class="capsule-wrapper-3d">
+      <div class="capsule-half-shell capsule-shell-left" id="capShellLeft"></div>
+      <div class="capsule-energy-core" id="capEnergyCore"></div>
+      <div class="capsule-half-shell capsule-shell-right" id="capShellRight"></div>
+    </div>
+    <div class="capsule-badge-label" id="capBadgeLabel">D-PHARMA PORTAL</div>
+  </div>
+
   <!-- Background Rain -->
   <div class="rain-container" id="rainContainer"></div>
 
@@ -532,6 +640,43 @@
 
   <script>
     // ==========================================
+    // JS CAPSULE ANIMATION CONTROLLER
+    // ==========================================
+    function triggerCapsuleIntroAnimation() {
+      const overlay = document.getElementById('capsuleSplashOverlay');
+      const leftShell = document.getElementById('capShellLeft');
+      const rightShell = document.getElementById('capShellRight');
+      const core = document.getElementById('capEnergyCore');
+      const badge = document.getElementById('capBadgeLabel');
+
+      if (!overlay) return;
+
+      // 0.25s पर कैप्सूल क्रैक और कोर का ब्लास्ट
+      setTimeout(() => {
+        if (leftShell) leftShell.classList.add('open');
+        if (rightShell) rightShell.classList.add('open');
+        if (core) core.classList.add('burst');
+        if (badge) badge.style.opacity = '0';
+      }, 250);
+
+      // 0.85s पर स्क्रीन फेड आउट
+      setTimeout(() => {
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none'; // क्लिक तुरंत शुरू
+      }, 850);
+
+      // 1.25s पर नोड को डोम से पूरी तरह रिमूव ताकि स्क्रीन 100% फ्री रहे
+      setTimeout(() => {
+        if (overlay && overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }, 1250);
+    }
+
+    // पेज लोड होते ही एनीमेशन शुरू
+    window.addEventListener('DOMContentLoaded', triggerCapsuleIntroAnimation);
+
+    // ==========================================
     // SECURITY GUARDS (Anti-Inspect & Fullscreen API)
     // ==========================================
     document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -558,9 +703,9 @@
       const docEl = doc.documentElement;
 
       const req = docEl.requestFullscreen || 
-                docEl.mozRequestFullScreen || 
-                docEl.webkitRequestFullScreen || 
-                docEl.msRequestFullscreen;
+                  docEl.mozRequestFullScreen || 
+                  docEl.webkitRequestFullScreen || 
+                  docEl.msRequestFullscreen;
 
       const exit = doc.exitFullscreen || 
                    doc.mozCancelFullScreen || 
@@ -1107,7 +1252,6 @@
                 const parsed = JSON.parse(clearText);
                 if (parsed.type === 'text') {
                   bubble.innerText = parsed.data;
-                  // Note: Text messages do NOT trigger long-press menu
                 } else if (parsed.type === 'image') {
                   const img = document.createElement('img');
                   img.src = parsed.data;
@@ -1120,7 +1264,6 @@
                   vid.src = parsed.data;
                   vid.className = 'chat-media-video';
                   vid.controls = true;
-                  // Note: Plays normally in chat stream. Double click handles fullscreen or view modal.
                   vid.onclick = () => openMediaModal(parsed.data, 'video');
                   attachMediaLongPress(vid, parsed.data, docId, isMe);
                   bubble.appendChild(vid);
