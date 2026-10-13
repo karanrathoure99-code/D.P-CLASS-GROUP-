@@ -161,10 +161,123 @@
       overflow: hidden;
     }
 
+    /* ==========================================
+       1. FIXED TOP FLOATING NAVBAR DOCK
+       ========================================== */
+    .top-navbar {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 30px);
+      max-width: 720px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 35px;
+      padding: 8px 16px;
+      z-index: 95;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+    }
+
+    .app-logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #34d399;
+      cursor: pointer;
+      text-decoration: none;
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .app-logo-badge:active {
+      transform: scale(0.92);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .top-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.55);
+      flex-shrink: 0;
+    }
+
+    .search-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(2, 18, 14, 0.85);
+      border: 1.2px solid rgba(52, 211, 153, 0.5);
+      border-radius: 25px;
+      padding: 9px 16px;
+      color: #ffffff;
+      font-size: 0.86rem;
+      outline: none;
+      transition: all 0.3s ease;
+      -webkit-user-select: text;
+      user-select: text;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .search-input:focus {
+      border-color: #34d399;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.5);
+      background: rgba(3, 24, 19, 0.95);
+    }
+
+    .profile-nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid #34d399;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.6);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .profile-nav-btn:active {
+      transform: scale(0.90);
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+    }
+
+    .protected-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
     /* Notification Banner */
     .notif-banner {
       position: fixed;
-      top: 12px;
+      top: 88px;
       left: 50%;
       transform: translateX(-50%) translateY(-100px);
       background: rgba(6, 43, 37, 0.95);
@@ -186,50 +299,22 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Top Header */
-    .chat-header {
-      flex-shrink: 0;
-      height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 14px;
-      background: rgba(6, 43, 37, 0.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.25);
-    }
-
-    .user-profile-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .chat-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #34d399;
-      object-fit: cover;
-      background: #031411;
-      pointer-events: none;
-    }
-
-    /* Main View Area */
+    /* Main View Area (Adjusted for top/bottom docks) */
     .main-body {
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-top: 88px;
+      padding-bottom: 84px;
     }
 
     /* Incoming Requests Box */
     .requests-box {
       flex-shrink: 0;
       background: rgba(16, 185, 129, 0.15);
-      border-bottom: 1px solid rgba(52, 211, 153, 0.35);
+      border-bottom: 1.5px solid rgba(52, 211, 153, 0.35);
       padding: 10px 14px;
       display: none;
       max-height: 140px;
@@ -286,6 +371,16 @@
       border-color: #34d399;
     }
 
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #34d399;
+      object-fit: cover;
+      background: #031411;
+      pointer-events: none;
+    }
+
     /* Active Conversation View */
     .active-chat-view {
       flex: 1;
@@ -293,6 +388,17 @@
       display: none;
       flex-direction: column;
       overflow: hidden;
+    }
+
+    .active-chat-header-bar {
+      height: 52px;
+      background: rgba(4, 28, 23, 0.95);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
     }
 
     .messages-area {
@@ -531,6 +637,62 @@
       background: rgba(16, 185, 129, 0.3);
       color: #34d399;
     }
+
+    /* ==========================================
+       2. FLOATING BOTTOM NAVIGATION DOCK (DIRECT HTML LINKS)
+       ========================================== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      height: 66px;
+      background: rgba(4, 28, 23, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid #34d399;
+      border-radius: 35px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 90;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+      padding: 0 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      gap: 4px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      transition: all 0.25s ease;
+    }
+
+    .nav-item:active {
+      transform: scale(0.92);
+    }
+
+    .nav-item.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
+      border: 1px solid #34d399;
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
+    }
+
+    .nav-item:not(.active):hover {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+    }
   </style>
 
   <!-- Firebase SDKs -->
@@ -577,17 +739,25 @@
   </div>
 
   <div class="app-container">
-    <!-- Top Header -->
-    <div class="chat-header">
-      <div class="user-profile-meta" id="headerProfileBlock" onclick="handleHeaderNav()">
-        <span style="font-size: 1.2rem; color: #34d399; margin-right: 2px;">❮</span>
-        <img id="chatTargetAvatar" class="chat-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
-        <div>
-          <h3 id="chatTargetName" style="font-size: 0.9rem; line-height: 1.2;">Secure Chats</h3>
-          <span id="chatTargetStatus" style="font-size: 0.68rem; color: #34d399;">🔒 Firebase E2EE Encrypted</span>
+    <!-- FIXED TOP FLOATING NAVBAR DOCK (DIRECT HTML LINKS) -->
+    <header class="top-navbar">
+      <a href="home.html" class="app-logo-badge">
+        <div class="top-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
         </div>
+        <span>D-PHARMA</span>
+      </a>
+
+      <div class="search-container">
+        <input type="text" id="chatSearchInput" class="search-input" placeholder="Search chats..." autocomplete="off" oninput="filterAcceptedChats(this.value)" />
       </div>
-    </div>
+
+      <a href="profile.html" class="profile-nav-btn">
+        <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
+      </a>
+    </header>
 
     <!-- Main Dynamic Body -->
     <div class="main-body">
@@ -605,6 +775,18 @@
 
       <!-- 3. Active Chat Window -->
       <div id="activeChatView" class="active-chat-view">
+        <div class="active-chat-header-bar">
+          <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="exitActiveChat()">
+            <span style="font-size:1.2rem; color:#34d399;">❮</span>
+            <img id="chatTargetAvatar" class="chat-avatar" style="width:36px; height:36px;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Chat User" />
+            <div>
+              <h3 id="chatTargetName" style="font-size:0.88rem; font-weight:700; color:#ffffff;">Secure Chats</h3>
+              <span id="chatTargetStatus" style="font-size:0.66rem; color:#34d399;">● Online & Firebase Encrypted</span>
+            </div>
+          </div>
+          <button class="attach-btn" style="width:34px; height:34px; font-size:0.75rem;" onclick="exitActiveChat()">Back</button>
+        </div>
+
         <div class="messages-area" id="messagesBox">
           <div class="e2e-badge-wrap">
             <span class="e2e-badge">
@@ -636,6 +818,22 @@
         </form>
       </div>
     </div>
+
+    <!-- FLOATING BOTTOM NAVIGATION DOCK (DIRECT HTML LINKS) -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>HOME</span>
+      </a>
+      <a href="dpg.html" class="nav-item">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+        <span>D.P.G</span>
+      </a>
+      <a href="chats.html" class="nav-item active">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span>CHATS</span>
+      </a>
+    </div>
   </div>
 
   <script>
@@ -651,7 +849,6 @@
 
       if (!overlay) return;
 
-      // 0.25s पर कैप्सूल क्रैक और कोर का ब्लास्ट
       setTimeout(() => {
         if (leftShell) leftShell.classList.add('open');
         if (rightShell) rightShell.classList.add('open');
@@ -659,13 +856,11 @@
         if (badge) badge.style.opacity = '0';
       }, 250);
 
-      // 0.85s पर स्क्रीन फेड आउट
       setTimeout(() => {
         overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none'; // क्लिक तुरंत शुरू
+        overlay.style.pointerEvents = 'none';
       }, 850);
 
-      // 1.25s पर नोड को डोम से पूरी तरह रिमूव ताकि स्क्रीन 100% फ्री रहे
       setTimeout(() => {
         if (overlay && overlay.parentNode) {
           overlay.parentNode.removeChild(overlay);
@@ -673,7 +868,6 @@
       }, 1250);
     }
 
-    // पेज लोड होते ही एनीमेशन शुरू
     window.addEventListener('DOMContentLoaded', triggerCapsuleIntroAnimation);
 
     // ==========================================
@@ -751,6 +945,7 @@
     let currentUser = null;
     let loggedAccount = '';
     let myStudentDocId = "";
+    let acceptedChatsListCache = [];
 
     // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
@@ -768,6 +963,8 @@
         const snap = await db.collection('students').where('email', '==', loggedAccount).get();
         if (!snap.empty) {
           myStudentDocId = snap.docs[0].id;
+          const me = snap.docs[0].data();
+          if (me.photo) document.getElementById('navProfilePic').src = me.photo;
         }
       } catch (err) {
         console.warn("Doc lookup error:", err);
@@ -802,7 +999,7 @@
       setTimeout(() => banner.classList.remove('show'), 3500);
     }
 
-    // 4. DEVICE-BOUND E2EE ENGINE (Firebase Storage)
+    // 4. DEVICE-BOUND E2EE ENGINE
     function getDeviceKey() {
       let key = localStorage.getItem('_dp_device_e2e_key');
       if (!key) {
@@ -906,7 +1103,7 @@
       }
     }
 
-    // 6. CONVERSATIONS MANAGEMENT
+    // 6. CONVERSATIONS MANAGEMENT & SEARCH
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
@@ -935,7 +1132,7 @@
           return;
         }
 
-        friendsList.innerHTML = '';
+        acceptedChatsListCache = [];
         for (let peer of peerAccounts) {
           let name = peer;
           let photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
@@ -949,26 +1146,57 @@
             if (sData.photo) photo = sData.photo;
           }
 
-          const item = document.createElement('div');
-          item.className = 'chat-user-item';
-          item.onclick = () => openActiveChat(peer, name, photo, peerUid);
-          item.innerHTML = `
-            <img src="${photo}" class="chat-avatar" alt="Avatar" />
-            <div style="flex:1;">
-              <strong style="font-size:0.92rem;">${name}</strong>
-              <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
-            </div>
-          `;
-          friendsList.appendChild(item);
+          acceptedChatsListCache.push({ peer, name, photo, peerUid });
+        }
 
-          if ((savedActivePeer && savedActivePeer.toLowerCase() === peer.toLowerCase()) || 
-              (directTarget && directTarget.toLowerCase() === peer.toLowerCase())) {
-            openActiveChat(peer, name, photo, peerUid);
-          }
+        renderFilteredAcceptedChats(acceptedChatsListCache);
+
+        if (savedActivePeer) {
+          const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === savedActivePeer.toLowerCase());
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
+        } else if (directTarget) {
+          const found = acceptedChatsListCache.find(x => x.peer.toLowerCase() === directTarget.toLowerCase());
+          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid);
         }
       } catch (err) {
         console.error(err);
       }
+    }
+
+    function renderFilteredAcceptedChats(list) {
+      const friendsList = document.getElementById('friendsList');
+      friendsList.innerHTML = '';
+
+      if (list.length === 0) {
+        friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No matching accepted chats found.</p>";
+        return;
+      }
+
+      list.forEach(({ peer, name, photo, peerUid }) => {
+        const item = document.createElement('div');
+        item.className = 'chat-user-item';
+        item.onclick = () => openActiveChat(peer, name, photo, peerUid);
+        item.innerHTML = `
+          <img src="${photo}" class="chat-avatar" alt="Avatar" />
+          <div style="flex:1;">
+            <strong style="font-size:0.92rem;">${name}</strong>
+            <div style="font-size:0.7rem; color:#34d399;">Tap to chat securely</div>
+          </div>
+        `;
+        friendsList.appendChild(item);
+      });
+    }
+
+    function filterAcceptedChats(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        renderFilteredAcceptedChats(acceptedChatsListCache);
+        return;
+      }
+      const filtered = acceptedChatsListCache.filter(item => {
+        return item.name.toLowerCase().includes(q) || item.peer.toLowerCase().includes(q);
+      });
+      renderFilteredAcceptedChats(filtered);
     }
 
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "") {
@@ -1004,22 +1232,15 @@
       listenMessages();
     }
 
-    function handleHeaderNav() {
-      if (activeChatRoomId) {
-        sessionStorage.removeItem('activeChatPeer');
-        if (msgListenerUnsub) msgListenerUnsub();
-        activeChatRoomId = null;
-        targetUserData = null;
-        document.getElementById('activeChatView').style.display = 'none';
-        document.getElementById('chatTargetName').innerText = "Secure Chats";
-        document.getElementById('chatTargetStatus').innerText = "🔒 Firebase E2EE Encrypted";
-        document.getElementById('chatTargetAvatar').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-        document.getElementById('chatListView').style.display = 'flex';
-        listenIncomingRequests();
-        loadConversations();
-      } else {
-        window.location.href = 'home.html';
-      }
+    function exitActiveChat() {
+      sessionStorage.removeItem('activeChatPeer');
+      if (msgListenerUnsub) msgListenerUnsub();
+      activeChatRoomId = null;
+      targetUserData = null;
+      document.getElementById('activeChatView').style.display = 'none';
+      document.getElementById('chatListView').style.display = 'flex';
+      listenIncomingRequests();
+      loadConversations();
     }
 
     // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY)
@@ -1096,7 +1317,6 @@
       const jsonPayload = JSON.stringify({ type: type, data: dataContent });
       const cipher = encryptPayload(jsonPayload, currentDeviceKey);
 
-      // Save encrypted message record to Firebase Firestore
       await db.collection('chats').doc(activeChatRoomId).collection('messages').add({
         sender: loggedAccount,
         senderId: currentUser.uid,
@@ -1144,7 +1364,7 @@
     }
 
     function openContextMenu(url, docId, mine) {
-      playBeepSound(1200, 0.2); // Beep Sound on Long Press
+      playBeepSound(1200, 0.2);
       activeMediaUrl = url;
       activeMsgDocId = docId;
       isMsgMine = mine;
@@ -1196,7 +1416,6 @@
       closeContextMenu();
     }
 
-    // Attach Long Press STRICTLY to Media Elements (Photos & Videos) with 1 to 1.5s delay
     function attachMediaLongPress(element, url, docId, mine) {
       let pressTimer = null;
       element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
