@@ -69,7 +69,7 @@
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(52, 211, 153, 0.3);
       border-radius: 28px;
-      padding: 30px 26px;
+      padding: 28px 26px;
       width: 100%;
       max-width: 400px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.18);
@@ -82,28 +82,28 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
-    /* Exact index.html Logo Wrapper */
+    /* Resized Logo Wrapper (~22% smaller) */
     .logo-wrapper {
-      width: 95px;
-      height: 95px;
-      border-radius: 26px;
+      width: 74px;
+      height: 74px;
+      border-radius: 20px;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(13, 148, 136, 0.95));
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.3);
-      margin-bottom: 16px;
+      box-shadow: 0 12px 28px rgba(16, 185, 129, 0.38), inset 0 0 12px rgba(255, 255, 255, 0.3);
+      margin-bottom: 14px;
       animation: bounceIn 1.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, pulseGreen 2.5s infinite ease-in-out;
     }
 
     .logo-icon {
-      width: 54px;
-      height: 54px;
+      width: 42px;
+      height: 42px;
       fill: #ffffff;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
@@ -115,8 +115,8 @@
     }
 
     @keyframes pulseGreen {
-      0%, 100% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4), 0 0 20px rgba(13, 148, 136, 0.2); }
-      50% { box-shadow: 0 18px 45px rgba(16, 185, 129, 0.7), 0 0 35px rgba(34, 211, 238, 0.4); }
+      0%, 100% { box-shadow: 0 10px 24px rgba(16, 185, 129, 0.4), 0 0 16px rgba(13, 148, 136, 0.2); }
+      50% { box-shadow: 0 15px 36px rgba(16, 185, 129, 0.65), 0 0 28px rgba(34, 211, 238, 0.4); }
     }
 
     .rx-tag {
@@ -129,11 +129,11 @@
       border: 1px solid rgba(52, 211, 153, 0.35);
       padding: 4px 14px;
       border-radius: 20px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .brand-title {
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       font-weight: 800;
       background: linear-gradient(90deg, #34d399, #22d3ee);
       -webkit-background-clip: text;
@@ -266,7 +266,7 @@
       margin-top: 18px;
     }
 
-    /* Top Animated Notification Toast */
+    /* Top Animated Toast for wrong login attempt */
     .top-toast-alert {
       position: fixed;
       top: -130px;
@@ -329,10 +329,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- EmailJS Browser SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- Top In-App Animated Notification Banner -->
+  <!-- Top Toast Alert (Failure Only) -->
   <div id="toastNotification" class="top-toast-alert">
     <div class="toast-inner-box">
       <span class="toast-bell-icon">🔔</span>
@@ -348,7 +351,7 @@
 
   <div class="login-card">
     <div class="brand-header">
-      <!-- exact index.html Logo -->
+      <!-- Resized Logo Wrapper -->
       <div class="logo-wrapper">
         <svg class="logo-icon" viewBox="0 0 24 24">
           <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
@@ -360,7 +363,7 @@
       <p class="brand-subtitle">Student & Developer Secure Authentication</p>
     </div>
 
-    <!-- Form without inner error box -->
+    <!-- Clean Input Form -->
     <form id="loginForm">
       <div class="input-group">
         <label for="userIdentifier">Enrollment No. / Gmail / Phone</label>
@@ -399,7 +402,37 @@
 
   <script>
     // ==========================================
-    // SECURITY GUARDS (Anti-Inspect / F12 Block)
+    // EmailJS Initialized with User Public Key
+    // ==========================================
+    (function() {
+      emailjs.init("sndo4my0KbtJNNZYC");
+    })();
+
+    const EMAILJS_SERVICE_ID = "service_lvy3wv7";
+    const EMAILJS_TEMPLATE_ID = "template_eqhw8mx";
+
+    // Send Security Alert to the Logged-in User
+    async function sendLoginAlertEmail(userEmail, userName) {
+      try {
+        const loginTime = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        const deviceInfo = navigator.userAgent;
+
+        const templateParams = {
+          to_email: userEmail,
+          to_name: userName || "Student",
+          login_time: loginTime,
+          device_info: deviceInfo
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+        console.log("Real-time security alert sent to:", userEmail);
+      } catch (err) {
+        console.error("EmailJS Security Alert Failed:", err);
+      }
+    }
+
+    // ==========================================
+    // Security Guards (Anti-Inspect / F12 Block)
     // ==========================================
     document.addEventListener('keydown', function (e) {
       if (
@@ -412,19 +445,9 @@
       }
     });
 
-    // Debugger Loop Trap
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
-
-    // ==========================================
-    // 0. System Notification Permission
-    // ==========================================
-    window.addEventListener('load', () => {
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    });
 
     // ==========================================
     // iPhone Haptics & Sounds (Web Audio API)
@@ -441,14 +464,12 @@
       return audioCtx;
     }
 
-    // iPhone ultra-short 12ms haptic vibration
     function triggerIPhoneHaptic() {
       if ('vibrate' in navigator) {
         navigator.vibrate(12);
       }
     }
 
-    // Short crisp button-click tap
     function playTapSound() {
       try {
         const ctx = getAudioContext();
@@ -470,13 +491,13 @@
       } catch (e) {}
     }
 
-    // iPhone Low Battery Drop Tone (Two-tone Low Pitch Alert)
+    // Two-tone Low Pitch Alert Sound (iPhone Battery Low style)
     function playLowBatterySound() {
       try {
         const ctx = getAudioContext();
         const now = ctx.currentTime;
 
-        // Tone 1: 440Hz
+        // Note 1: 440Hz
         const osc1 = ctx.createOscillator();
         const gain1 = ctx.createGain();
         osc1.type = 'sine';
@@ -488,7 +509,7 @@
         osc1.start(now);
         osc1.stop(now + 0.12);
 
-        // Tone 2: 330Hz (Drop Note)
+        // Note 2: 330Hz (Drop Note)
         const osc2 = ctx.createOscillator();
         const gain2 = ctx.createGain();
         osc2.type = 'sine';
@@ -502,7 +523,7 @@
       } catch (e) {}
     }
 
-    // Add Haptic Tap to About button
+    // Tap on About Button
     document.getElementById('aboutBtn').addEventListener('click', () => {
       triggerIPhoneHaptic();
       playTapSound();
@@ -510,18 +531,16 @@
 
     let toastDismissTimer;
 
-    // Failure Handler: Shows Toast & Plays iPhone Low Battery Sound
+    // Failure Handler: Shows Toast & Plays Low Battery Sound
     function triggerFailureAlert(notificationMessage = "Please re-enter your right details!") {
       const userInput = document.getElementById('userIdentifier');
       const passInput = document.getElementById('userPassword');
       const toast = document.getElementById('toastNotification');
       const toastBody = document.getElementById('toastBodyText');
 
-      // 1. Play Low Battery Sound & Haptic Vibration
       playLowBatterySound();
       triggerIPhoneHaptic();
 
-      // Shake Inputs
       userInput.classList.add('input-error');
       passInput.classList.add('input-error');
       setTimeout(() => {
@@ -529,7 +548,6 @@
         passInput.classList.remove('input-error');
       }, 500);
 
-      // 2. Drop In-App Toast
       if (toast) {
         toastBody.innerText = notificationMessage;
         toast.classList.add('active');
@@ -539,27 +557,9 @@
           toast.classList.remove('active');
         }, 4000);
       }
-
-      // 3. Trigger Native System Notification
-      setTimeout(() => {
-        if ('Notification' in window && Notification.permission === 'granted') {
-          const options = {
-            body: notificationMessage,
-            icon: './logo.png',
-            badge: './logo.png',
-            vibrate: [15, 60, 15]
-          };
-
-          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => reg.showNotification("D.Pharma Portal Alert", options));
-          } else {
-            new Notification("D.Pharma Portal Alert", options);
-          }
-        }
-      }, 1500);
     }
 
-    // 1. Firebase Initialization
+    // Firebase Initialization
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -574,7 +574,7 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // 2. High-Quality Colorful Transparent Medicines
+    // Falling Medicine Rain Animation
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32">
         <g transform="rotate(-30 16 16)">
@@ -617,15 +617,14 @@
       container.appendChild(drop);
     }
 
-    // 3. Developer Master Credentials
+    // Developer Master Credentials
     const DEVELOPER_ID = "karanrathoure6271@gmail.com";
     const DEVELOPER_PASS = "KARAN#255075@";
 
-    // 4. Form Authentication
+    // Form Authentication
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      // Tap Haptic and Audio
       triggerIPhoneHaptic();
       playTapSound();
 
@@ -633,7 +632,7 @@
       const password = document.getElementById('userPassword').value;
       const loginBtn = document.getElementById('loginBtn');
 
-      // (A) Developer Login
+      // (A) Developer Login Path
       if (identifier.toLowerCase() === DEVELOPER_ID.toLowerCase()) {
         if (password === DEVELOPER_PASS) {
           loginBtn.disabled = true;
@@ -649,7 +648,9 @@
               }
             }
 
-            // Success: Direct redirect (No alert notification)
+            // Real-Time Alert to Developer's Gmail
+            await sendLoginAlertEmail(DEVELOPER_ID, "Master Developer");
+
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userRole', 'developer');
             localStorage.setItem('userAccount', DEVELOPER_ID);
@@ -668,7 +669,7 @@
         }
       }
 
-      // (B) Student Secure Login
+      // (B) Student Login Path
       loginBtn.disabled = true;
       loginBtn.innerText = "Authenticating...";
 
@@ -676,11 +677,9 @@
         let targetEmail = "";
         let studentData = null;
 
-        // If identifier is directly an email
         if (identifier.includes("@")) {
           targetEmail = identifier.toLowerCase();
         } else {
-          // Resolve Email by Enrollment or Phone
           let snap = await db.collection("students")
             .where("enroll", "==", identifier.toUpperCase())
             .get();
@@ -704,11 +703,9 @@
           return;
         }
 
-        // Firebase Auth Verification
         const userCredential = await auth.signInWithEmailAndPassword(targetEmail, password);
         const user = userCredential.user;
 
-        // Fetch profile details if not already fetched
         if (!studentData) {
           const docSnap = await db.collection("students").doc(user.uid).get();
           if (docSnap.exists) {
@@ -721,18 +718,21 @@
           }
         }
 
-        // Success: Direct session save and redirect (No error notification)
+        // Real-Time Security Email to Student's Gmail
+        const studentName = studentData ? studentData.name : "Student";
+        await sendLoginAlertEmail(targetEmail, studentName);
+
+        // Success: Store Session and Direct Redirect
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userRole', 'student');
         localStorage.setItem('userAccount', targetEmail);
-        localStorage.setItem('studentName', studentData ? studentData.name : targetEmail);
+        localStorage.setItem('studentName', studentName);
         localStorage.setItem('studentEnroll', studentData ? studentData.enroll : '');
         localStorage.setItem('studentPhoto', studentData ? (studentData.photo || '') : '');
 
         window.location.replace('home.html');
       } catch (err) {
         console.error("Auth error:", err);
-        // On error: triggers battery low tone, toast banner, and haptics
         triggerFailureAlert("Please re-enter your right details!");
       } finally {
         loginBtn.disabled = false;
@@ -740,7 +740,7 @@
       }
     });
 
-    // 5. Double-Click Fullscreen API
+    // Double-Click Fullscreen
     document.addEventListener('dblclick', (e) => {
       if (['INPUT', 'BUTTON', 'A'].includes(e.target.tagName)) return;
       if (!document.fullscreenElement) {
