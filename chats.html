@@ -501,6 +501,7 @@
       line-height: 1.35;
       word-break: break-word;
       position: relative;
+      cursor: pointer;
     }
 
     .msg-incoming {
@@ -517,6 +518,23 @@
       border: 1px solid rgba(52, 211, 153, 0.5);
       color: #ffffff;
       border-bottom-right-radius: 3px;
+    }
+
+    /* Message Reactions Badge */
+    .msg-reaction-tag {
+      position: absolute;
+      bottom: -9px;
+      right: 8px;
+      background: rgba(3, 20, 17, 0.95);
+      border: 1px solid #34d399;
+      border-radius: 12px;
+      padding: 1px 5px;
+      font-size: 0.72rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      z-index: 5;
     }
 
     .chat-media-img {
@@ -559,42 +577,78 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     }
 
-    /* LONG PRESS CONTEXT MENU MODAL */
+    /* ==========================================
+       LONG PRESS CONTEXT MENU & EMOJI BAR
+       ========================================== */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.78);
       z-index: 2100;
       display: none;
       align-items: flex-end;
       justify-content: center;
       padding: 20px;
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(6px);
     }
+
     .context-menu-box {
       background: rgba(6, 43, 37, 0.98);
-      border: 1px solid #34d399;
-      border-radius: 20px;
+      border: 1.5px solid #34d399;
+      border-radius: 22px;
       width: 100%;
       max-width: 380px;
-      padding: 14px;
+      padding: 16px 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+      gap: 12px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.9);
     }
+
+    .emoji-reaction-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(3, 20, 17, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 30px;
+      padding: 6px 10px;
+      margin-bottom: 4px;
+    }
+
+    .emoji-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .emoji-btn:active {
+      transform: scale(1.3);
+    }
+
+    .context-actions-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .context-menu-btn {
       background: rgba(3, 20, 17, 0.9);
       border: 1px solid rgba(52, 211, 153, 0.35);
       color: #ffffff;
       padding: 12px;
       border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: 0.92rem;
+      font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: 0.2s;
     }
+
     .context-menu-btn:hover {
       background: rgba(16, 185, 129, 0.35);
       border-color: #34d399;
@@ -801,13 +855,23 @@
     <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU MODAL (Media Only: Download, Share, Unsend) -->
+  <!-- ==========================================
+       LONG PRESS MODAL: 5 EMOJIS & CONTEXT ACTIONS
+       ========================================== -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
-      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Media</button>
-      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Internal Share / Copy Link</button>
-      <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
+      <!-- 5 Emoji Reactions Bar -->
+      <div class="emoji-reaction-bar">
+        <button class="emoji-btn" onclick="applyEmojiReaction('❤️')">❤️</button>
+        <button class="emoji-btn" onclick="applyEmojiReaction('👍')">👍</button>
+        <button class="emoji-btn" onclick="applyEmojiReaction('😂')">😂</button>
+        <button class="emoji-btn" onclick="applyEmojiReaction('🤔')">🤔</button>
+        <button class="emoji-btn" onclick="applyEmojiReaction('😡')">😡</button>
+      </div>
+
+      <!-- Action Buttons Container (Dynamically Filled) -->
+      <div class="context-actions-wrap" id="contextActionsContainer"></div>
+      
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
     </div>
   </div>
@@ -869,11 +933,12 @@
           </div>
         </div>
 
-        <!-- Attachment Menu (Cloudinary for Photos/Videos) -->
+        <!-- Attachment Menu (Cloudinary for Photos/Videos/Files) -->
         <div class="attach-menu" id="attachMenu">
           <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera & Snap (Cloudinary)</button>
           <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Choose Photo from Gallery (Cloudinary)</button>
           <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (Cloudinary)</button>
+          <button class="attach-option" onclick="document.getElementById('fileDocInput').click()">📁 Send File / Document (Cloudinary)</button>
           <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
           <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
         </div>
@@ -882,6 +947,7 @@
         <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
         <input type="file" id="filePhotoInput" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'image')" />
         <input type="file" id="fileVideoInput" accept="video/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'video')" />
+        <input type="file" id="fileDocInput" accept="*/*" style="display:none;" onchange="handleCloudinaryUpload(event, 'raw')" />
 
         <form class="chat-input-bar" id="sendMsgForm">
           <button type="button" class="attach-btn" onclick="toggleAttachMenu()">📎</button>
@@ -1330,22 +1396,14 @@
           let photoUrl = defaultPhoto;
           let peerUid = "";
 
-          // Firebase 'students' कलेक्शन से सटीक डाटा फेच
           let sSnap = await db.collection('students').where('email', '==', peer).get();
           if (!sSnap.empty) {
             const sData = sSnap.docs[0].data();
-            
-            // रियल नेम
             realName = sData.name || sData.fullName || sData.realName || peer;
-            
-            // एनरोलमेंट नंबर
             enrollNo = sData.enroll || sData.enrollment || sData.enrollmentNo || sData.enrollNo || sData.rollNo || "N/A";
-            
-            // यूज़र प्रोफ़ाइल पिक्चर
             if (sData.photo || sData.profilePic || sData.avatar || sData.photoURL) {
               photoUrl = sData.photo || sData.profilePic || sData.avatar || sData.photoURL;
             }
-            
             peerUid = sData.uid || sSnap.docs[0].id;
           }
 
@@ -1486,9 +1544,11 @@
         return;
       }
 
+      const resourceFolder = fileType === 'image' ? 'image' : (fileType === 'video' ? 'video' : 'raw');
+
       sendSmartNotification({
-        title: "Uploading Media",
-        message: `Uploading ${fileType.toUpperCase()} to Cloudinary...`,
+        title: "Uploading Attachment",
+        message: `Uploading file to secure cloud...`,
         photo: targetUserData?.photo
       });
 
@@ -1497,13 +1557,14 @@
       formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileType}/upload`, {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceFolder}/upload`, {
           method: "POST",
           body: formData
         });
         const data = await res.json();
         if (data.secure_url) {
-          sendEncryptedRecord(fileType, data.secure_url);
+          const typeToRecord = fileType === 'raw' ? 'file' : fileType;
+          sendEncryptedRecord(typeToRecord, data.secure_url, file.name);
         } else {
           throw new Error(data.error?.message || "Upload failed");
         }
@@ -1543,9 +1604,9 @@
       sendEncryptedRecord('contact_card', payload);
     }
 
-    async function sendEncryptedRecord(type, dataContent) {
+    async function sendEncryptedRecord(type, dataContent, extraFileName = "") {
       if (!activeChatRoomId || !targetUserData || !currentUser) return;
-      const jsonPayload = JSON.stringify({ type: type, data: dataContent });
+      const jsonPayload = JSON.stringify({ type: type, data: dataContent, fileName: extraFileName });
       const cipher = encryptPayload(jsonPayload, currentDeviceKey);
 
       await db.collection('chats').doc(activeChatRoomId).collection('messages').add({
@@ -1554,6 +1615,7 @@
         receiver: targetUserData.email,
         cipher: cipher,
         deviceKey: currentDeviceKey,
+        reaction: "",
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -1567,11 +1629,155 @@
       input.value = '';
     });
 
-    // IN-APP FULLSCREEN MEDIA VIEWER & LONG PRESS (1.2s + Audio Beep + Unsend for Sender)
-    let activeMediaUrl = "";
-    let activeMsgDocId = "";
-    let isMsgMine = false;
+    // ==========================================
+    // LONG PRESS CONTEXT MENU & EMOJI REACTIONS
+    // ==========================================
+    let contextTarget = {
+      docId: "",
+      type: "text",
+      content: "",
+      isMe: false
+    };
 
+    function openUniversalContextMenu(docId, type, content, isMe) {
+      playBeepSound(1200, 0.2);
+      contextTarget = { docId, type, content, isMe };
+
+      const container = document.getElementById('contextActionsContainer');
+      container.innerHTML = '';
+
+      const isMedia = ['image', 'video', 'file'].includes(type);
+
+      if (isMedia) {
+        // Media Action 1: Download
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'context-menu-btn';
+        dlBtn.innerText = '📥 Download';
+        dlBtn.onclick = () => downloadMediaContent(content);
+        container.appendChild(dlBtn);
+
+        // Media Action 2: Share
+        const shBtn = document.createElement('button');
+        shBtn.className = 'context-menu-btn';
+        shBtn.innerText = '🔗 Share Link';
+        shBtn.onclick = () => shareMediaLink(content);
+        container.appendChild(shBtn);
+
+        // Media Action 3: Unsend (Sender) or Delete (Receiver)
+        const delBtn = document.createElement('button');
+        delBtn.className = 'context-menu-btn';
+        if (isMe) {
+          delBtn.innerText = '🗑️ Unsend Message';
+          delBtn.style.color = '#fca5a5';
+          delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
+          delBtn.onclick = () => deleteOrUnsendMessage(docId, true);
+        } else {
+          delBtn.innerText = '🗑️ Delete Message';
+          delBtn.style.color = '#fca5a5';
+          delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
+          delBtn.onclick = () => deleteOrUnsendMessage(docId, false);
+        }
+        container.appendChild(delBtn);
+      } else {
+        // Text Action 1: Copy
+        const cpBtn = document.createElement('button');
+        cpBtn.className = 'context-menu-btn';
+        cpBtn.innerText = '📋 Copy Text';
+        cpBtn.onclick = () => copyTextContent(content);
+        container.appendChild(cpBtn);
+
+        // Text Action 2: Unsend (Sender) or Delete (Receiver)
+        const delBtn = document.createElement('button');
+        delBtn.className = 'context-menu-btn';
+        if (isMe) {
+          delBtn.innerText = '🗑️ Unsend Text';
+          delBtn.style.color = '#fca5a5';
+          delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
+          delBtn.onclick = () => deleteOrUnsendMessage(docId, true);
+        } else {
+          delBtn.innerText = '🗑️ Delete Text';
+          delBtn.style.color = '#fca5a5';
+          delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
+          delBtn.onclick = () => deleteOrUnsendMessage(docId, false);
+        }
+        container.appendChild(delBtn);
+      }
+
+      document.getElementById('contextMenuOverlay').style.display = 'flex';
+    }
+
+    function closeContextMenu() {
+      document.getElementById('contextMenuOverlay').style.display = 'none';
+      contextTarget = { docId: "", type: "text", content: "", isMe: false };
+    }
+
+    async function applyEmojiReaction(emoji) {
+      if (!contextTarget.docId || !activeChatRoomId) return;
+      try {
+        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(contextTarget.docId).update({
+          reaction: emoji
+        });
+      } catch (e) {
+        console.error("Emoji error:", e);
+      }
+      closeContextMenu();
+    }
+
+    function copyTextContent(text) {
+      navigator.clipboard.writeText(text);
+      alert("Text copied to clipboard!");
+      closeContextMenu();
+    }
+
+    function downloadMediaContent(url) {
+      if (!url) return;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'DPharma_Media_' + Date.now();
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      closeContextMenu();
+    }
+
+    function shareMediaLink(url) {
+      if (!url) return;
+      navigator.clipboard.writeText(url);
+      alert("Link copied securely to clipboard!");
+      closeContextMenu();
+    }
+
+    async function deleteOrUnsendMessage(docId, isUnsend) {
+      if (!docId || !activeChatRoomId) return;
+      const actionName = isUnsend ? "unsend" : "delete";
+      if (!confirm(`Are you sure you want to ${actionName} this message?`)) return;
+
+      try {
+        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(docId).delete();
+        alert(`Message ${actionName}ed successfully!`);
+      } catch (err) {
+        alert("Failed to delete message: " + err.message);
+      }
+      closeContextMenu();
+    }
+
+    function attachUniversalLongPress(element, docId, type, content, isMe) {
+      let pressTimer = null;
+      const startPress = () => {
+        pressTimer = setTimeout(() => openUniversalContextMenu(docId, type, content, isMe), 1200);
+      };
+      const cancelPress = () => clearTimeout(pressTimer);
+
+      element.onmousedown = startPress;
+      element.onmouseup = cancelPress;
+      element.onmouseleave = cancelPress;
+
+      element.ontouchstart = startPress;
+      element.ontouchend = cancelPress;
+    }
+
+    // Media Modal Functions
     function openMediaModal(url, type) {
       const container = document.getElementById('mediaModalContentContainer');
       container.innerHTML = '';
@@ -1594,70 +1800,9 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    function openContextMenu(url, docId, mine) {
-      playBeepSound(1200, 0.2);
-      activeMediaUrl = url;
-      activeMsgDocId = docId;
-      isMsgMine = mine;
-
-      const unsendBtn = document.getElementById('unsendMenuBtn');
-      if (isMsgMine) {
-        unsendBtn.style.display = 'block';
-      } else {
-        unsendBtn.style.display = 'none';
-      }
-
-      document.getElementById('contextMenuOverlay').style.display = 'flex';
-    }
-
-    function closeContextMenu() {
-      document.getElementById('contextMenuOverlay').style.display = 'none';
-      activeMediaUrl = "";
-      activeMsgDocId = "";
-    }
-
-    function downloadCurrentMedia() {
-      if (!activeMediaUrl) return;
-      const a = document.createElement('a');
-      a.href = activeMediaUrl;
-      a.download = 'DPharma_Media_' + Date.now();
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      closeContextMenu();
-    }
-
-    function shareCurrentMedia() {
-      if (!activeMediaUrl) return;
-      navigator.clipboard.writeText(activeMediaUrl);
-      alert("Media link copied securely for internal use!");
-      closeContextMenu();
-    }
-
-    async function unsendCurrentMedia() {
-      if (!activeMsgDocId || !activeChatRoomId) return;
-      if (!confirm("Are you sure you want to unsend this message?")) return;
-      try {
-        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(activeMsgDocId).delete();
-        alert("Message unsent successfully!");
-      } catch (err) {
-        alert("Failed to unsend: " + err.message);
-      }
-      closeContextMenu();
-    }
-
-    function attachMediaLongPress(element, url, docId, mine) {
-      let pressTimer = null;
-      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
-      element.onmouseup = () => clearTimeout(pressTimer);
-      element.onmouseleave = () => clearTimeout(pressTimer);
-
-      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
-      element.ontouchend = () => clearTimeout(pressTimer);
-    }
-
+    // ==========================================
     // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE)
+    // ==========================================
     let isInitialLoad = true;
 
     function listenMessages() {
@@ -1690,6 +1835,7 @@
             const m = doc.data();
             const docId = doc.id;
             const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
+            const messageReaction = m.reaction || "";
 
             const bubble = document.createElement('div');
             bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
@@ -1708,27 +1854,44 @@
             } else {
               try {
                 const parsed = JSON.parse(clearText);
-                if (parsed.type === 'text') {
-                  bubble.innerText = parsed.data;
-                } else if (parsed.type === 'image') {
+                const msgType = parsed.type;
+                const msgData = parsed.data;
+
+                if (msgType === 'text') {
+                  bubble.innerText = msgData;
+                  attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
+                } else if (msgType === 'image') {
                   const img = document.createElement('img');
-                  img.src = parsed.data;
+                  img.src = msgData;
                   img.className = 'chat-media-img';
-                  img.onclick = () => openMediaModal(parsed.data, 'image');
-                  attachMediaLongPress(img, parsed.data, docId, isMe);
+                  img.onclick = () => openMediaModal(msgData, 'image');
                   bubble.appendChild(img);
-                } else if (parsed.type === 'video') {
+                  attachUniversalLongPress(bubble, docId, 'image', msgData, isMe);
+                } else if (msgType === 'video') {
                   const vid = document.createElement('video');
-                  vid.src = parsed.data;
+                  vid.src = msgData;
                   vid.className = 'chat-media-video';
                   vid.controls = true;
-                  vid.onclick = () => openMediaModal(parsed.data, 'video');
-                  attachMediaLongPress(vid, parsed.data, docId, isMe);
                   bubble.appendChild(vid);
-                } else if (parsed.type === 'link') {
-                  bubble.innerHTML = `<a href="${parsed.data}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${parsed.data}</a>`;
-                } else if (parsed.type === 'contact_card') {
-                  const card = JSON.parse(parsed.data);
+                  attachUniversalLongPress(bubble, docId, 'video', msgData, isMe);
+                } else if (msgType === 'file') {
+                  const fileName = parsed.fileName || "Download Document";
+                  bubble.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="font-size:1.2rem;">📁</span>
+                      <div>
+                        <strong style="font-size:0.85rem; color:#ffffff;">${fileName}</strong>
+                        <div style="font-size:0.7rem; color:#34d399;">Tap to view file</div>
+                      </div>
+                    </div>
+                  `;
+                  bubble.onclick = () => window.open(msgData, '_blank');
+                  attachUniversalLongPress(bubble, docId, 'file', msgData, isMe);
+                } else if (msgType === 'link') {
+                  bubble.innerHTML = `<a href="${msgData}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${msgData}</a>`;
+                  attachUniversalLongPress(bubble, docId, 'text', msgData, isMe);
+                } else if (msgType === 'contact_card') {
+                  const card = JSON.parse(msgData);
                   bubble.innerHTML = `
                     <div class="shared-id-card">
                       <img src="${card.photo || document.getElementById('chatTargetAvatar').src}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" />
@@ -1738,9 +1901,20 @@
                       </div>
                     </div>
                   `;
+                  attachUniversalLongPress(bubble, docId, 'text', `Student Card: ${card.name} (${card.enroll})`, isMe);
                 }
+
+                // If Reaction exists, render badge
+                if (messageReaction) {
+                  const rBadge = document.createElement('div');
+                  rBadge.className = 'msg-reaction-tag';
+                  rBadge.innerText = messageReaction;
+                  bubble.appendChild(rBadge);
+                }
+
               } catch(e) {
                 bubble.innerText = clearText;
+                attachUniversalLongPress(bubble, docId, 'text', clearText, isMe);
               }
             }
             box.appendChild(bubble);
