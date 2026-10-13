@@ -1359,7 +1359,7 @@
     }
 
     // ==========================================
-    // 6. CONVERSATIONS MANAGEMENT (FIREBASE REAL DATA MATCH)
+    // 6. CONVERSATIONS MANAGEMENT (FIREBASE REAL DATA MATCH & STATE CONTROL)
     // ==========================================
     let activeChatRoomId = null;
     let targetUserData = null;
@@ -1367,25 +1367,32 @@
 
     async function loadConversations() {
       const friendsList = document.getElementById('friendsList');
-      if (!loggedAccount) return;
+      if (!loggedAccount || !friendsList) return;
+
+      friendsList.innerHTML = "<p style='color:#34d399; font-size:0.8rem; padding:10px;'>Loading conversations...</p>";
 
       try {
-        const q1 = await db.collection('friendships').where('user1', '==', loggedAccount).get();
-        const q2 = await db.collection('friendships').where('user2', '==', loggedAccount).get();
+        const cleanMyAccount = loggedAccount.trim().toLowerCase();
+
+        // दोनों तरफ की फ्रेंडशिप एक साथ पैरेलल चेक करें
+        const [q1, q2] = await Promise.all([
+          db.collection('friendships').where('user1', '==', cleanMyAccount).get(),
+          db.collection('friendships').where('user2', '==', cleanMyAccount).get()
+        ]);
 
         const peerAccounts = new Set();
-        q1.forEach(d => peerAccounts.add((d.data().user2 || '').trim()));
-        q2.forEach(d => peerAccounts.add((d.data().user1 || '').trim()));
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const directTarget = urlParams.get('to');
-        if (directTarget) peerAccounts.add(directTarget.trim());
-
-        const savedActivePeer = sessionStorage.getItem('activeChatPeer');
-        if (savedActivePeer) peerAccounts.add(savedActivePeer.trim());
+        q1.forEach(d => {
+          const u2 = (d.data().user2 || '').trim().toLowerCase();
+          if (u2 && u2 !== cleanMyAccount) peerAccounts.add(u2);
+        });
+        q2.forEach(d => {
+          const u1 = (d.data().user1 || '').trim().toLowerCase();
+          if (u1 && u1 !== cleanMyAccount) peerAccounts.add(u1);
+        });
 
         if (peerAccounts.size === 0) {
           friendsList.innerHTML = "<p style='color:#94a3b8; font-size:0.8rem; padding:10px;'>No accepted conversations yet.</p>";
+          sessionStorage.removeItem('activeChatPeer');
           return;
         }
 
@@ -1393,18 +1400,13 @@
         const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
         for (let peer of peerAccounts) {
-          if (!peer) continue;
-          const cleanPeer = peer.toLowerCase();
           let realName = peer;
           let enrollNo = "N/A";
           let photoUrl = defaultPhoto;
           let peerUid = "";
 
-          // Firebase 'students' कलेक्शन से सटीक केस-इंसेंसिटिव डाटा फेच
-          let sSnap = await db.collection('students').where('email', '==', cleanPeer).get();
-          if (sSnap.empty && peer !== cleanPeer) {
-            sSnap = await db.collection('students').where('email', '==', peer).get();
-          }
+          // Firebase 'students' कलेक्शन से सटीक केस-इंसेंसिटिव डेटा फेच
+          let sSnap = await db.collection('students').where('email', '==', peer).get();
 
           if (!sSnap.empty) {
             const sData = sSnap.docs[0].data();
@@ -1417,8 +1419,7 @@
           }
 
           acceptedChatsListCache.push({
-            peer: cleanPeer,
-            originalEmail: peer,
+            peer: peer,
             name: realName,
             enroll: enrollNo,
             photo: photoUrl,
@@ -1428,15 +1429,21 @@
 
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
-        if (savedActivePeer) {
+        // केवल तभी ऑटो-ओपन करें जब URL में '#chat' हो और activeChatPeer मौजूद हो (यानी चैट के अंदर रिफ्रेश हुआ हो)
+        const savedActivePeer = sessionStorage.getItem('activeChatPeer');
+        if (window.location.hash === '#chat' && savedActivePeer) {
           const found = acceptedChatsListCache.find(x => x.peer === savedActivePeer.toLowerCase());
-          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
-        } else if (directTarget) {
-          const found = acceptedChatsListCache.find(x => x.peer === directTarget.toLowerCase());
-          if (found) openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
+          if (found) {
+            openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
+          }
+        } else {
+          // अगर बाहर रिफ्रेश किया है तो चैट विंडो हमेशा बंद रहेगी
+          exitActiveChat(false);
         }
+
       } catch (err) {
         console.error("Error loading conversations:", err);
+        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.8rem; padding:10px;'>Failed to load chats. Please pull to refresh.</p>";
       }
     }
 
@@ -1488,9 +1495,14 @@
 
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "", peerEnroll = "") {
       const cleanPeer = (peerAccount || '').trim().toLowerCase();
+      
+      // स्टेट व URL हैश सेट करें
       sessionStorage.setItem('activeChatPeer', cleanPeer);
+      if (window.location.hash !== '#chat') {
+        window.location.hash = 'chat';
+      }
 
-      // अगर डेटा अधूरा हो तो सीधे डेटाबेस से रीयल-टाइम फेच करके हेडर तुरंत पॉपुलेट करें
+      // अगर डेटा अधूरा हो तो रीयल-टाइम Firestore से फेच करें
       if (!peerName || peerName === cleanPeer || peerEnroll === "N/A" || !peerEnroll) {
         try {
           const snap = await db.collection('students').where('email', '==', cleanPeer).get();
@@ -1554,16 +1566,26 @@
       listenMessages();
     }
 
-    function exitActiveChat() {
+    function exitActiveChat(updateHash = true) {
       sessionStorage.removeItem('activeChatPeer');
+      if (updateHash && window.location.hash === '#chat') {
+        history.replaceState(null, null, 'chats.html');
+      }
+
       if (msgListenerUnsub) msgListenerUnsub();
       activeChatRoomId = null;
       targetUserData = null;
       document.getElementById('activeChatView').style.display = 'none';
       document.getElementById('chatListView').style.display = 'flex';
       listenIncomingRequests();
-      loadConversations();
     }
+
+    // बैक बटन हैंडलर
+    window.addEventListener('popstate', () => {
+      if (window.location.hash !== '#chat') {
+        exitActiveChat(false);
+      }
+    });
 
     // ==========================================
     // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY ULTRA HD & CLOUD COMPRESS)
@@ -1923,7 +1945,7 @@
             </div>
           `;
 
-          // 1. Render Local Storage Cached Messages First (For older than 5 days preserved locally)
+          // 1. Render Local Storage Cached Messages First
           const localCached = getLocalSavedMessages(activeChatRoomId);
           const currentDocIds = new Set();
           snap.forEach(d => currentDocIds.add(d.id));
@@ -1934,7 +1956,7 @@
             }
           });
 
-          // 2. Render Server Live Messages & Persist them locally
+          // 2. Render Server Live Messages & Persist locally
           snap.forEach((doc) => {
             const m = doc.data();
             const docId = doc.id;
