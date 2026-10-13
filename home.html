@@ -27,79 +27,99 @@
       position: relative;
     }
 
-    /* 1. THEME OPENING SPLASH ANIMATION */
-    #portalSplashOverlay {
+    /* =========================================================
+       CAPSULE BREAKING & UNVEILING REVEAL ANIMATION 
+       ========================================================= */
+    #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
+      background: #020f0d;
       z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: all;
+      transition: opacity 0.4s ease;
     }
 
-    .splash-logo-box {
-      width: 76px;
-      height: 76px;
-      background: linear-gradient(135deg, #10b981, #0d9488);
-      border-radius: 22px;
+    .capsule-stage {
+      position: relative;
+      width: 220px;
+      height: 90px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 0 35px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3);
-      animation: splashPulse 1.6s infinite alternate;
     }
 
-    @keyframes splashPulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-      100% { transform: scale(1.05); box-shadow: 0 0 45px rgba(16, 185, 129, 0.85); }
+    .capsule-half {
+      width: 90px;
+      height: 80px;
+      position: absolute;
+      top: 5px;
+      transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
     }
 
-    .splash-badge {
-      margin-top: 18px;
+    /* Left Half (Emerald Green) */
+    .capsule-left {
+      left: 20px;
+      background: linear-gradient(135deg, #10b981, #047857);
+      border-top-left-radius: 40px;
+      border-bottom-left-radius: 40px;
+      border: 2px solid #34d399;
+      border-right: none;
+    }
+
+    /* Right Half (White/Silver Medical) */
+    .capsule-right {
+      right: 20px;
+      background: linear-gradient(135deg, #ffffff, #cbd5e1);
+      border-top-right-radius: 40px;
+      border-bottom-right-radius: 40px;
+      border: 2px solid #ffffff;
+      border-left: none;
+    }
+
+    /* Burst Glow inside Capsule */
+    .capsule-burst-core {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #34d399;
+      border-radius: 50%;
+      box-shadow: 0 0 50px 30px #10b981;
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.4s ease;
+    }
+
+    /* Break Trigger Animations */
+    .broken .capsule-left {
+      transform: translateX(-95px) rotate(-28deg) scale(0.9);
+      opacity: 0;
+    }
+
+    .broken .capsule-right {
+      transform: translateX(95px) rotate(28deg) scale(0.9);
+      opacity: 0;
+    }
+
+    .broken .capsule-burst-core {
+      opacity: 1;
+      transform: scale(25);
+    }
+
+    .capsule-label {
+      margin-top: 25px;
+      font-size: 0.85rem;
       color: #34d399;
-      font-size: 11px;
       font-weight: 700;
       letter-spacing: 2px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      padding: 4px 14px;
-      border-radius: 20px;
+      transition: opacity 0.3s ease;
     }
 
-    .splash-title {
-      font-size: 1.55rem;
-      font-weight: 800;
-      color: #34d399;
-      margin-top: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .splash-progress-track {
-      width: 140px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      margin-top: 20px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .splash-progress-bar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #34d399);
-      border-radius: 4px;
-      animation: splashLoad 1.6s ease-in-out forwards;
-    }
-
-    @keyframes splashLoad {
-      0% { width: 0%; }
-      60% { width: 75%; }
-      100% { width: 100%; }
+    .broken + .capsule-label {
+      opacity: 0;
     }
 
     /* Falling Medicines Rain */
@@ -136,6 +156,7 @@
       max-width: 720px;
       margin: 0 auto;
       padding: 15px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
     /* Top Bar - Highlighted Floating Glowing Dock */
@@ -222,6 +243,10 @@
       position: relative;
       flex-shrink: 0;
       transition: all 0.25s ease;
+    }
+
+    .profile-nav-btn:active {
+      transform: scale(0.92);
     }
 
     .profile-nav-btn:hover {
@@ -764,6 +789,10 @@
       transition: all 0.25s ease;
     }
 
+    .nav-item:active {
+      transform: scale(0.92);
+    }
+
     .nav-item svg {
       transition: transform 0.2s ease;
     }
@@ -800,18 +829,16 @@
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- 1. THEME OPENING INTRO SPLASH SCREEN -->
-  <div id="portalSplashOverlay">
-    <div class="splash-logo-box">
-      <svg width="42" height="42" viewBox="0 0 24 24" fill="#ffffff">
-        <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
-      </svg>
+  <!-- =========================================================
+       CAPSULE BREAKING ANIMATION OVERLAY (Always on Load)
+       ========================================================= -->
+  <div id="capsuleSplashOverlay">
+    <div class="capsule-stage" id="capsuleStage">
+      <div class="capsule-half capsule-left"></div>
+      <div class="capsule-burst-core"></div>
+      <div class="capsule-half capsule-right"></div>
     </div>
-    <div class="splash-badge">℞ SECURE NETWORK</div>
-    <div class="splash-title">D Pharma Hub</div>
-    <div class="splash-progress-track">
-      <div class="splash-progress-bar"></div>
-    </div>
+    <div class="capsule-label">AUTHENTICATING PORTAL...</div>
   </div>
 
   <!-- Falling Medicines Background Animation -->
@@ -836,7 +863,7 @@
   <div class="app-wrapper">
     <!-- Top Nav Bar -->
     <div class="top-navbar">
-      <div class="app-logo-badge" onclick="window.location.reload()">
+      <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.reload();">
         <div class="top-logo-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
             <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
@@ -847,7 +874,7 @@
       <div class="search-container">
         <input type="text" id="userSearchInput" class="search-input" placeholder="Search students (Name/Enroll)..." autocomplete="off" />
       </div>
-      <div class="profile-nav-btn" onclick="openProfileModal()">
+      <div class="profile-nav-btn" onclick="triggerTapFeedback(); openProfileModal();">
         <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
       </div>
     </div>
@@ -929,48 +956,107 @@
       <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
 
       <div class="modal-btn-row">
-        <button onclick="goToMyProfile()" class="btn-view-profile">
+        <button onclick="triggerTapFeedback(); goToMyProfile();" class="btn-view-profile">
           <span>My Profile</span> <span>➔</span>
         </button>
-        <button onclick="logoutUser()" class="btn-logout">Log Out</button>
+        <button onclick="triggerTapFeedback(); logoutUser();" class="btn-logout">Log Out</button>
       </div>
     </div>
   </div>
 
-  <!-- Floating Bottom Navigation Bar -->
+  <!-- Floating Bottom Navigation Bar (With Sound & Haptic Feedback) -->
   <div class="bottom-nav">
-    <div class="nav-item active">
+    <div class="nav-item active" onclick="navWithFeedback('home.html')">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       <span>HOME</span>
     </div>
-    <div class="nav-item" onclick="window.location.href='dpg.html'">
+    <div class="nav-item" onclick="navWithFeedback('dpg.html')">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
       <span>D.P.G</span>
     </div>
-    <div class="nav-item" onclick="window.location.href='chats.html'">
+    <div class="nav-item" onclick="navWithFeedback('chats.html')">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
       <span>CHATS</span>
     </div>
   </div>
 
   <script>
+    // =========================================================
+    // CAPSULE BREAK & UNVEILING REVEAL CONTROLLER (Always Runs on Load)
+    // =========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      const splash = document.getElementById('capsuleSplashOverlay');
+      const stage = document.getElementById('capsuleStage');
+      
+      // Capsule breaks smoothly after 300ms
+      setTimeout(() => {
+        stage.classList.add('broken');
+        triggerTapFeedback(); // Slight feedback as capsule breaks
+      }, 300);
+
+      // Unveil the entire home dashboard smoothly
+      setTimeout(() => {
+        if (splash) {
+          splash.style.opacity = '0';
+          setTimeout(() => splash.style.display = 'none', 400);
+        }
+      }, 1050);
+    });
+
     // ==========================================
-    // CLOUDINARY CLOUD CONFIGURATION
+    // AUDIO POP & HAPTIC VIBRATION FEEDBACK
+    // ==========================================
+    let audioCtx = null;
+
+    function triggerTapFeedback() {
+      try {
+        if (navigator.vibrate) {
+          navigator.vibrate(25);
+        }
+      } catch (e) {}
+
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.type = 'sine';
+        const startTime = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(850, startTime);
+        osc.frequency.exponentialRampToValueAtTime(1250, startTime + 0.05);
+
+        gain.gain.setValueAtTime(0.18, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.07);
+
+        osc.start(startTime);
+        osc.stop(startTime + 0.07);
+      } catch (e) {}
+    }
+
+    function navWithFeedback(targetUrl) {
+      triggerTapFeedback();
+      if (targetUrl === 'home.html' && window.location.pathname.endsWith('home.html')) {
+        return;
+      }
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 70);
+    }
+
+    // ==========================================
+    // CLOUDINARY CONFIGURATION
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq";
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
-
-    // 1. OPENING SPLASH SCREEN TRANSITION
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        const splash = document.getElementById('portalSplashOverlay');
-        if (splash) {
-          splash.style.opacity = '0';
-          splash.style.transform = 'scale(1.08)';
-          setTimeout(() => splash.style.display = 'none', 500);
-        }
-      }, 1600);
-    });
 
     // SECURITY GUARDS (Anti-Inspect / F12 Block)
     document.addEventListener('keydown', function (e) {
@@ -984,7 +1070,6 @@
       }
     });
 
-    // Debugger Loop Trap
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
@@ -1001,7 +1086,7 @@
       document.getElementById('modalProfileImg').src = currentUserData.photo;
     }
 
-    // FIREBASE CONFIG (Firestore for Text / Notices Metadata)
+    // FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -1020,7 +1105,7 @@
       db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     } catch(e) {}
 
-    // AUTH STATE & IDENTITY RESOLUTION
+    // AUTH STATE
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.clear();
@@ -1071,7 +1156,7 @@
       loadStoryNotices();
     });
 
-    // SEARCH LOGIC & PROFILE REDIRECTION
+    // SEARCH LOGIC
     let cachedStudents = [];
     let isStudentsLoaded = false;
 
@@ -1129,13 +1214,13 @@
 
         let partnerBtn = '';
         if (isDev) {
-          partnerBtn = `<button class="btn-action btn-partner" onclick="event.stopPropagation(); toggleMainPartner('${data.id}', ${!data.isMainPartner})">
+          partnerBtn = `<button class="btn-action btn-partner" onclick="event.stopPropagation(); triggerTapFeedback(); toggleMainPartner('${data.id}', ${!data.isMainPartner})">
             ${data.isMainPartner ? 'Revoke Partner' : '★ Partner'}
           </button>`;
         }
 
         card.innerHTML = `
-          <div class="user-info-left" onclick="openUserProfile('${data.id}')">
+          <div class="user-info-left" onclick="triggerTapFeedback(); openUserProfile('${data.id}')">
             <img class="user-avatar-sm protected-img" src="${photo}" alt="User" />
             <div>
               <strong style="font-size:0.86rem; color:#ffffff; display:block;">${data.name}</strong>
@@ -1143,7 +1228,7 @@
             </div>
           </div>
           <div class="action-btns">
-            <button class="btn-action" onclick="event.stopPropagation(); sendChatRequest('${data.id}', '${escapeHtml(data.name)}')">Chat</button>
+            <button class="btn-action" onclick="event.stopPropagation(); triggerTapFeedback(); sendChatRequest('${data.id}', '${escapeHtml(data.name)}')">Chat</button>
             ${partnerBtn}
           </div>
         `;
@@ -1196,9 +1281,7 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // ==========================================
-    // CLOUDINARY UPLOAD & NOTICE PUBLISHING
-    // ==========================================
+    // CLOUDINARY UPLOAD LOGIC
     async function uploadFileToCloudinary(file) {
       const isVideo = file.type.startsWith('video');
       const resourceType = isVideo ? 'video' : 'image';
@@ -1271,13 +1354,12 @@
         const now = new Date();
         const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-        // Firestore only saves Text + Cloudinary URLs
         await db.collection('notices').add({
           title,
           content,
           link,
           media: mediaList,
-          images: mediaList.map(m => m.url), // Compatibility
+          images: mediaList.map(m => m.url),
           postedBy: currentUserData ? currentUserData.name : 'Authority',
           authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1297,7 +1379,7 @@
       }
     }
 
-    // WHATSAPP STORY NOTICES ENGINE
+    // STORY ENGINE
     let activeNotices = [];
     let currentStoryIndex = 0;
     let activeMediaUrl = "";
@@ -1386,6 +1468,7 @@
         let pressTimer = null;
 
         mediaEl.onclick = () => {
+          triggerTapFeedback();
           openImageModal(activeMediaUrl, item.type);
         };
 
@@ -1444,6 +1527,7 @@
 
     function toggle50Zoom(event) {
       event.stopPropagation();
+      triggerTapFeedback();
       const fullImg = document.getElementById('fullscreenImgElement');
       if (fullImg) fullImg.classList.toggle('zoomed-50');
     }
@@ -1455,6 +1539,7 @@
 
     let menuMediaUrl = "";
     function openContextMenu(url) {
+      triggerTapFeedback();
       menuMediaUrl = url;
       document.getElementById('contextMenuOverlay').style.display = 'flex';
     }
@@ -1483,6 +1568,7 @@
     }
 
     function navigateStory(dir) {
+      triggerTapFeedback();
       const newIndex = currentStoryIndex + dir;
       if (newIndex >= 0 && newIndex < activeNotices.length) {
         currentStoryIndex = newIndex;
@@ -1499,7 +1585,7 @@
       }
     }
 
-    // PROFILE MODAL & MY PROFILE NAVIGATION
+    // PROFILE MODAL
     function openProfileModal() {
       if (!currentUserData) return;
       document.getElementById('modalName').innerText = currentUserData.name || 'Student';
@@ -1563,7 +1649,7 @@
     }
     rainContainer.appendChild(frag);
 
-    // DOUBLE CLICK FULLSCREEN
+    // FULLSCREEN TRIGGER
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
       const doc = window.document;
