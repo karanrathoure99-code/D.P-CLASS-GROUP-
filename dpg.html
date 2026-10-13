@@ -36,6 +36,106 @@
       color: #ffffff;
     }
 
+    /* 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION */
+    #capsuleSplashOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #062b25 0%, #010a08 100%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: all;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .capsule-wrapper-3d {
+      position: relative;
+      width: 240px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 800px;
+    }
+
+    .capsule-energy-core {
+      position: absolute;
+      width: 16px;
+      height: 60px;
+      background: #34d399;
+      border-radius: 8px;
+      box-shadow: 0 0 35px 15px #10b981, 0 0 60px 30px rgba(52, 211, 153, 0.6);
+      opacity: 0;
+      transform: scale(0.2);
+      transition: all 0.55s ease-out;
+      z-index: 1;
+    }
+
+    .capsule-half-shell {
+      width: 95px;
+      height: 74px;
+      position: absolute;
+      top: 13px;
+      transition: transform 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.55s ease;
+      box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+    }
+
+    .capsule-shell-left {
+      left: 25px;
+      background: linear-gradient(145deg, #10b981 0%, #064e3b 100%);
+      border-top-left-radius: 45px;
+      border-bottom-left-radius: 45px;
+      border: 2px solid #34d399;
+      border-right: 1px dashed rgba(255, 255, 255, 0.3);
+      transform-origin: left center;
+    }
+
+    .capsule-shell-right {
+      right: 25px;
+      background: linear-gradient(145deg, #ffffff 0%, #94a3b8 100%);
+      border-top-right-radius: 45px;
+      border-bottom-right-radius: 45px;
+      border: 2px solid #ffffff;
+      border-left: 1px dashed rgba(0, 0, 0, 0.2);
+      transform-origin: right center;
+    }
+
+    .cracked .capsule-shell-left {
+      transform: translateX(-110px) translateY(-10px) rotate(-35deg) scale(0.85);
+      opacity: 0;
+    }
+
+    .cracked .capsule-shell-right {
+      transform: translateX(110px) translateY(10px) rotate(35deg) scale(0.85);
+      opacity: 0;
+    }
+
+    .cracked .capsule-energy-core {
+      opacity: 1;
+      transform: scale(18);
+    }
+
+    .capsule-badge-label {
+      margin-top: 30px;
+      font-size: 0.82rem;
+      color: #34d399;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      transition: opacity 0.35s ease;
+    }
+
+    .cracked + .capsule-badge-label {
+      opacity: 0;
+    }
+
     /* Falling Medicines Rain (Slow Motion) */
     .rain-container {
       position: fixed;
@@ -69,7 +169,7 @@
     }
 
     /* =========================================================
-       FIXED TOP FLOATING NAVBAR (MATCHING HOME.HTML THEME)
+       FIXED TOP FLOATING NAVBAR WITH WELCOME TITLE
        ========================================================= */
     .top-navbar {
       position: fixed;
@@ -82,7 +182,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       background: rgba(4, 28, 23, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
@@ -104,7 +204,7 @@
       cursor: pointer;
       text-decoration: none;
       flex-shrink: 0;
-      padding: 6px 10px;
+      padding: 6px 8px;
       border-radius: 20px;
       transition: all 0.2s ease;
     }
@@ -127,30 +227,27 @@
       flex-shrink: 0;
     }
 
-    .search-container {
+    /* Welcome Banner Text Container */
+    .top-welcome-header {
       flex: 1;
-      position: relative;
+      text-align: center;
+      padding: 0 4px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
-    .search-input {
-      width: 100%;
-      background: rgba(2, 18, 14, 0.85);
-      border: 1.2px solid rgba(52, 211, 153, 0.5);
-      border-radius: 25px;
-      padding: 9px 16px;
-      color: #ffffff;
-      font-size: 0.86rem;
-      outline: none;
-      transition: all 0.3s ease;
-      -webkit-user-select: text;
-      user-select: text;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
-    }
-
-    .search-input:focus {
-      border-color: #34d399;
-      box-shadow: 0 0 16px rgba(52, 211, 153, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.5);
-      background: rgba(3, 24, 19, 0.95);
+    .top-welcome-header span {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #34d399;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     .profile-nav-btn {
@@ -185,6 +282,94 @@
       height: 100%;
       object-fit: cover;
       pointer-events: none;
+    }
+
+    /* =========================================================
+       TOP POP-UP NOTIFICATION BANNER (WITH LOGO BADGE)
+       ========================================================= */
+    #topNotificationBanner {
+      position: fixed;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 440px;
+      background: rgba(4, 34, 28, 0.96);
+      border: 1.5px solid #34d399;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(52, 211, 153, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      transition: top 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    #topNotificationBanner.show {
+      top: 90px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .banner-avatar-cluster {
+      position: relative;
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+    }
+
+    .banner-user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1.5px solid #34d399;
+      object-fit: cover;
+      background: #021a15;
+    }
+
+    .banner-logo-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 6px;
+      border: 1.5px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+    }
+
+    .banner-text-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .banner-text-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .banner-text-sub {
+      font-size: 0.76rem;
+      color: #e2e8f0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Floating Badges & Action Buttons */
@@ -268,8 +453,8 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
-      padding-top: 86px;   /* Top bar clearance */
-      padding-bottom: 84px; /* Bottom dock clearance */
+      padding-top: 88px;
+      padding-bottom: 84px;
     }
 
     /* =========================================================
@@ -302,7 +487,6 @@
       overflow: hidden;
     }
 
-    /* Shining reflective line accent */
     .group-card::before {
       content: '';
       position: absolute;
@@ -509,6 +693,8 @@
       display: block;
       cursor: pointer;
       border: 1px solid rgba(52, 211, 153, 0.3);
+      image-rendering: high-quality;
+      image-rendering: -webkit-optimize-contrast;
     }
     .msg-video-preview {
       max-width: 250px;
@@ -747,7 +933,7 @@
       position: fixed;
       inset: 0;
       background: #020f0d;
-      z-index: 99999;
+      z-index: 99998;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -774,6 +960,18 @@
 </head>
 <body oncontextmenu="return false;">
 
+  <!-- =========================================================
+       3D CAPSULE CRACKING OVERLAY (ALWAYS ON PAGE START)
+       ========================================================= -->
+  <div id="capsuleSplashOverlay">
+    <div class="capsule-wrapper-3d" id="capsuleWrapper">
+      <div class="capsule-half-shell capsule-shell-left"></div>
+      <div class="capsule-energy-core"></div>
+      <div class="capsule-half-shell capsule-shell-right"></div>
+    </div>
+    <div class="capsule-badge-label">D-PHARMA PORTAL</div>
+  </div>
+
   <!-- Fullscreen Security Shield Loader -->
   <div id="securityLoader">
     <div class="spinner"></div>
@@ -793,8 +991,8 @@
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
       <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Media / File</button>
-      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Internal Share / Copy Link</button>
+      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
+      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
     </div>
@@ -804,7 +1002,7 @@
   <div id="secureAppWrapper">
 
     <!-- =========================================================
-         FIXED TOP FLOATING NAVBAR DOCK
+         FIXED TOP FLOATING NAVBAR DOCK (WITH TITLE)
          ========================================================= -->
     <header class="top-navbar">
       <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.href='home.html';">
@@ -816,14 +1014,30 @@
         <span>D-PHARMA</span>
       </div>
 
-      <div class="search-container">
-        <input type="text" id="groupSearchInput" class="search-input" placeholder="Search groups..." autocomplete="off" oninput="filterGroups(this.value)" />
+      <div class="top-welcome-header">
+        <span>Welcome to D Pharma 1st Year Group</span>
       </div>
 
       <div class="profile-nav-btn" onclick="triggerTapFeedback(); window.location.href='profile.html';">
         <img id="navProfilePic" class="protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile" />
       </div>
     </header>
+
+    <!-- TOP POP-UP NOTIFICATION BANNER WITH D-PHARMA BADGE -->
+    <div id="topNotificationBanner" onclick="handleNotificationClick()">
+      <div class="banner-avatar-cluster">
+        <img id="bannerSenderPhoto" class="banner-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Sender" />
+        <div class="banner-logo-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="banner-text-wrap">
+        <div class="banner-text-title" id="bannerTitle">New Notification</div>
+        <div class="banner-text-sub" id="bannerSub">You have a new message from New User</div>
+      </div>
+    </div>
 
     <div class="viewport-box">
       <!-- VIEW 1: Groups List -->
@@ -894,8 +1108,8 @@
         <!-- Authorized Chat Input Bar -->
         <div id="devMessageInputRow" class="chat-input-bar" style="display:none;">
           <div class="attach-menu" id="attachMenu">
-            <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Photo</button>
-            <button class="attach-option" onclick="document.getElementById('chatVideoUpload').click()">🎥 Video</button>
+            <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Photo (HQ)</button>
+            <button class="attach-option" onclick="document.getElementById('chatVideoUpload').click()">🎥 Video (HQ)</button>
             <button class="attach-option" onclick="document.getElementById('chatFileUpload').click()">📁 Document / File</button>
           </div>
 
@@ -913,7 +1127,7 @@
           🔒 Read-only channel. Only Verified Faculty & Developers can post.
         </div>
 
-        <!-- MEMBERS LIST MODAL -->
+        <!-- MEMBERS LIST MODAL WITH REMOVE BUTTON -->
         <div id="membersModal">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1.5px solid rgba(52,211,153,0.3); padding-bottom:10px;">
             <div>
@@ -949,8 +1163,75 @@
   </div>
 
   <script>
+    // =========================================================
+    // INLINE SERVICE WORKER (FOR REAL BACKGROUND PUSH)
+    // =========================================================
+    const swCode = `
+      self.addEventListener('notificationclick', function(event) {
+        event.notification.close();
+        event.waitUntil(
+          clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            for (let i = 0; i < clientList.length; i++) {
+              let client = clientList[i];
+              if (client.url && 'focus' in client) {
+                return client.focus();
+              }
+            }
+            if (clients.openWindow) {
+              return clients.openWindow(event.notification.data ? event.notification.data.url : 'dpg.html');
+            }
+          })
+        );
+      });
+    `;
+
+    if ('serviceWorker' in navigator) {
+      try {
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(() => {
+          navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+      } catch(err) {}
+    }
+
+    // =========================================================
+    // 3D CAPSULE CRACK CONTROLLER & AUDIO UNLOCK
+    // =========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      const splash = document.getElementById('capsuleSplashOverlay');
+      const wrapper = document.getElementById('capsuleWrapper');
+      
+      setTimeout(() => {
+        wrapper.classList.add('cracked');
+        triggerTapFeedback();
+      }, 320);
+
+      setTimeout(() => {
+        if (splash) {
+          splash.style.opacity = '0';
+          setTimeout(() => splash.style.display = 'none', 450);
+        }
+      }, 1050);
+
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    });
+
+    ['touchstart', 'touchend', 'click'].forEach(evt => {
+      window.addEventListener(evt, () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }, { once: false, passive: true });
+    });
+
     // ==========================================
-    // AUDIO POP & HAPTIC VIBRATION FEEDBACK
+    // AUDIO ENGINE (MESSAGE SENT TICK & CHIME)
     // ==========================================
     let audioCtx = null;
 
@@ -978,17 +1259,149 @@
       } catch (e) {}
     }
 
+    // संदेश भेजने पर बजने वाला कुरकुरा 'टिक' (Tick) साउंड
+    function playMessageSentTick() {
+      try {
+        if (navigator.vibrate) navigator.vibrate(18); // अल्ट्रा-शॉर्ट वाइब्रेशन
+      } catch (e) {}
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.type = 'triangle';
+        const t = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(1800, t);
+        osc.frequency.exponentialRampToValueAtTime(400, t + 0.035);
+
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+
+        osc.start(t);
+        osc.stop(t + 0.035);
+      } catch (e) {}
+    }
+
+    // नया संदेश आने पर ड्यूल-टोन मेलोडिक चाइम
+    function triggerNotificationAlert() {
+      try {
+        if (navigator.vibrate) navigator.vibrate([40, 60, 100]);
+      } catch (e) {}
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const playTone = (freq, start, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.connect(audioCtx.destination);
+          osc.connect(gain);
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(0.35, start + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.start(start);
+          osc.stop(start + duration);
+        };
+
+        const t = audioCtx.currentTime;
+        playTone(880, t, 0.18);
+        playTone(1318.5, t + 0.09, 0.35);
+      } catch (e) {}
+    }
+
+    function playBeepSound(frequency = 1200, duration = 0.2) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
     function navWithFeedback(targetUrl) {
       triggerTapFeedback();
       if (targetUrl === 'dpg.html' && window.location.pathname.endsWith('dpg.html')) return;
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
+    // =========================================================
+    // SMART NOTIFICATION ENGINE (IN-APP vs REAL BACKGROUND)
+    // =========================================================
+    let bannerHideTimer = null;
+    let currentBannerRedirectUrl = 'dpg.html';
+
+    function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
+      const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      if (document.hidden) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: message,
+              icon: photo || defaultPhoto,
+              badge: photo || defaultPhoto,
+              vibrate: [100, 50, 100],
+              data: { url: redirectUrl }
+            });
+          }).catch(() => {
+            new Notification(title, {
+              body: message,
+              icon: photo || defaultPhoto
+            });
+          });
+        }
+        return;
+      }
+
+      const banner = document.getElementById('topNotificationBanner');
+      const bannerTitle = document.getElementById('bannerTitle');
+      const bannerSub = document.getElementById('bannerSub');
+      const bannerPhoto = document.getElementById('bannerSenderPhoto');
+
+      bannerTitle.innerText = title;
+      bannerSub.innerText = message;
+      bannerPhoto.src = photo || defaultPhoto;
+      currentBannerRedirectUrl = redirectUrl;
+
+      banner.classList.add('show');
+      triggerNotificationAlert();
+
+      clearTimeout(bannerHideTimer);
+      bannerHideTimer = setTimeout(() => {
+        banner.classList.remove('show');
+      }, 4000);
+    }
+
+    function handleNotificationClick() {
+      triggerTapFeedback();
+      const banner = document.getElementById('topNotificationBanner');
+      banner.classList.remove('show');
+      window.location.href = currentBannerRedirectUrl;
+    }
+
     // ==========================================
-    // CLOUDINARY CONFIGURATION
+    // CLOUDINARY CONFIGURATION (WITH HQ SUPPORT)
     // ==========================================
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
+    const CLOUDINARY_API_KEY = "282264657557848";
+    const CLOUDINARY_API_SECRET = "D6Q6z5A5lK2LQsc8NIUlPAaQsZU";
 
     // 1. FULLSCREEN API
     document.addEventListener('dblclick', function(e) {
@@ -1016,23 +1429,6 @@
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
-
-    function playBeepSound(frequency = 1200, duration = 0.2) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
-    }
 
     // 3. SLOW MEDICINE RAIN ANIMATION
     const colorfulMedicines = [
@@ -1130,9 +1526,70 @@
       document.getElementById('secureAppWrapper').style.display = 'flex';
 
       renderGroupsList();
+      triggerAutoCleanupExpired();
     });
 
-    // 5. RENDER GROUPS WITH SHINING GLASS CARDS
+    // =========================================================
+    // 5-DAY AUTOMATIC CLEANUP & REAL-TIME DELETION ENGINE
+    // =========================================================
+    async function triggerAutoCleanupExpired() {
+      try {
+        const now = Date.now();
+        const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+        const cutoff = new Date(now - FIVE_DAYS_MS);
+
+        const groupsSnap = await db.collection('groups').get();
+        for (const gDoc of groupsSnap.docs) {
+          const expiredMsgsSnap = await db.collection('groups').doc(gDoc.id)
+            .collection('messages')
+            .where('timestamp', '<=', cutoff)
+            .get();
+
+          for (const mDoc of expiredMsgsSnap.docs) {
+            const data = mDoc.data();
+            if (data.cloudinaryPublicId) {
+              await deleteFromCloudinaryDirect(data.cloudinaryPublicId, data.resourceType || 'image');
+            }
+            await mDoc.ref.delete();
+          }
+        }
+      } catch (err) {
+        console.error("Auto cleanup error:", err);
+      }
+    }
+
+    async function deleteFromCloudinaryDirect(publicId, resourceType) {
+      try {
+        const timestamp = Math.round(Date.now() / 1000);
+        const signatureString = `public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+        const signature = await generateSha1Hash(signatureString);
+
+        const formData = new FormData();
+        formData.append("public_id", publicId);
+        formData.append("api_key", CLOUDINARY_API_KEY);
+        formData.append("timestamp", timestamp);
+        formData.append("signature", signature);
+
+        await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/destroy`, {
+          method: "POST",
+          body: formData
+        });
+      } catch (err) {
+        console.error("Cloudinary destroy error:", err);
+      }
+    }
+
+    async function generateSha1Hash(str) {
+      const buffer = new TextEncoder("utf-8").encode(str);
+      const digest = await crypto.subtle.digest("SHA-1", buffer);
+      return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    // =========================================================
+    // RENDER GROUPS
+    // =========================================================
     function renderGroupsList() {
       db.collection('groups').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         allGroupsCached = [];
@@ -1177,21 +1634,6 @@
           container.appendChild(card);
         }
       });
-    }
-
-    // Real-Time Group Search Filter
-    function filterGroups(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        displayFilteredGroups(allGroupsCached);
-        return;
-      }
-      const filtered = allGroupsCached.filter(g => {
-        const name = (g.name || '').toLowerCase();
-        const bio = (g.bio || '').toLowerCase();
-        return name.includes(q) || bio.includes(q);
-      });
-      displayFilteredGroups(filtered);
     }
 
     function showGroupCreateForm() {
@@ -1242,7 +1684,9 @@
       }
     }
 
-    // 6. OPEN GROUP
+    // =========================================================
+    // OPEN GROUP & CHAT STREAM
+    // =========================================================
     function openGroup(groupId, groupData) {
       activeGroupId = groupId;
       activeGroupData = groupData;
@@ -1306,7 +1750,9 @@
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
-    // 7. MEMBERS MODAL LOGIC
+    // =========================================================
+    // MEMBERS MODAL LOGIC WITH REMOVE BUTTON
+    // =========================================================
     async function openMembersModal() {
       triggerTapFeedback();
       if (!activeGroupId || !activeGroupData) return;
@@ -1364,11 +1810,13 @@
 
         let actionBtnHtml = '';
         if (isDeveloper) {
-          if (isCurrentTeacher) {
-            actionBtnHtml = `<button class="btn-danger" onclick="toggleTeacherRole('${mId}', false)">Demote to Student</button>`;
-          } else {
-            actionBtnHtml = `<button class="btn-glass" onclick="toggleTeacherRole('${mId}', true)">⭐ Set as Teacher</button>`;
-          }
+          const roleBtn = isCurrentTeacher 
+            ? `<button class="btn-danger" style="padding:5px 8px; font-size:0.72rem;" onclick="toggleTeacherRole('${mId}', false)">Demote</button>` 
+            : `<button class="btn-glass" style="padding:5px 8px; font-size:0.72rem;" onclick="toggleTeacherRole('${mId}', true)">⭐ Faculty</button>`;
+          
+          const removeBtn = `<button class="btn-danger" style="padding:5px 8px; font-size:0.72rem;" onclick="removeMemberFromGroup('${mId}', '${escapeHtml(name)}')">🗑️ Remove</button>`;
+          
+          actionBtnHtml = `<div style="display:flex; gap:6px;">${roleBtn}${removeBtn}</div>`;
         }
 
         item.innerHTML = `
@@ -1394,6 +1842,23 @@
       document.getElementById('membersModal').style.display = 'none';
     }
 
+    // सदस्य को ग्रुप से चुपचाप निष्कासित करना (बिना किसी सूचना के)
+    async function removeMemberFromGroup(memberId, memberName) {
+      if (!isDeveloper || !activeGroupId) return;
+      if (!confirm(`Are you sure you want to remove ${memberName} from this group?`)) return;
+
+      try {
+        await db.collection('groups').doc(activeGroupId).update({
+          members: firebase.firestore.FieldValue.arrayRemove(memberId),
+          teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
+        });
+        alert(`✓ ${memberName} removed from the group successfully.`);
+        openMembersModal();
+      } catch (err) {
+        alert("Error removing member: " + err.message);
+      }
+    }
+
     async function toggleTeacherRole(memberId, makeTeacher) {
       if (!isDeveloper || !activeGroupId) return;
 
@@ -1415,7 +1880,9 @@
       }
     }
 
-    // 8. SEARCH STUDENT WITH PROFILE PICTURE
+    // =========================================================
+    // SEARCH STUDENT WITH PROFILE PICTURE
+    // =========================================================
     async function findStudentByEnroll() {
       if (!isDeveloper) return;
       const enrollVal = document.getElementById('searchEnrollInput').value.trim().toUpperCase();
@@ -1473,7 +1940,9 @@
       }
     }
 
-    // 9. MEDIA & FILE ATTACHMENT HANDLING
+    // =========================================================
+    // MEDIA & FILE ATTACHMENT HANDLING (HQ)
+    // =========================================================
     function toggleAttachMenu() {
       triggerTapFeedback();
       const menu = document.getElementById('attachMenu');
@@ -1488,7 +1957,7 @@
       selectedMediaFile = file;
       selectedMediaType = type;
 
-      document.getElementById('uploadStatusText').innerText = `Selected (${type.toUpperCase()}) : ${file.name}`;
+      document.getElementById('uploadStatusText').innerText = `Selected (${type.toUpperCase()} HQ) : ${file.name}`;
       document.getElementById('imagePreviewBox').style.display = 'flex';
     }
 
@@ -1503,6 +1972,8 @@
 
     let activeMediaUrl = "";
     let activeMsgDocId = "";
+    let activePublicId = "";
+    let activeResourceType = "image";
     let isMsgMine = false;
 
     function openMediaModal(url, type) {
@@ -1531,14 +2002,16 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    function openContextMenu(url, docId, mine) {
+    function openContextMenu(url, docId, publicId, resType, mine) {
       playBeepSound(1200, 0.2);
       activeMediaUrl = url;
       activeMsgDocId = docId;
+      activePublicId = publicId || "";
+      activeResourceType = resType || "image";
       isMsgMine = mine;
 
       const unsendBtn = document.getElementById('unsendMenuBtn');
-      if (isMsgMine) {
+      if (isMsgMine || isDeveloper) {
         unsendBtn.style.display = 'block';
       } else {
         unsendBtn.style.display = 'none';
@@ -1551,13 +2024,14 @@
       document.getElementById('contextMenuOverlay').style.display = 'none';
       activeMediaUrl = "";
       activeMsgDocId = "";
+      activePublicId = "";
     }
 
     function downloadCurrentMedia() {
       if (!activeMediaUrl) return;
       const a = document.createElement('a');
       a.href = activeMediaUrl;
-      a.download = 'DPharma_Media_' + Date.now();
+      a.download = 'DPharma_HQ_' + Date.now();
       a.target = '_blank';
       document.body.appendChild(a);
       a.click();
@@ -1572,39 +2046,65 @@
       closeContextMenu();
     }
 
+    // संदेश व मीडिया हमेशा के लिए हटाना
     async function unsendCurrentMedia() {
       if (!activeMsgDocId || !activeGroupId) return;
-      if (!confirm("Are you sure you want to unsend this message?")) return;
+      if (!confirm("Are you sure you want to permanently unsend this message?")) return;
       try {
+        if (activePublicId) {
+          await deleteFromCloudinaryDirect(activePublicId, activeResourceType);
+        }
         await db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId).delete();
-        alert("Message unsent successfully!");
+        alert("Message & Cloud media deleted permanently!");
       } catch (err) {
         alert("Failed to unsend: " + err.message);
       }
       closeContextMenu();
     }
 
-    function attachMediaLongPress(element, url, docId, mine) {
+    function attachMediaLongPress(element, url, docId, publicId, resType, mine) {
       let pressTimer = null;
-      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, publicId, resType, mine), 1200); };
       element.onmouseup = () => clearTimeout(pressTimer);
       element.onmouseleave = () => clearTimeout(pressTimer);
 
-      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, mine), 1200); };
+      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, publicId, resType, mine), 1200); };
       element.ontouchend = () => clearTimeout(pressTimer);
     }
 
-    // 10. CHAT REALTIME STREAM (FIRESTORE)
+    // =========================================================
+    // CHAT REALTIME STREAM (FIRESTORE)
+    // =========================================================
+    let isInitialChatLoad = true;
+
     function listenGroupMessages(groupId) {
       const box = document.getElementById('chatMessages');
       box.innerHTML = '';
+      isInitialChatLoad = true;
 
       chatListener = db.collection('groups').doc(groupId).collection('messages')
         .orderBy('timestamp', 'asc')
         .onSnapshot((snap) => {
+          let hasNewIncomingMsg = false;
+          let newestSender = '';
+          let newestSenderPhoto = '';
+
+          snap.docChanges().forEach((change) => {
+            if (change.type === 'added' && !isInitialChatLoad) {
+              const data = change.doc.data();
+              const isMine = (data.senderEmail || '').toLowerCase() === (currentUser.email || '').toLowerCase();
+              if (!isMine) {
+                hasNewIncomingMsg = true;
+                newestSender = data.senderName || 'Faculty';
+                newestSenderPhoto = data.senderPhoto || '';
+              }
+            }
+          });
+
           box.innerHTML = '';
           if (snap.empty) {
             box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>';
+            isInitialChatLoad = false;
             return;
           }
 
@@ -1637,7 +2137,7 @@
               img.src = m.image;
               img.className = 'msg-img-preview';
               img.onclick = () => openMediaModal(m.image, 'image');
-              attachMediaLongPress(img, m.image, docId, isMine);
+              attachMediaLongPress(img, m.image, docId, m.cloudinaryPublicId, 'image', isMine);
               bubble.appendChild(img);
             }
 
@@ -1646,7 +2146,7 @@
               vid.src = m.video;
               vid.className = 'msg-video-preview';
               vid.onclick = () => openMediaModal(m.video, 'video');
-              attachMediaLongPress(vid, m.video, docId, isMine);
+              attachMediaLongPress(vid, m.video, docId, m.cloudinaryPublicId, 'video', isMine);
               bubble.appendChild(vid);
             }
 
@@ -1656,7 +2156,7 @@
               fileLink.target = '_blank';
               fileLink.style.cssText = "display:inline-block; margin-top:6px; color:#38bdf8; font-size:0.85rem; text-decoration:underline;";
               fileLink.innerText = `📁 ${m.fileName || 'Download Attached File'}`;
-              attachMediaLongPress(fileLink, m.fileUrl, docId, isMine);
+              attachMediaLongPress(fileLink, m.fileUrl, docId, m.cloudinaryPublicId, 'raw', isMine);
               bubble.appendChild(fileLink);
             }
 
@@ -1669,11 +2169,25 @@
             wrapper.appendChild(bubble);
             box.appendChild(wrapper);
           });
+
           box.scrollTop = box.scrollHeight;
+
+          if (hasNewIncomingMsg) {
+            sendSmartNotification({
+              title: "New Group Message",
+              message: `${newestSender} posted an update`,
+              photo: newestSenderPhoto,
+              redirectUrl: 'dpg.html'
+            });
+          }
+
+          isInitialChatLoad = false;
         });
     }
 
-    // 11. DISPATCH MESSAGE (WITH CLOUDINARY UPLOAD FOR MEDIA / FILES)
+    // =========================================================
+    // DISPATCH MESSAGE (WITH HQ CLOUDINARY UPLOAD & TICK SOUND)
+    // =========================================================
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -1686,6 +2200,7 @@
       sendBtn.innerText = "...";
 
       let cloudinaryUrl = null;
+      let cloudinaryPublicId = null;
       let fileTypeFolder = "image";
 
       try {
@@ -1693,7 +2208,7 @@
           if (selectedMediaType === 'video') fileTypeFolder = "video";
           else if (selectedMediaType === 'raw') fileTypeFolder = "raw";
 
-          document.getElementById('uploadStatusText').innerText = `Uploading ${selectedMediaType} to Cloudinary...`;
+          document.getElementById('uploadStatusText').innerText = `Uploading HQ ${selectedMediaType}...`;
 
           const formData = new FormData();
           formData.append("file", selectedMediaFile);
@@ -1707,6 +2222,7 @@
           const data = await res.json();
           if (data.secure_url) {
             cloudinaryUrl = data.secure_url;
+            cloudinaryPublicId = data.public_id;
           } else {
             throw new Error(data.error ? data.error.message : "Cloudinary Upload Failed");
           }
@@ -1724,6 +2240,8 @@
         };
 
         if (cloudinaryUrl) {
+          msgPayload.cloudinaryPublicId = cloudinaryPublicId;
+          msgPayload.resourceType = fileTypeFolder;
           if (selectedMediaType === 'image') msgPayload.image = cloudinaryUrl;
           else if (selectedMediaType === 'video') msgPayload.video = cloudinaryUrl;
           else if (selectedMediaType === 'raw') {
@@ -1734,6 +2252,7 @@
 
         await db.collection('groups').doc(activeGroupId).collection('messages').add(msgPayload);
 
+        playMessageSentTick(); // संदेश जाने पर 'टिक' (Tick) ध्वनि
         input.value = '';
         removeAttachedMedia();
       } catch (err) {
