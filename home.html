@@ -28,97 +28,108 @@
     }
 
     /* =========================================================
-       CAPSULE BREAKING & UNVEILING REVEAL ANIMATION 
+       NEW 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION
        ========================================================= */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
-      background: #020f0d;
+      background: radial-gradient(circle at center, #062b25 0%, #010a08 100%);
       z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       pointer-events: all;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .capsule-stage {
+    .capsule-wrapper-3d {
       position: relative;
-      width: 220px;
-      height: 90px;
+      width: 240px;
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: center;
+      perspective: 800px;
     }
 
-    .capsule-half {
-      width: 90px;
-      height: 80px;
+    /* Radiant Burst Core in the Center */
+    .capsule-energy-core {
       position: absolute;
-      top: 5px;
-      transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Left Half (Emerald Green) */
-    .capsule-left {
-      left: 20px;
-      background: linear-gradient(135deg, #10b981, #047857);
-      border-top-left-radius: 40px;
-      border-bottom-left-radius: 40px;
-      border: 2px solid #34d399;
-      border-right: none;
-    }
-
-    /* Right Half (White/Silver Medical) */
-    .capsule-right {
-      right: 20px;
-      background: linear-gradient(135deg, #ffffff, #cbd5e1);
-      border-top-right-radius: 40px;
-      border-bottom-right-radius: 40px;
-      border: 2px solid #ffffff;
-      border-left: none;
-    }
-
-    /* Burst Glow inside Capsule */
-    .capsule-burst-core {
-      position: absolute;
-      width: 10px;
-      height: 10px;
+      width: 16px;
+      height: 60px;
       background: #34d399;
-      border-radius: 50%;
-      box-shadow: 0 0 50px 30px #10b981;
+      border-radius: 8px;
+      box-shadow: 0 0 35px 15px #10b981, 0 0 60px 30px rgba(52, 211, 153, 0.6);
       opacity: 0;
-      transition: transform 0.5s ease, opacity 0.4s ease;
+      transform: scale(0.2);
+      transition: all 0.55s ease-out;
+      z-index: 1;
     }
 
-    /* Break Trigger Animations */
-    .broken .capsule-left {
-      transform: translateX(-95px) rotate(-28deg) scale(0.9);
+    .capsule-half-shell {
+      width: 95px;
+      height: 74px;
+      position: absolute;
+      top: 13px;
+      transition: transform 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.55s ease;
+      box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+    }
+
+    /* Left Shell - Emerald Metallic */
+    .capsule-shell-left {
+      left: 25px;
+      background: linear-gradient(145deg, #10b981 0%, #064e3b 100%);
+      border-top-left-radius: 45px;
+      border-bottom-left-radius: 45px;
+      border: 2px solid #34d399;
+      border-right: 1px dashed rgba(255, 255, 255, 0.3);
+      transform-origin: left center;
+    }
+
+    /* Right Shell - Platinum Frosted */
+    .capsule-shell-right {
+      right: 25px;
+      background: linear-gradient(145deg, #ffffff 0%, #94a3b8 100%);
+      border-top-right-radius: 45px;
+      border-bottom-right-radius: 45px;
+      border: 2px solid #ffffff;
+      border-left: 1px dashed rgba(0, 0, 0, 0.2);
+      transform-origin: right center;
+    }
+
+    /* Cracking & Separation Trigger */
+    .cracked .capsule-shell-left {
+      transform: translateX(-110px) translateY(-10px) rotate(-35deg) scale(0.85);
       opacity: 0;
     }
 
-    .broken .capsule-right {
-      transform: translateX(95px) rotate(28deg) scale(0.9);
+    .cracked .capsule-shell-right {
+      transform: translateX(110px) translateY(10px) rotate(35deg) scale(0.85);
       opacity: 0;
     }
 
-    .broken .capsule-burst-core {
+    .cracked .capsule-energy-core {
       opacity: 1;
-      transform: scale(25);
+      transform: scale(18);
     }
 
-    .capsule-label {
-      margin-top: 25px;
-      font-size: 0.85rem;
+    .capsule-badge-label {
+      margin-top: 30px;
+      font-size: 0.82rem;
       color: #34d399;
-      font-weight: 700;
-      letter-spacing: 2px;
-      transition: opacity 0.3s ease;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      transition: opacity 0.35s ease;
     }
 
-    .broken + .capsule-label {
+    .cracked + .capsule-badge-label {
       opacity: 0;
     }
 
@@ -830,15 +841,15 @@
 <body oncontextmenu="return false;">
 
   <!-- =========================================================
-       CAPSULE BREAKING ANIMATION OVERLAY (Always on Load)
+       NEW 3D CAPSULE CRACKING OVERLAY (Always on Load)
        ========================================================= -->
   <div id="capsuleSplashOverlay">
-    <div class="capsule-stage" id="capsuleStage">
-      <div class="capsule-half capsule-left"></div>
-      <div class="capsule-burst-core"></div>
-      <div class="capsule-half capsule-right"></div>
+    <div class="capsule-wrapper-3d" id="capsuleWrapper">
+      <div class="capsule-half-shell capsule-shell-left"></div>
+      <div class="capsule-energy-core"></div>
+      <div class="capsule-half-shell capsule-shell-right"></div>
     </div>
-    <div class="capsule-label">AUTHENTICATING PORTAL...</div>
+    <div class="capsule-badge-label">D-PHARMA PORTAL</div>
   </div>
 
   <!-- Falling Medicines Background Animation -->
@@ -885,14 +896,14 @@
       <div id="usersList"></div>
     </div>
 
-    <!-- Protected Notice Creation Area (Cloudinary Attached) -->
+    <!-- Protected Notice Creation Area (Cloudinary Attached with public_id Tracking) -->
     <div id="createNoticePanel" class="glass-card">
-      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Cloud Storage)</h3>
+      <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (Auto-Expiring Cloud Media)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
       <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
       <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
       
-      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Media to Cloudinary (Photos / Videos, Max 10):</label>
+      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Media (Photos / Videos, Max 10):</label>
       <input type="file" id="noticeMedia" class="input-field-custom" accept="image/*,video/*" multiple />
       
       <button onclick="publishNotice()" id="btnPublish" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
@@ -982,23 +993,23 @@
 
   <script>
     // =========================================================
-    // CAPSULE BREAK & UNVEILING REVEAL CONTROLLER (Always Runs on Load)
+    // 1. UNIQUE 3D CAPSULE CRACK & ENTRANCE CONTROLLER (Every Load)
     // =========================================================
     window.addEventListener('DOMContentLoaded', () => {
       const splash = document.getElementById('capsuleSplashOverlay');
-      const stage = document.getElementById('capsuleStage');
+      const wrapper = document.getElementById('capsuleWrapper');
       
-      // Capsule breaks smoothly after 300ms
+      // Capsule fractures with energy burst at 320ms
       setTimeout(() => {
-        stage.classList.add('broken');
-        triggerTapFeedback(); // Slight feedback as capsule breaks
-      }, 300);
+        wrapper.classList.add('cracked');
+        triggerTapFeedback(); // Haptic pulse at crack
+      }, 320);
 
-      // Unveil the entire home dashboard smoothly
+      // Smooth dissolve into the main view
       setTimeout(() => {
         if (splash) {
           splash.style.opacity = '0';
-          setTimeout(() => splash.style.display = 'none', 400);
+          setTimeout(() => splash.style.display = 'none', 450);
         }
       }, 1050);
     });
@@ -1281,7 +1292,9 @@
       alert(`User partner status changed to: ${status}`);
     }
 
-    // CLOUDINARY UPLOAD LOGIC
+    // =========================================================
+    // 2. CLOUDINARY UPLOAD WITH PUBLIC_ID RETENTION (Auto-Delete Ready)
+    // =========================================================
     async function uploadFileToCloudinary(file) {
       const isVideo = file.type.startsWith('video');
       const resourceType = isVideo ? 'video' : 'image';
@@ -1303,6 +1316,7 @@
       if (data.secure_url) {
         return {
           url: data.secure_url,
+          public_id: data.public_id, // Saved for permanent Cloudinary destruction
           type: resourceType
         };
       } else {
@@ -1352,13 +1366,13 @@
         }
 
         const now = new Date();
-        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24-Hour Expiration Boundary
 
         await db.collection('notices').add({
           title,
           content,
           link,
-          media: mediaList,
+          media: mediaList, // Holds array of { url, public_id, type }
           images: mediaList.map(m => m.url),
           postedBy: currentUserData ? currentUserData.name : 'Authority',
           authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
@@ -1379,7 +1393,9 @@
       }
     }
 
-    // STORY ENGINE
+    // =========================================================
+    // 3. NOTICE ENGINE WITH REALTIME 24-HOUR AUTO-CLEANUP
+    // =========================================================
     let activeNotices = [];
     let currentStoryIndex = 0;
     let activeMediaUrl = "";
@@ -1392,9 +1408,15 @@
         snap.forEach((doc) => {
           const data = doc.data();
           data.id = doc.id;
+          
           if (data.expiresAt) {
             const expTime = data.expiresAt.toDate().getTime();
-            if (currentTime > expTime) return;
+            // Automatically purge expired documents in real-time if encountered
+            if (currentTime >= expTime) {
+              // Delete expired document record from Firestore
+              db.collection('notices').doc(doc.id).delete().catch(() => {});
+              return;
+            }
           }
           activeNotices.push(data);
         });
@@ -1580,6 +1602,7 @@
       if (!confirm("Are you sure you want to delete this notice?")) return;
       try {
         await db.collection('notices').doc(noticeId).delete();
+        alert("Notice removed!");
       } catch (err) {
         alert("Delete failed: " + err.message);
       }
