@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>D.P.G - Groups Portal</title>
-  <!-- PWA Manifest Link -->
   <link rel="manifest" href="manifest.json">
 
   <!-- 1. IMMEDIATE AUTH GUARD -->
@@ -36,7 +35,7 @@
       color: #ffffff;
     }
 
-    /* 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION */
+    /* 3D CAPSULE CRACK OVERLAY */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -136,7 +135,7 @@
       opacity: 0;
     }
 
-    /* Falling Medicines Rain (Slow Motion) */
+    /* Falling Medicines Rain */
     .rain-container {
       position: fixed;
       inset: 0;
@@ -168,9 +167,7 @@
       flex-direction: column;
     }
 
-    /* =========================================================
-       FIXED TOP FLOATING NAVBAR WITH WELCOME TITLE
-       ========================================================= */
+    /* FIXED TOP FLOATING NAVBAR */
     .top-navbar {
       position: fixed;
       top: 14px;
@@ -227,7 +224,6 @@
       flex-shrink: 0;
     }
 
-    /* Welcome Banner Text Container */
     .top-welcome-header {
       flex: 1;
       text-align: center;
@@ -272,11 +268,6 @@
       box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
     }
 
-    .profile-nav-btn:hover {
-      transform: scale(1.06);
-      box-shadow: 0 0 20px rgba(52, 211, 153, 0.85);
-    }
-
     .protected-img {
       width: 100%;
       height: 100%;
@@ -284,9 +275,7 @@
       pointer-events: none;
     }
 
-    /* =========================================================
-       TOP POP-UP NOTIFICATION BANNER (WITH LOGO BADGE)
-       ========================================================= */
+    /* TOP NOTIFICATION BANNER */
     #topNotificationBanner {
       position: fixed;
       top: -120px;
@@ -372,7 +361,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Floating Badges & Action Buttons */
     .rx-badge {
       display: inline-flex;
       align-items: center;
@@ -444,7 +432,6 @@
       gap: 6px;
     }
 
-    /* Main Viewport Container */
     .viewport-box {
       flex: 1;
       width: 100%;
@@ -457,9 +444,7 @@
       padding-bottom: 84px;
     }
 
-    /* =========================================================
-       SHINING GLOWING GROUPS CARD DESIGN (MATCHING BOTTOM NAV)
-       ========================================================= */
+    /* GROUPS LIST VIEW */
     #viewGroupList {
       width: 100%;
       height: 100%;
@@ -554,7 +539,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Modal Form for Create Group */
     #viewCreateGroup {
       width: calc(100% - 32px);
       max-width: 600px;
@@ -586,7 +570,7 @@
       box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
     }
 
-    /* Inside Group Chat Viewport */
+    /* INSIDE GROUP VIEWPORT */
     #viewInsideGroup {
       width: 100%;
       height: 100%;
@@ -680,11 +664,32 @@
       user-select: text;
       word-break: break-word;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      position: relative;
+      cursor: pointer;
     }
     .msg-wrapper.mine .msg-bubble {
       background: linear-gradient(135deg, #047857 0%, #065f46 100%);
       border-color: #34d399;
     }
+
+    /* Live Emoji Reactions Display on Message */
+    .msg-reactions-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .reaction-pill {
+      background: rgba(2, 18, 14, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      border-radius: 12px;
+      padding: 2px 6px;
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
     .msg-img-preview {
       max-width: 250px;
       max-height: 250px;
@@ -741,7 +746,6 @@
     }
     .icon-btn:active { transform: scale(0.9); }
 
-    /* Attachment Menu */
     .attach-menu {
       position: absolute;
       bottom: 75px;
@@ -777,7 +781,7 @@
       color: #34d399;
     }
 
-    /* Members Modal */
+    /* MEMBERS MODAL */
     #membersModal {
       position: absolute;
       inset: 0;
@@ -803,7 +807,7 @@
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
 
-    /* Media Fullscreen Viewer Modal */
+    /* MEDIA FULLSCREEN VIEWER */
     .fullscreen-media-modal {
       position: fixed;
       inset: 0;
@@ -823,7 +827,7 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     }
 
-    /* Long Press Context Menu */
+    /* LONG PRESS CONTEXT MENU (WITH 5 EMOJIS & OPTIONS) */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
@@ -838,15 +842,39 @@
     .context-menu-box {
       background: rgba(4, 30, 25, 0.98);
       border: 1.5px solid #34d399;
-      border-radius: 22px;
+      border-radius: 24px;
       width: 100%;
-      max-width: 380px;
-      padding: 16px;
+      max-width: 400px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.85);
     }
+
+    /* 5 EMOJIS FLOATING DOCK */
+    .emoji-reaction-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(2, 18, 14, 0.9);
+      border: 1.5px solid rgba(52, 211, 153, 0.5);
+      border-radius: 30px;
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.3);
+    }
+    .emoji-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .emoji-btn:active {
+      transform: scale(1.35);
+    }
+
     .context-menu-btn {
       background: rgba(3, 20, 17, 0.9);
       border: 1px solid rgba(52, 211, 153, 0.35);
@@ -864,9 +892,7 @@
       border-color: #34d399;
     }
 
-    /* =========================================================
-       FLOATING BOTTOM NAVIGATION DOCK (ACTIVE: D.P.G)
-       ========================================================= */
+    /* BOTTOM NAV DOCK */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
@@ -928,7 +954,6 @@
       background: rgba(16, 185, 129, 0.15);
     }
 
-    /* Security Loader */
     #securityLoader {
       position: fixed;
       inset: 0;
@@ -953,16 +978,13 @@
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Firebase Auth & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- =========================================================
-       3D CAPSULE CRACKING OVERLAY (ALWAYS ON PAGE START)
-       ========================================================= -->
+  <!-- CAPSULE CRACK OVERLAY -->
   <div id="capsuleSplashOverlay">
     <div class="capsule-wrapper-3d" id="capsuleWrapper">
       <div class="capsule-half-shell capsule-shell-left"></div>
@@ -972,38 +994,39 @@
     <div class="capsule-badge-label">D-PHARMA PORTAL</div>
   </div>
 
-  <!-- Fullscreen Security Shield Loader -->
   <div id="securityLoader">
     <div class="spinner"></div>
     <span>Connecting D.P.G Portal...</span>
   </div>
 
-  <!-- Slow Motion Medicine Particles -->
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- IN-APP FULLSCREEN MEDIA VIEWER MODAL -->
+  <!-- FULLSCREEN MEDIA VIEWER -->
   <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
     <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
     <span style="color: #94a3b8; font-size: 0.82rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU MODAL -->
+  <!-- LONG PRESS CONTEXT MENU (5 EMOJIS + OPTIONS) -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
-      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
-      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
+      <div class="emoji-reaction-bar">
+        <button class="emoji-btn" onclick="addReactionToMessage('❤️')">❤️</button>
+        <button class="emoji-btn" onclick="addReactionToMessage('👍')">👍</button>
+        <button class="emoji-btn" onclick="addReactionToMessage('😂')">😂</button>
+        <button class="emoji-btn" onclick="addReactionToMessage('🤔')">🤔</button>
+        <button class="emoji-btn" onclick="addReactionToMessage('😡')">😡</button>
+      </div>
+
+      <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
+      <button class="context-menu-btn" id="shareMenuBtn" style="display:none;" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
     </div>
   </div>
 
-  <!-- Main Viewport App Wrapper -->
   <div id="secureAppWrapper">
-
-    <!-- =========================================================
-         FIXED TOP FLOATING NAVBAR DOCK (WITH TITLE)
-         ========================================================= -->
+    <!-- TOP BAR -->
     <header class="top-navbar">
       <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.href='home.html';">
         <div class="top-logo-icon">
@@ -1023,7 +1046,7 @@
       </div>
     </header>
 
-    <!-- TOP POP-UP NOTIFICATION BANNER WITH D-PHARMA BADGE -->
+    <!-- IN-APP NOTIFICATION BANNER -->
     <div id="topNotificationBanner" onclick="handleNotificationClick()">
       <div class="banner-avatar-cluster">
         <img id="bannerSenderPhoto" class="banner-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Sender" />
@@ -1055,7 +1078,7 @@
         </div>
       </section>
 
-      <!-- VIEW 2: Create Group Modal Form -->
+      <!-- VIEW 2: Create Group Modal -->
       <section id="viewCreateGroup" style="display:none;">
         <h3 style="color:#34d399; margin-bottom:6px; font-weight:800;">Create Academic Channel</h3>
         <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:16px;">Set up a verified classroom channel for notes and updates.</p>
@@ -1069,7 +1092,7 @@
         </div>
       </section>
 
-      <!-- VIEW 3: Full Page Group & Chat Stream -->
+      <!-- VIEW 3: Group & Chat Stream -->
       <section id="viewInsideGroup">
         <div class="group-subnav">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 50%;">
@@ -1099,13 +1122,13 @@
           <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>
         </div>
 
-        <!-- Attached Media Preview Before Sending -->
+        <!-- Attached Media Preview -->
         <div id="imagePreviewBox" style="display:none; background:rgba(6,43,37,0.95); padding:8px 16px; border-top:1.5px solid #10b981; align-items:center; gap:12px;">
           <span id="uploadStatusText" style="font-size:0.8rem; color:#a7f3d0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Media selected</span>
           <button class="nav-btn" style="color:#f87171; font-size:0.8rem;" onclick="removeAttachedMedia()">✕ Remove</button>
         </div>
 
-        <!-- Authorized Chat Input Bar -->
+        <!-- Chat Input Bar -->
         <div id="devMessageInputRow" class="chat-input-bar" style="display:none;">
           <div class="attach-menu" id="attachMenu">
             <button class="attach-option" onclick="document.getElementById('chatPhotoUpload').click()">🖼️ Photo (HQ)</button>
@@ -1127,7 +1150,7 @@
           🔒 Read-only channel. Only Verified Faculty & Developers can post.
         </div>
 
-        <!-- MEMBERS LIST MODAL WITH REMOVE BUTTON -->
+        <!-- MEMBERS MODAL -->
         <div id="membersModal">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1.5px solid rgba(52,211,153,0.3); padding-bottom:10px;">
             <div>
@@ -1143,9 +1166,7 @@
       </section>
     </div>
 
-    <!-- =========================================================
-         FLOATING BOTTOM NAVIGATION DOCK (ACTIVE: D.P.G)
-         ========================================================= -->
+    <!-- BOTTOM NAV DOCK -->
     <div class="bottom-nav">
       <div class="nav-item" onclick="navWithFeedback('home.html')">
         <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -1163,9 +1184,7 @@
   </div>
 
   <script>
-    // =========================================================
-    // INLINE SERVICE WORKER (FOR REAL BACKGROUND PUSH)
-    // =========================================================
+    // INLINE SERVICE WORKER FOR BACKGROUND NOTIFICATIONS
     const swCode = `
       self.addEventListener('notificationclick', function(event) {
         event.notification.close();
@@ -1195,9 +1214,7 @@
       } catch(err) {}
     }
 
-    // =========================================================
-    // 3D CAPSULE CRACK CONTROLLER & AUDIO UNLOCK
-    // =========================================================
+    // 3D CAPSULE CRACK CONTROLLER
     window.addEventListener('DOMContentLoaded', () => {
       const splash = document.getElementById('capsuleSplashOverlay');
       const wrapper = document.getElementById('capsuleWrapper');
@@ -1230,9 +1247,6 @@
       }, { once: false, passive: true });
     });
 
-    // ==========================================
-    // AUDIO ENGINE (MESSAGE SENT TICK & CHIME)
-    // ==========================================
     let audioCtx = null;
 
     function triggerTapFeedback() {
@@ -1259,10 +1273,9 @@
       } catch (e) {}
     }
 
-    // संदेश भेजने पर बजने वाला कुरकुरा 'टिक' (Tick) साउंड
     function playMessageSentTick() {
       try {
-        if (navigator.vibrate) navigator.vibrate(18); // अल्ट्रा-शॉर्ट वाइब्रेशन
+        if (navigator.vibrate) navigator.vibrate(18);
       } catch (e) {}
 
       try {
@@ -1287,7 +1300,6 @@
       } catch (e) {}
     }
 
-    // नया संदेश आने पर ड्यूल-टोन मेलोडिक चाइम
     function triggerNotificationAlert() {
       try {
         if (navigator.vibrate) navigator.vibrate([40, 60, 100]);
@@ -1340,9 +1352,7 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // =========================================================
-    // SMART NOTIFICATION ENGINE (IN-APP vs REAL BACKGROUND)
-    // =========================================================
+    // SMART NOTIFICATION ENGINE
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
@@ -1395,15 +1405,13 @@
       window.location.href = currentBannerRedirectUrl;
     }
 
-    // ==========================================
-    // CLOUDINARY CONFIGURATION (WITH HQ SUPPORT)
-    // ==========================================
+    // CLOUDINARY CONFIG
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
     const CLOUDINARY_API_KEY = "282264657557848";
     const CLOUDINARY_API_SECRET = "D6Q6z5A5lK2LQsc8NIUlPAaQsZU";
 
-    // 1. FULLSCREEN API
+    // ANTI-INSPECT GUARDS
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
       const doc = window.document;
@@ -1417,7 +1425,6 @@
       }
     });
 
-    // 2. ANTI-INSPECT PROTECTION
     document.addEventListener('contextmenu', (e) => e.preventDefault());
     document.addEventListener('keydown', function (e) {
       if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode === 85)) {
@@ -1430,7 +1437,7 @@
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
 
-    // 3. SLOW MEDICINE RAIN ANIMATION
+    // MEDICINE RAIN
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7" /><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1" /></g></svg>`,
@@ -1451,7 +1458,7 @@
       rainContainer.appendChild(drop);
     }
 
-    // 4. FIREBASE CONFIG
+    // FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -1482,7 +1489,6 @@
     let selectedMediaFile = null;
     let selectedMediaType = "image";
 
-    // Fast local profile preload
     const cachedProfile = localStorage.getItem('cachedUserObj');
     if (cachedProfile) {
       try {
@@ -1494,6 +1500,7 @@
     auth.onAuthStateChanged(async (user) => {
       if (!user && !loggedAccount) {
         localStorage.clear();
+        sessionStorage.clear();
         window.location.replace('login.html');
         return;
       }
@@ -1508,6 +1515,7 @@
         if (studentSnap.empty && !isDeveloper) {
           alert("Unauthorized access!");
           localStorage.clear();
+          sessionStorage.clear();
           auth.signOut();
           window.location.replace('login.html');
           return;
@@ -1527,11 +1535,20 @@
 
       renderGroupsList();
       triggerAutoCleanupExpired();
+
+      // AUTO-RESTORE ACTIVE GROUP IF PAGE WAS REFRESHED INSIDE GROUP
+      const savedGroupId = sessionStorage.getItem('activeDpgGroupId');
+      if (savedGroupId) {
+        const gDoc = await db.collection('groups').doc(savedGroupId).get();
+        if (gDoc.exists) {
+          openGroup(savedGroupId, gDoc.data());
+        } else {
+          sessionStorage.removeItem('activeDpgGroupId');
+        }
+      }
     });
 
-    // =========================================================
-    // 5-DAY AUTOMATIC CLEANUP & REAL-TIME DELETION ENGINE
-    // =========================================================
+    // 5-DAY AUTO CLEANUP
     async function triggerAutoCleanupExpired() {
       try {
         const now = Date.now();
@@ -1587,9 +1604,7 @@
         .join("");
     }
 
-    // =========================================================
     // RENDER GROUPS
-    // =========================================================
     function renderGroupsList() {
       db.collection('groups').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         allGroupsCached = [];
@@ -1684,12 +1699,11 @@
       }
     }
 
-    // =========================================================
-    // OPEN GROUP & CHAT STREAM
-    // =========================================================
+    // OPEN GROUP WITH PERSISTENT STATE IN SESSIONSTORAGE
     function openGroup(groupId, groupData) {
       activeGroupId = groupId;
       activeGroupData = groupData;
+      sessionStorage.setItem('activeDpgGroupId', groupId); // ग्रुप स्टेट को लॉक करना
 
       document.getElementById('viewGroupList').style.display = 'none';
       document.getElementById('viewInsideGroup').style.display = 'flex';
@@ -1733,12 +1747,14 @@
       }
     }
 
+    // EXIT GROUP MANUAL BUTTON
     function exitGroupView() {
       triggerTapFeedback();
       if (chatListener) chatListener();
       if (groupDocListener) groupDocListener();
       activeGroupId = null;
       activeGroupData = null;
+      sessionStorage.removeItem('activeDpgGroupId'); // बाहर आने पर ही स्टेट क्लियर होगी
       closeMembersModal();
       document.getElementById('viewInsideGroup').style.display = 'none';
       document.getElementById('viewGroupList').style.display = 'block';
@@ -1750,9 +1766,7 @@
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
-    // =========================================================
-    // MEMBERS MODAL LOGIC WITH REMOVE BUTTON
-    // =========================================================
+    // MEMBERS MODAL WITH REMOVE BUTTON
     async function openMembersModal() {
       triggerTapFeedback();
       if (!activeGroupId || !activeGroupData) return;
@@ -1842,7 +1856,6 @@
       document.getElementById('membersModal').style.display = 'none';
     }
 
-    // सदस्य को ग्रुप से चुपचाप निष्कासित करना (बिना किसी सूचना के)
     async function removeMemberFromGroup(memberId, memberName) {
       if (!isDeveloper || !activeGroupId) return;
       if (!confirm(`Are you sure you want to remove ${memberName} from this group?`)) return;
@@ -1880,9 +1893,7 @@
       }
     }
 
-    // =========================================================
-    // SEARCH STUDENT WITH PROFILE PICTURE
-    // =========================================================
+    // SEARCH & ADD STUDENT
     async function findStudentByEnroll() {
       if (!isDeveloper) return;
       const enrollVal = document.getElementById('searchEnrollInput').value.trim().toUpperCase();
@@ -1940,9 +1951,7 @@
       }
     }
 
-    // =========================================================
-    // MEDIA & FILE ATTACHMENT HANDLING (HQ)
-    // =========================================================
+    // ATTACHMENTS
     function toggleAttachMenu() {
       triggerTapFeedback();
       const menu = document.getElementById('attachMenu');
@@ -1970,6 +1979,7 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
+    // FULLSCREEN & CONTEXT MENU ENGINE (1.2 SEC LONG PRESS)
     let activeMediaUrl = "";
     let activeMsgDocId = "";
     let activePublicId = "";
@@ -2002,19 +2012,30 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    function openContextMenu(url, docId, publicId, resType, mine) {
+    function openMessageContextMenu(docId, mediaUrl, publicId, resType, mine) {
       playBeepSound(1200, 0.2);
-      activeMediaUrl = url;
       activeMsgDocId = docId;
+      activeMediaUrl = mediaUrl || "";
       activePublicId = publicId || "";
       activeResourceType = resType || "image";
       isMsgMine = mine;
 
       const unsendBtn = document.getElementById('unsendMenuBtn');
+      const downloadBtn = document.getElementById('downloadMenuBtn');
+      const shareBtn = document.getElementById('shareMenuBtn');
+
       if (isMsgMine || isDeveloper) {
         unsendBtn.style.display = 'block';
       } else {
         unsendBtn.style.display = 'none';
+      }
+
+      if (activeMediaUrl) {
+        downloadBtn.style.display = 'block';
+        shareBtn.style.display = 'block';
+      } else {
+        downloadBtn.style.display = 'none';
+        shareBtn.style.display = 'none';
       }
 
       document.getElementById('contextMenuOverlay').style.display = 'flex';
@@ -2022,9 +2043,40 @@
 
     function closeContextMenu() {
       document.getElementById('contextMenuOverlay').style.display = 'none';
-      activeMediaUrl = "";
       activeMsgDocId = "";
+      activeMediaUrl = "";
       activePublicId = "";
+    }
+
+    // EMOJI REACTION HANDLER
+    async function addReactionToMessage(emoji) {
+      if (!activeMsgDocId || !activeGroupId) return;
+      triggerTapFeedback();
+      closeContextMenu();
+
+      const userIdentifier = currentUser ? (currentUser.email || 'user') : 'user';
+      const msgRef = db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId);
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(msgRef);
+          if (!doc.exists) return;
+
+          let reactions = doc.data().reactions || {};
+          let currentList = reactions[emoji] || [];
+
+          if (currentList.includes(userIdentifier)) {
+            currentList = currentList.filter(u => u !== userIdentifier);
+          } else {
+            currentList.push(userIdentifier);
+          }
+
+          reactions[emoji] = currentList;
+          transaction.update(msgRef, { reactions: reactions });
+        });
+      } catch (err) {
+        console.error("Reaction failed:", err);
+      }
     }
 
     function downloadCurrentMedia() {
@@ -2046,7 +2098,6 @@
       closeContextMenu();
     }
 
-    // संदेश व मीडिया हमेशा के लिए हटाना
     async function unsendCurrentMedia() {
       if (!activeMsgDocId || !activeGroupId) return;
       if (!confirm("Are you sure you want to permanently unsend this message?")) return;
@@ -2062,19 +2113,32 @@
       closeContextMenu();
     }
 
-    function attachMediaLongPress(element, url, docId, publicId, resType, mine) {
+    // 1.2 SECOND LONG PRESS LISTENER (TEXT & MEDIA)
+    function attachGlobalLongPress(element, docId, mediaUrl, publicId, resType, mine) {
       let pressTimer = null;
-      element.onmousedown = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, publicId, resType, mine), 1200); };
-      element.onmouseup = () => clearTimeout(pressTimer);
-      element.onmouseleave = () => clearTimeout(pressTimer);
+      let isMoved = false;
 
-      element.ontouchstart = () => { pressTimer = setTimeout(() => openContextMenu(url, docId, publicId, resType, mine), 1200); };
-      element.ontouchend = () => clearTimeout(pressTimer);
+      const start = () => {
+        isMoved = false;
+        pressTimer = setTimeout(() => {
+          openMessageContextMenu(docId, mediaUrl, publicId, resType, mine);
+        }, 1200);
+      };
+
+      const cancel = () => {
+        clearTimeout(pressTimer);
+      };
+
+      element.onmousedown = start;
+      element.onmouseup = cancel;
+      element.onmouseleave = cancel;
+
+      element.ontouchstart = start;
+      element.ontouchmove = () => { isMoved = true; cancel(); };
+      element.ontouchend = cancel;
     }
 
-    // =========================================================
-    // CHAT REALTIME STREAM (FIRESTORE)
-    // =========================================================
+    // CHAT REALTIME LISTENER
     let isInitialChatLoad = true;
 
     function listenGroupMessages(groupId) {
@@ -2121,6 +2185,13 @@
             const bubble = document.createElement('div');
             bubble.className = 'msg-bubble';
 
+            const mediaUrl = m.image || m.video || m.fileUrl || "";
+            const publicId = m.cloudinaryPublicId || "";
+            const resType = m.resourceType || "image";
+
+            // Attach 1.2s long press on bubble
+            attachGlobalLongPress(bubble, docId, mediaUrl, publicId, resType, isMine);
+
             const nameDiv = document.createElement('div');
             nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:800; margin-bottom:2px;";
             nameDiv.innerText = m.senderName || 'Faculty';
@@ -2137,7 +2208,6 @@
               img.src = m.image;
               img.className = 'msg-img-preview';
               img.onclick = () => openMediaModal(m.image, 'image');
-              attachMediaLongPress(img, m.image, docId, m.cloudinaryPublicId, 'image', isMine);
               bubble.appendChild(img);
             }
 
@@ -2146,7 +2216,6 @@
               vid.src = m.video;
               vid.className = 'msg-video-preview';
               vid.onclick = () => openMediaModal(m.video, 'video');
-              attachMediaLongPress(vid, m.video, docId, m.cloudinaryPublicId, 'video', isMine);
               bubble.appendChild(vid);
             }
 
@@ -2156,8 +2225,22 @@
               fileLink.target = '_blank';
               fileLink.style.cssText = "display:inline-block; margin-top:6px; color:#38bdf8; font-size:0.85rem; text-decoration:underline;";
               fileLink.innerText = `📁 ${m.fileName || 'Download Attached File'}`;
-              attachMediaLongPress(fileLink, m.fileUrl, docId, m.cloudinaryPublicId, 'raw', isMine);
               bubble.appendChild(fileLink);
+            }
+
+            // Render live emoji reactions
+            if (m.reactions && Object.keys(m.reactions).length > 0) {
+              const reactRow = document.createElement('div');
+              reactRow.className = 'msg-reactions-row';
+              for (const [em, users] of Object.entries(m.reactions)) {
+                if (users && users.length > 0) {
+                  const pill = document.createElement('span');
+                  pill.className = 'reaction-pill';
+                  pill.innerText = `${em} ${users.length}`;
+                  reactRow.appendChild(pill);
+                }
+              }
+              bubble.appendChild(reactRow);
             }
 
             const timeDiv = document.createElement('div');
@@ -2185,9 +2268,7 @@
         });
     }
 
-    // =========================================================
-    // DISPATCH MESSAGE (WITH HQ CLOUDINARY UPLOAD & TICK SOUND)
-    // =========================================================
+    // DISPATCH MESSAGE
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2236,7 +2317,8 @@
           senderEmail: currentUser.email || DEVELOPER_EMAIL,
           senderName: senderName,
           senderPhoto: senderPhoto,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          reactions: {}
         };
 
         if (cloudinaryUrl) {
@@ -2252,7 +2334,7 @@
 
         await db.collection('groups').doc(activeGroupId).collection('messages').add(msgPayload);
 
-        playMessageSentTick(); // संदेश जाने पर 'टिक' (Tick) ध्वनि
+        playMessageSentTick();
         input.value = '';
         removeAttachedMedia();
       } catch (err) {
@@ -2264,7 +2346,6 @@
       }
     }
 
-    // XSS Sanitizer
     function escapeHtml(string) {
       return String(string).replace(/[&<>"'`=\/]/g, function (s) {
         return ({
