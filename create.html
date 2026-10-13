@@ -66,8 +66,42 @@
       margin-bottom: 22px;
       padding-bottom: 12px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.25);
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
+    }
+
+    /* Header Brand Box with Compact Logo */
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .compact-logo-wrapper {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(13, 148, 136, 0.95));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+      animation: pulseGreenCompact 2.5s infinite ease-in-out;
+      flex-shrink: 0;
+    }
+
+    .compact-logo-icon {
+      width: 25px;
+      height: 25px;
+      fill: #ffffff;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes pulseGreenCompact {
+      0%, 100% { box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35); }
+      50% { box-shadow: 0 10px 24px rgba(16, 185, 129, 0.6), 0 0 16px rgba(34, 211, 238, 0.35); }
     }
 
     .nav-actions {
@@ -336,10 +370,11 @@
     }
   </style>
 
-  <!-- Firebase App, Auth & Firestore SDKs -->
+  <!-- Firebase App, Auth, Firestore & Storage SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 </head>
 <body oncontextmenu="return false;">
 
@@ -348,9 +383,18 @@
 
   <div class="admin-wrapper">
     <div class="header-bar">
-      <span class="rx-badge">℞ DEVELOPER ACCESS GRANTED</span>
+      <!-- Compact Header Brand with Small Matching Logo -->
+      <div class="header-brand">
+        <div class="compact-logo-wrapper">
+          <svg class="compact-logo-icon" viewBox="0 0 24 24">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        </div>
+        <span class="rx-badge">℞ DEVELOPER ACCESS GRANTED</span>
+      </div>
+
       <div class="nav-actions">
-        <!-- Home Button Added Here -->
+        <!-- Home Button -->
         <a href="home.html" class="glass-btn-home">🏠 Home</a>
         <button class="glass-btn-logout" onclick="logoutDev()">Log Out</button>
       </div>
@@ -435,7 +479,7 @@
     <div class="glass-card" style="border: 1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 25px rgba(239, 68, 68, 0.15);">
       <h2 style="color: #ef4444; font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">🚫 Terminate / Delete Student ID Permanently</h2>
       <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 18px;">
-        Agar koi user portal ya chat का galat istemal kare, तो uska Enrollment No. ya Gmail enter karke uska pura data cloud database से permanently delete karein.
+        Agar koi user portal ya chat का galat istemal kare, तो uska Enrollment No. ya Gmail enter karke uska pura data (Profile, Chats, Requests, Photos) cloud server se permanently delete karein.
       </p>
 
       <div id="deleteStatusBox" class="status-msg"></div>
@@ -698,7 +742,7 @@
       }
     });
 
-    // 8. DIRECT PERMANENT ID TERMINATION / DELETION (FIRESTORE)
+    // 8. COMPLETE CASCADING PERMANENT DELETE (FREE SPARK COMPATIBLE)
     document.getElementById('deleteUserForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -711,36 +755,80 @@
       const btnDelete = document.getElementById('btnDeleteUser');
       const deleteStatusBox = document.getElementById('deleteStatusBox');
 
-      const confirmDelete = confirm(`⚠️ DANGER ACTION ⚠️\n\nKya aap sach me "${target}" ko database से permanently delete karna chahte hain?\nIska account aur data kabhi wapas नहीं aayega!`);
+      const confirmDelete = confirm(`⚠️ DANGER ACTION ⚠️\n\nKya aap sach me "${target}" ka pura data (Profile, Chats, Requests, Photos) permanently delete karna chahte hain?\nIske baad yeh student portal par kabhi login nahi kar payega!`);
       if (!confirmDelete) return;
 
       deleteStatusBox.style.display = 'none';
       btnDelete.disabled = true;
-      btnDelete.innerText = "Deleting permanently from Cloud Server...";
+      btnDelete.innerText = "Wiping entire student footprint from Cloud...";
 
       try {
+        // Find Student Document
         let querySnapshot = await db.collection("students").where("enroll", "==", target.toUpperCase()).get();
         if (querySnapshot.empty) {
           querySnapshot = await db.collection("students").where("email", "==", target.toLowerCase()).get();
         }
 
         if (querySnapshot.empty) {
-          alert("Koi student is Enrollment No. या Gmail address से nahi mila!");
-        } else {
-          querySnapshot.forEach(async (doc) => {
-            await db.collection("students").doc(doc.id).delete();
-          });
-
-          deleteStatusBox.style.display = 'block';
-          deleteStatusBox.style.background = 'rgba(239, 68, 68, 0.2)';
-          deleteStatusBox.style.color = '#fca5a5';
-          deleteStatusBox.style.border = '1px solid #ef4444';
-          deleteStatusBox.innerText = `✓ Student ${target} has been permanently terminated & removed from Cloud!`;
-
-          alert(`Success! Student ${target} ka account permanently terminate kar diya gaya hai.`);
-          this.reset();
+          alert("Koi student is Enrollment No. या Gmail address se nahi mila!");
+          btnDelete.disabled = false;
+          btnDelete.innerText = "⚠️ Permanently Delete ID from Database";
+          return;
         }
+
+        for (const doc of querySnapshot.docs) {
+          const studentDocId = doc.id;
+          const studentData = doc.data();
+          const studentPhoto = studentData.photo || "";
+
+          // (A) Delete Photo from Storage if stored as URL
+          if (studentPhoto && studentPhoto.includes("firebasestorage.googleapis.com")) {
+            try {
+              const photoStorageRef = firebase.storage().refFromURL(studentPhoto);
+              await photoStorageRef.delete();
+              console.log("Storage photo wiped successfully");
+            } catch (storageErr) {
+              console.warn("Storage delete skipped or file not found:", storageErr);
+            }
+          }
+
+          const batch = db.batch();
+
+          // (B) Delete Profile from 'students'
+          batch.delete(db.collection("students").doc(studentDocId));
+
+          // (C) Delete Chats sent by this user
+          const chatsSent = await db.collection("chats").where("senderId", "==", studentDocId).get();
+          chatsSent.forEach(chatDoc => batch.delete(chatDoc.ref));
+
+          const chatsReceived = await db.collection("chats").where("receiverId", "==", studentDocId).get();
+          chatsReceived.forEach(chatDoc => batch.delete(chatDoc.ref));
+
+          // (D) Delete Chat Requests
+          const reqsSent = await db.collection("chatRequests").where("fromUid", "==", studentDocId).get();
+          reqsSent.forEach(reqDoc => batch.delete(reqDoc.ref));
+
+          const reqsReceived = await db.collection("chatRequests").where("toUid", "==", studentDocId).get();
+          reqsReceived.forEach(reqDoc => batch.delete(reqDoc.ref));
+
+          // (E) Delete Friendship/Group links
+          const friendData = await db.collection("friendships").where("uid", "==", studentDocId).get();
+          friendData.forEach(fDoc => batch.delete(fDoc.ref));
+
+          // Commit all deletes in one atomic operation
+          await batch.commit();
+        }
+
+        deleteStatusBox.style.display = 'block';
+        deleteStatusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        deleteStatusBox.style.color = '#fca5a5';
+        deleteStatusBox.style.border = '1px solid #ef4444';
+        deleteStatusBox.innerText = `✓ Student ${target} ka pura data (Profile, Chats, Requests, Photos) permanently wipe kar diya gaya hai!`;
+
+        alert(`Success! Student ${target} ka account aur pura data cloud database se permanently delete ho gaya hai. Ab woh login nahi kar sakega.`);
+        this.reset();
       } catch (err) {
+        console.error("Purge error:", err);
         alert("Error deleting user: " + err.message);
       } finally {
         btnDelete.disabled = false;
