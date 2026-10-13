@@ -138,7 +138,7 @@
       padding: 15px;
     }
 
-    /* Top Bar */
+    /* Top Bar with Custom Logo Badge */
     .top-navbar {
       display: flex;
       align-items: center;
@@ -157,11 +157,26 @@
     .app-logo-badge {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: #34d399;
       cursor: pointer;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .top-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+      flex-shrink: 0;
     }
 
     .search-container {
@@ -202,6 +217,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      flex-shrink: 0;
     }
 
     .protected-img {
@@ -212,29 +228,31 @@
       -webkit-touch-callout: none;
     }
 
-    /* Search Results */
+    /* Search Results Box (Consistent Glass Card Style) */
     .search-results-box {
       display: none;
-      background: rgba(6, 43, 37, 0.95);
+      background: rgba(6, 43, 37, 0.7);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 16px;
-      padding: 12px;
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 20px;
+      padding: 18px 16px;
       margin-bottom: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
     }
 
     .user-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px;
+      padding: 8px 6px;
       border-bottom: 1px solid rgba(52, 211, 153, 0.15);
       transition: background 0.2s;
     }
 
     .user-card:hover {
       background: rgba(16, 185, 129, 0.08);
-      border-radius: 10px;
+      border-radius: 12px;
     }
 
     .user-card:last-child {
@@ -244,38 +262,44 @@
     .user-info-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
       flex: 1;
     }
 
+    /* Round User Avatar */
     .user-avatar-sm {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      border-radius: 50% !important;
       object-fit: cover;
       border: 1.5px solid #34d399;
       background: #031411;
       pointer-events: none;
+      flex-shrink: 0;
     }
 
     .action-btns {
       display: flex;
-      gap: 6px;
+      gap: 5px;
+      align-items: center;
     }
 
+    /* Compact Action Buttons */
     .btn-action {
       background: rgba(16, 185, 129, 0.25);
       border: 1px solid #34d399;
       color: #ffffff;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.78rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
+      transition: 0.2s;
     }
 
     .btn-action:hover {
@@ -286,6 +310,8 @@
       background: rgba(245, 158, 11, 0.25);
       border: 1px solid #f59e0b;
       color: #fbbf24;
+      padding: 5px 9px;
+      font-size: 0.72rem;
     }
 
     /* Notice Creator Panel */
@@ -502,7 +528,7 @@
     }
 
     .image-modal-overlay img.zoomed-50 {
-      transform: scale(1.5); /* 50% Zoom - crystal clear without pixelation */
+      transform: scale(1.5);
       cursor: zoom-out;
     }
 
@@ -679,7 +705,7 @@
       flex: 1;
     }
 
-    /* 5. HIGH-VISIBILITY FLOATING BOTTOM NAVIGATION DOCK */
+    /* Floating Bottom Nav Dock */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
@@ -789,10 +815,15 @@
   </div>
 
   <div class="app-wrapper">
-    <!-- Top Nav Bar -->
+    <!-- Top Nav Bar with Branded Logo -->
     <div class="top-navbar">
       <div class="app-logo-badge" onclick="window.location.reload()">
-        <span>℞</span> D-PHARMA
+        <div class="top-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        </div>
+        <span>D-PHARMA</span>
       </div>
       <div class="search-container">
         <input type="text" id="userSearchInput" class="search-input" placeholder="Search students (Name/Enroll)..." autocomplete="off" />
@@ -804,7 +835,7 @@
 
     <!-- Search Results View -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS (Tap user to view profile):</div>
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
       <div id="usersList"></div>
     </div>
 
@@ -879,7 +910,6 @@
       <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
 
       <div class="modal-btn-row">
-        <!-- Replaced Close button with My Profile ➔ -->
         <button onclick="goToMyProfile()" class="btn-view-profile">
           <span>My Profile</span> <span>➔</span>
         </button>
@@ -888,7 +918,7 @@
     </div>
   </div>
 
-  <!-- 5. HIGH-VISIBILITY FLOATING BOTTOM NAVIGATION BAR -->
+  <!-- Floating Bottom Navigation Bar -->
   <div class="bottom-nav">
     <div class="nav-item active">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -905,9 +935,7 @@
   </div>
 
   <script>
-    // ==========================================
     // 1. OPENING SPLASH SCREEN TRANSITION
-    // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         const splash = document.getElementById('portalSplashOverlay');
@@ -916,12 +944,10 @@
           splash.style.transform = 'scale(1.08)';
           setTimeout(() => splash.style.display = 'none', 500);
         }
-      }, 1600); // 1.6s smooth intro
+      }, 1600);
     });
 
-    // ==========================================
     // SECURITY GUARDS (Anti-Inspect / F12 Block)
-    // ==========================================
     document.addEventListener('keydown', function (e) {
       if (
         e.keyCode === 123 ||
@@ -1020,7 +1046,7 @@
       loadStoryNotices();
     });
 
-    // 4. SEARCH WITH DIRECT PROFILE REDIRECTION
+    // SEARCH LOGIC & PROFILE REDIRECTION
     let cachedStudents = [];
     let isStudentsLoaded = false;
 
@@ -1083,13 +1109,12 @@
           </button>`;
         }
 
-        // Tap on user opens their profile.html?uid=...
         card.innerHTML = `
           <div class="user-info-left" onclick="openUserProfile('${data.id}')">
             <img class="user-avatar-sm protected-img" src="${photo}" alt="User" />
             <div>
-              <strong style="font-size:0.88rem;">${data.name}</strong>
-              <div style="font-size:0.72rem; color:#34d399;">${data.enroll || 'Student'} • <span style="text-decoration:underline;">View Profile</span></div>
+              <strong style="font-size:0.86rem; color:#ffffff; display:block;">${data.name}</strong>
+              <div style="font-size:0.72rem; color:#34d399;">${data.enroll || 'Student'}</div>
             </div>
           </div>
           <div class="action-btns">
@@ -1214,7 +1239,6 @@
       }
     }
 
-    // High quality: 2200px max bounds, 0.92 quality (No blur up to 50% zoom)
     function toHighResCompressed(file) {
       return new Promise((res) => {
         const r = new FileReader();
@@ -1412,7 +1436,7 @@
       }
     }
 
-    // 4. PROFILE MODAL & MY PROFILE NAVIGATION
+    // PROFILE MODAL & MY PROFILE NAVIGATION
     function openProfileModal() {
       if (!currentUserData) return;
       document.getElementById('modalName').innerText = currentUserData.name || 'Student';
