@@ -147,22 +147,17 @@
       -webkit-touch-callout: none;
     }
 
-    /* =========================================================
-       APP WRAPPER (TOP PADDING ADDED FOR FIXED NAVBAR)
-       ========================================================= */
     .app-wrapper {
       position: relative;
       z-index: 2;
       max-width: 720px;
       margin: 0 auto;
       padding: 15px;
-      padding-top: 96px; /* फिक्स टॉप बार के नीचे कंटेंट को सहजता से दिखाने के लिए */
+      padding-top: 96px;
       transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
-    /* =========================================================
-       TOP POP-UP NOTIFICATION BANNER (APPEARS BELOW FIXED BAR)
-       ========================================================= */
+    /* TOP NOTIFICATION BANNER */
     #topNotificationBanner {
       position: fixed;
       top: -120px;
@@ -188,7 +183,7 @@
     }
 
     #topNotificationBanner.show {
-      top: 90px; /* फिक्स टॉप बार के ठीक नीचे स्लाइड होगा */
+      top: 90px;
       opacity: 1;
       pointer-events: auto;
     }
@@ -222,6 +217,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+      font-size: 0.75rem;
     }
 
     .banner-text-wrap {
@@ -248,7 +244,7 @@
       text-overflow: ellipsis;
     }
 
-    /* 3D CAPSULE CRACK & ENERGY UNVEIL ANIMATION */
+    /* 3D CAPSULE SPLASH */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -491,7 +487,6 @@
       user-select: text;
     }
 
-    /* Notice Board Logo Header */
     .notice-board-brand {
       display: flex;
       align-items: center;
@@ -522,7 +517,7 @@
       border: 1.5px solid rgba(52, 211, 153, 0.4);
       border-radius: 24px;
       padding: 18px;
-      min-height: 480px;
+      min-height: 500px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
       display: flex;
       flex-direction: column;
@@ -649,6 +644,68 @@
       cursor: pointer;
     }
 
+    /* =========================================================
+       EMOJI REACTIONS BAR & LOCKED REACTION COUNTER
+       ========================================================= */
+    .notice-reaction-cluster {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .notice-emoji-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(2, 18, 14, 0.88);
+      border: 1.5px solid rgba(52, 211, 153, 0.45);
+      border-radius: 30px;
+      padding: 5px 12px;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    .notice-emoji-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.35rem;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      padding: 2px 4px;
+    }
+
+    .notice-emoji-btn:active {
+      transform: scale(1.35);
+    }
+
+    .notice-emoji-btn.locked-reacted {
+      filter: drop-shadow(0 0 6px #34d399);
+      opacity: 0.9;
+    }
+
+    .notice-reaction-pills-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .notice-reaction-pill {
+      background: rgba(3, 20, 17, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: 12px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      color: #34d399;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+
     /* Media Fullscreen Modal */
     .image-modal-overlay {
       position: fixed;
@@ -734,6 +791,74 @@
     .context-menu-btn:hover {
       background: rgba(16, 185, 129, 0.35);
       border-color: #34d399;
+    }
+
+    /* CENTERED CONFIRMATION DIALOG MODAL */
+    .custom-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.84);
+      backdrop-filter: blur(8px);
+      z-index: 2200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .custom-confirm-box {
+      background: rgba(4, 30, 25, 0.98);
+      border: 1.5px solid #34d399;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 360px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(52, 211, 153, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .custom-confirm-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #34d399;
+    }
+
+    .custom-confirm-desc {
+      font-size: 0.86rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .custom-confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .btn-cancel-dialog {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #34d399;
+      color: #34d399;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+      background: rgba(239, 68, 68, 0.3);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
     }
 
     .story-footer-nav {
@@ -943,9 +1068,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- =========================================================
-       FIXED TOP FLOATING NAVBAR DOCK
-       ========================================================= -->
+  <!-- FIXED TOP FLOATING NAVBAR DOCK -->
   <div class="top-navbar">
     <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.reload();">
       <div class="top-logo-icon">
@@ -967,7 +1090,7 @@
   <div id="topNotificationBanner" onclick="handleNotificationClick()">
     <div class="banner-avatar-cluster">
       <img id="bannerSenderPhoto" class="banner-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Sender" />
-      <div class="banner-logo-badge">
+      <div class="banner-logo-badge" id="bannerEmojiBadge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
           <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
         </svg>
@@ -975,7 +1098,7 @@
     </div>
     <div class="banner-text-wrap">
       <div class="banner-text-title" id="bannerTitle">New Notification</div>
-      <div class="banner-text-sub" id="bannerSub">You have a new message from New User</div>
+      <div class="banner-text-sub" id="bannerSub">You have a new message</div>
     </div>
   </div>
 
@@ -1005,6 +1128,18 @@
       <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Cloud Media</button>
       <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy / Internal Share</button>
       <button class="context-menu-btn" style="color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="closeContextMenu()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- CENTERED CONFIRMATION DIALOG MODAL -->
+  <div class="custom-confirm-overlay" id="customConfirmModal">
+    <div class="custom-confirm-box" onclick="event.stopPropagation()">
+      <div class="custom-confirm-title" id="customConfirmTitle">Confirm Deletion</div>
+      <div class="custom-confirm-desc" id="customConfirmDesc">Are you sure you want to permanently delete this notice?</div>
+      <div class="custom-confirm-actions">
+        <button class="btn-cancel-dialog" onclick="closeCustomConfirmModal()">Cancel</button>
+        <button class="btn-confirm-delete" id="customConfirmYesBtn">Delete</button>
+      </div>
     </div>
   </div>
 
@@ -1059,6 +1194,18 @@
         <div class="story-desc" id="storyDesc">Loading updates...</div>
         <div id="storyImageWrap"></div>
         <div id="storyLinkWrap" style="margin-top:10px;"></div>
+
+        <!-- 5 EMOJIS REACTIONS CLUSTER (PERMANENT LOCKED REACTION) -->
+        <div class="notice-reaction-cluster" id="noticeReactionCluster" style="display:none;">
+          <div class="notice-emoji-bar">
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('❤️')">❤️</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('👍')">👍</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('😂')">😂</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('🤔')">🤔</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('😡')">😡</button>
+          </div>
+          <div class="notice-reaction-pills-row" id="noticeReactionPills"></div>
+        </div>
       </div>
 
       <div class="story-footer-nav">
@@ -1123,7 +1270,7 @@
               }
             }
             if (clients.openWindow) {
-              return clients.openWindow(event.notification.data ? event.notification.data.url : 'chats.html');
+              return clients.openWindow(event.notification.data ? event.notification.data.url : 'home.html');
             }
           })
         );
@@ -1164,7 +1311,6 @@
       }
     });
 
-    // मोबाइल में ऑडियो ऑटोप्ले अनलॉक करने के लिए ग्लोबल लिसनर
     ['touchstart', 'touchend', 'click'].forEach(evt => {
       window.addEventListener(evt, () => {
         if (!audioCtx) {
@@ -1180,9 +1326,9 @@
     // SMART NOTIFICATION ENGINE (IN-APP vs REAL BACKGROUND)
     // =========================================================
     let bannerHideTimer = null;
-    let currentBannerRedirectUrl = 'chats.html';
+    let currentBannerRedirectUrl = 'home.html';
 
-    function sendSmartNotification({ title, message, photo, redirectUrl = 'chats.html' }) {
+    function sendSmartNotification({ title, message, photo, emojiBadge = '', redirectUrl = 'home.html' }) {
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
       // 1. यदि ऐप बैकग्राउंड में है या स्क्रीन बंद है -> REAL SYSTEM NOTIFICATION
@@ -1211,10 +1357,22 @@
       const bannerTitle = document.getElementById('bannerTitle');
       const bannerSub = document.getElementById('bannerSub');
       const bannerPhoto = document.getElementById('bannerSenderPhoto');
+      const badgeContainer = document.getElementById('bannerEmojiBadge');
 
       bannerTitle.innerText = title;
       bannerSub.innerText = message;
       bannerPhoto.src = photo || defaultPhoto;
+
+      if (emojiBadge) {
+        badgeContainer.innerHTML = `<span style="font-size:12px; line-height:1;">${emojiBadge}</span>`;
+      } else {
+        badgeContainer.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        `;
+      }
+
       currentBannerRedirectUrl = redirectUrl;
 
       banner.classList.add('show');
@@ -1480,7 +1638,7 @@
         localCache = localCache.filter(n => n.id !== docId);
         localStorage.setItem('portal_notices_cache', JSON.stringify(localCache));
 
-        console.log("Completely Purged notice:", docId);
+        console.log("Completely Purged notice and reactions:", docId);
       } catch (e) {
         console.error("Purge failure for", docId, e);
       }
@@ -1516,7 +1674,7 @@
     }
 
     // =========================================================
-    // REAL-TIME NOTICES LISTENER WITH SMART NOTIFICATION
+    // REAL-TIME NOTICES LISTENER WITH REACTION NOTIFICATION
     // =========================================================
     let isInitialNoticeLoad = true;
 
@@ -1533,6 +1691,23 @@
             hasNewNoticeAdded = true;
             newestNoticeAuthor = change.doc.data().postedBy || 'Authority';
             newestAuthorPhoto = change.doc.data().authorPhoto || '';
+          }
+          // जब किसी ने रिएक्शन दिया हो और नोटिस अपडेट हुआ हो
+          if (change.type === 'modified' && !isInitialNoticeLoad) {
+            const modData = change.doc.data();
+            if (modData.lastReaction) {
+              const r = modData.lastReaction;
+              const myIdentifier = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+              if (r.userEmail && r.userEmail.toLowerCase() !== myIdentifier) {
+                sendSmartNotification({
+                  title: `${r.userName || 'Student'} Reacted`,
+                  message: `${r.userName || 'Student'} reacted with ${r.emoji} on "${modData.title || 'Notice'}"`,
+                  photo: r.userPhoto || '',
+                  emojiBadge: r.emoji,
+                  redirectUrl: 'home.html'
+                });
+              }
+            }
           }
         });
 
@@ -1571,8 +1746,25 @@
       });
     }
 
-    async function deleteNoticeDirect(noticeId) {
-      if (!confirm("Are you sure you want to permanently delete this notice?")) return;
+    // CENTERED MODAL CONFIRMATION
+    function openCustomConfirmModal(noticeId) {
+      triggerTapFeedback();
+      const modal = document.getElementById('customConfirmModal');
+      const yesBtn = document.getElementById('customConfirmYesBtn');
+
+      yesBtn.onclick = async () => {
+        closeCustomConfirmModal();
+        await executeDeleteNotice(noticeId);
+      };
+
+      modal.style.display = 'flex';
+    }
+
+    function closeCustomConfirmModal() {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    }
+
+    async function executeDeleteNotice(noticeId) {
       try {
         const docRef = await db.collection('notices').doc(noticeId).get();
         if (docRef.exists) {
@@ -1581,9 +1773,8 @@
         activeNotices = activeNotices.filter(n => n.id !== noticeId);
         localStorage.setItem('portal_notices_cache', JSON.stringify(activeNotices));
         renderCurrentStory();
-        alert("Notice successfully deleted from Cloud, Firestore and Local Storage!");
       } catch (err) {
-        alert("Delete failed: " + err.message);
+        console.error("Delete failed: ", err);
       }
     }
 
@@ -1799,7 +1990,9 @@
           postedBy: currentUserData ? currentUserData.name : 'Authority',
           authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
+          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+          reactions: {},
+          reactedUsers: {}
         });
 
         alert("Notice published successfully (5-day active period)!");
@@ -1816,7 +2009,7 @@
     }
 
     // =========================================================
-    // NOTICE STORY RENDERER
+    // NOTICE STORY RENDERER & PERMANENT REACTION SYSTEM
     // =========================================================
     function renderCurrentStory() {
       const isDev = authUser && authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
@@ -1830,6 +2023,7 @@
         document.getElementById('storyImageWrap').innerHTML = '';
         document.getElementById('storyLinkWrap').innerHTML = '';
         document.getElementById('devDeleteWrap').innerHTML = '';
+        document.getElementById('noticeReactionCluster').style.display = 'none';
         document.getElementById('storyCounter').innerText = "0 / 0";
         document.getElementById('prevStoryBtn').disabled = true;
         document.getElementById('nextStoryBtn').disabled = true;
@@ -1849,7 +2043,7 @@
       document.getElementById('storyAuthorPhoto').src = notice.authorPhoto || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
       if (isDev) {
-        document.getElementById('devDeleteWrap').innerHTML = `<button class="btn-delete-notice" onclick="deleteNoticeDirect('${notice.id}')">🗑 Delete</button>`;
+        document.getElementById('devDeleteWrap').innerHTML = `<button class="btn-delete-notice" onclick="openCustomConfirmModal('${notice.id}')">🗑 Delete</button>`;
       } else {
         document.getElementById('devDeleteWrap').innerHTML = '';
       }
@@ -1906,9 +2100,98 @@
         document.getElementById('storyLinkWrap').innerHTML = '';
       }
 
+      // RENDER NOTICE REACTIONS (PERMANENT LOCK DISPLAY)
+      renderNoticeReactions(notice);
+
       document.getElementById('storyCounter').innerText = `${currentStoryIndex + 1} / ${activeNotices.length}`;
       document.getElementById('prevStoryBtn').disabled = currentStoryIndex === 0;
       document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
+    }
+
+    function renderNoticeReactions(notice) {
+      const cluster = document.getElementById('noticeReactionCluster');
+      const pillsContainer = document.getElementById('noticeReactionPills');
+      cluster.style.display = 'flex';
+      pillsContainer.innerHTML = '';
+
+      const reactions = notice.reactions || {};
+      const reactedUsers = notice.reactedUsers || {};
+      const myId = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+
+      // Check if current user already reacted
+      const myPreviousEmoji = reactedUsers[myId];
+
+      const emojiBtns = cluster.querySelectorAll('.notice-emoji-btn');
+      emojiBtns.forEach(btn => {
+        const em = btn.innerText.trim();
+        if (myPreviousEmoji && myPreviousEmoji === em) {
+          btn.classList.add('locked-reacted');
+        } else {
+          btn.classList.remove('locked-reacted');
+        }
+      });
+
+      // Render reaction counts
+      for (const [em, count] of Object.entries(reactions)) {
+        if (count > 0) {
+          const pill = document.createElement('span');
+          pill.className = 'notice-reaction-pill';
+          pill.innerHTML = `<span>${em}</span><span>${count}</span>`;
+          pillsContainer.appendChild(pill);
+        }
+      }
+    }
+
+    // PERMANENT LOCKED REACTION HANDLER (Cannot be changed, cannot be removed)
+    async function reactToCurrentNotice(emoji) {
+      if (!activeNotices || activeNotices.length === 0) return;
+      const notice = activeNotices[currentStoryIndex];
+      if (!notice || !notice.id) return;
+
+      const myId = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+      if (!myId) return;
+
+      const reactedUsers = notice.reactedUsers || {};
+      if (reactedUsers[myId]) {
+        // रिएक्शन पहले से लॉक है
+        triggerTapFeedback();
+        return;
+      }
+
+      triggerTapFeedback();
+
+      const noticeRef = db.collection('notices').doc(notice.id);
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(noticeRef);
+          if (!doc.exists) return;
+
+          const data = doc.data();
+          const currentReactions = data.reactions || {};
+          const currentReactedUsers = data.reactedUsers || {};
+
+          // अगर ट्रांजेक्शन चेक में भी यूज़र ने पहले रिएक्ट कर दिया हो तो रोकें
+          if (currentReactedUsers[myId]) return;
+
+          currentReactions[emoji] = (currentReactions[emoji] || 0) + 1;
+          currentReactedUsers[myId] = emoji;
+
+          transaction.update(noticeRef, {
+            reactions: currentReactions,
+            reactedUsers: currentReactedUsers,
+            lastReaction: {
+              emoji: emoji,
+              userName: currentUserData ? currentUserData.name : 'Student',
+              userPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
+              userEmail: myId,
+              timestamp: Date.now()
+            }
+          });
+        });
+      } catch (err) {
+        console.error("Failed to register permanent reaction:", err);
+      }
     }
 
     // Modal & Media Zoom
