@@ -892,6 +892,48 @@
       border-color: #34d399;
     }
 
+    /* CENTERED CONFIRMATION MODAL */
+    .custom-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      z-index: 2200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .custom-confirm-box {
+      background: rgba(4, 30, 25, 0.98);
+      border: 1.5px solid #34d399;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 360px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(52, 211, 153, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .custom-confirm-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #34d399;
+    }
+    .custom-confirm-desc {
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+    .custom-confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
     /* BOTTOM NAV DOCK */
     .bottom-nav {
       position: fixed;
@@ -1020,8 +1062,20 @@
 
       <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
       <button class="context-menu-btn" id="shareMenuBtn" style="display:none;" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
-      <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="unsendCurrentMedia()">🗑️ Unsend Message</button>
+      <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="triggerUnsendConfirmation()">🗑️ Unsend Message</button>
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- CENTERED CONFIRMATION BOX MODAL -->
+  <div class="custom-confirm-overlay" id="customConfirmModal">
+    <div class="custom-confirm-box" onclick="event.stopPropagation()">
+      <div class="custom-confirm-title" id="customConfirmTitle">Confirm Action</div>
+      <div class="custom-confirm-desc" id="customConfirmDesc">Are you sure you want to delete this message?</div>
+      <div class="custom-confirm-actions">
+        <button class="btn-glass" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn-danger" id="customConfirmYesBtn">Confirm</button>
+      </div>
     </div>
   </div>
 
@@ -1352,33 +1406,47 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // SMART NOTIFICATION ENGINE
+    // SMART NOTIFICATION ENGINE (IN-APP & BACKGROUND OS TRAY)
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
     function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
+      // Jab user app ke bahar ho (minimized ya tab switch)
       if (document.hidden) {
         if ('Notification' in window && Notification.permission === 'granted') {
-          navigator.serviceWorker.ready.then(registration => {
-            registration.showNotification(title, {
-              body: message,
-              icon: photo || defaultPhoto,
-              badge: photo || defaultPhoto,
-              vibrate: [100, 50, 100],
-              data: { url: redirectUrl }
+          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(registration => {
+              registration.showNotification(title, {
+                body: message,
+                icon: photo || defaultPhoto,
+                badge: photo || defaultPhoto,
+                vibrate: [100, 50, 100],
+                data: { url: redirectUrl }
+              });
+            }).catch(() => {
+              new Notification(title, {
+                body: message,
+                icon: photo || defaultPhoto,
+                data: { url: redirectUrl }
+              });
             });
-          }).catch(() => {
-            new Notification(title, {
+          } else {
+            const notif = new Notification(title, {
               body: message,
               icon: photo || defaultPhoto
             });
-          });
+            notif.onclick = () => {
+              window.focus();
+              window.location.href = redirectUrl;
+            };
+          }
         }
         return;
       }
 
+      // Jab user app ke andar ho (In-App Banner)
       const banner = document.getElementById('topNotificationBanner');
       const bannerTitle = document.getElementById('bannerTitle');
       const bannerSub = document.getElementById('bannerSub');
@@ -1703,7 +1771,7 @@
     function openGroup(groupId, groupData) {
       activeGroupId = groupId;
       activeGroupData = groupData;
-      sessionStorage.setItem('activeDpgGroupId', groupId); // ग्रुप स्टेट को लॉक करना
+      sessionStorage.setItem('activeDpgGroupId', groupId);
 
       document.getElementById('viewGroupList').style.display = 'none';
       document.getElementById('viewInsideGroup').style.display = 'flex';
@@ -1754,7 +1822,7 @@
       if (groupDocListener) groupDocListener();
       activeGroupId = null;
       activeGroupData = null;
-      sessionStorage.removeItem('activeDpgGroupId'); // बाहर आने पर ही स्टेट क्लियर होगी
+      sessionStorage.removeItem('activeDpgGroupId');
       closeMembersModal();
       document.getElementById('viewInsideGroup').style.display = 'none';
       document.getElementById('viewGroupList').style.display = 'block';
@@ -1766,7 +1834,7 @@
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
-    // MEMBERS MODAL WITH REMOVE BUTTON
+    // MEMBERS MODAL
     async function openMembersModal() {
       triggerTapFeedback();
       if (!activeGroupId || !activeGroupData) return;
@@ -1856,20 +1924,42 @@
       document.getElementById('membersModal').style.display = 'none';
     }
 
+    function showCustomConfirmation(title, desc, onConfirm) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('customConfirmTitle').innerText = title;
+      document.getElementById('customConfirmDesc').innerText = desc;
+      const yesBtn = document.getElementById('customConfirmYesBtn');
+
+      yesBtn.onclick = () => {
+        closeConfirmModal();
+        if (onConfirm) onConfirm();
+      };
+
+      modal.style.display = 'flex';
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    }
+
     async function removeMemberFromGroup(memberId, memberName) {
       if (!isDeveloper || !activeGroupId) return;
-      if (!confirm(`Are you sure you want to remove ${memberName} from this group?`)) return;
 
-      try {
-        await db.collection('groups').doc(activeGroupId).update({
-          members: firebase.firestore.FieldValue.arrayRemove(memberId),
-          teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
-        });
-        alert(`✓ ${memberName} removed from the group successfully.`);
-        openMembersModal();
-      } catch (err) {
-        alert("Error removing member: " + err.message);
-      }
+      showCustomConfirmation(
+        "Remove Member",
+        `Are you sure you want to remove ${memberName} from this group?`,
+        async () => {
+          try {
+            await db.collection('groups').doc(activeGroupId).update({
+              members: firebase.firestore.FieldValue.arrayRemove(memberId),
+              teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
+            });
+            openMembersModal();
+          } catch (err) {
+            console.error("Error removing member:", err);
+          }
+        }
+      );
     }
 
     async function toggleTeacherRole(memberId, makeTeacher) {
@@ -1880,16 +1970,14 @@
           await db.collection('groups').doc(activeGroupId).update({
             teachers: firebase.firestore.FieldValue.arrayUnion(memberId)
           });
-          alert("✓ User promoted to Teacher! They can now send messages.");
         } else {
           await db.collection('groups').doc(activeGroupId).update({
             teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
           });
-          alert("✓ Teacher privileges removed.");
         }
         openMembersModal();
       } catch (err) {
-        alert("Error updating role: " + err.message);
+        console.error("Error updating role:", err);
       }
     }
 
@@ -1947,7 +2035,7 @@
         document.getElementById('searchResultArea').innerHTML = '<span style="color:#34d399; font-size:0.82rem; display:block; margin-top:8px;">✓ Student added to group successfully!</span>';
         document.getElementById('searchEnrollInput').value = '';
       } catch (err) {
-        alert("Failed to add member: " + err.message);
+        console.error("Failed to add member:", err);
       }
     }
 
@@ -2048,7 +2136,7 @@
       activePublicId = "";
     }
 
-    // EMOJI REACTION HANDLER
+    // EMOJI REACTION HANDLER WITH INSTANT SYNC
     async function addReactionToMessage(emoji) {
       if (!activeMsgDocId || !activeGroupId) return;
       triggerTapFeedback();
@@ -2094,23 +2182,30 @@
     function shareCurrentMedia() {
       if (!activeMediaUrl) return;
       navigator.clipboard.writeText(activeMediaUrl);
-      alert("Media/File link copied securely for internal use!");
       closeContextMenu();
     }
 
-    async function unsendCurrentMedia() {
+    function triggerUnsendConfirmation() {
+      closeContextMenu();
+      showCustomConfirmation(
+        "Unsend Message",
+        "Are you sure you want to permanently unsend this message?",
+        async () => {
+          await executeUnsend();
+        }
+      );
+    }
+
+    async function executeUnsend() {
       if (!activeMsgDocId || !activeGroupId) return;
-      if (!confirm("Are you sure you want to permanently unsend this message?")) return;
       try {
         if (activePublicId) {
           await deleteFromCloudinaryDirect(activePublicId, activeResourceType);
         }
         await db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId).delete();
-        alert("Message & Cloud media deleted permanently!");
       } catch (err) {
-        alert("Failed to unsend: " + err.message);
+        console.error("Failed to unsend:", err);
       }
-      closeContextMenu();
     }
 
     // 1.2 SECOND LONG PRESS LISTENER (TEXT & MEDIA)
@@ -2228,7 +2323,7 @@
               bubble.appendChild(fileLink);
             }
 
-            // Render live emoji reactions
+            // Real-Time Emoji Reaction Display
             if (m.reactions && Object.keys(m.reactions).length > 0) {
               const reactRow = document.createElement('div');
               reactRow.className = 'msg-reactions-row';
@@ -2339,7 +2434,6 @@
         removeAttachedMedia();
       } catch (err) {
         console.error("Sending error:", err);
-        alert("Upload/Send failed: " + err.message);
       } finally {
         sendBtn.disabled = false;
         sendBtn.innerText = "Send";
