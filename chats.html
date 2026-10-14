@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <title>D Pharma Portal - Secure Chats</title>
-  <!-- PWA Manifest Link -->
   <link rel="manifest" href="manifest.json">
   <style>
     * {
@@ -25,9 +24,7 @@
       position: relative;
     }
 
-    /* ==========================================
-       JS CONTROLLED 3D CAPSULE SPLASH OVERLAY
-       ========================================== */
+    /* 3D CAPSULE SPLASH OVERLAY */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -161,9 +158,7 @@
       overflow: hidden;
     }
 
-    /* ==========================================
-       TOP NOTIFICATION BANNER (HOME & DPG STYLE)
-       ========================================== */
+    /* TOP NOTIFICATION BANNER */
     #topNotificationBanner {
       position: fixed;
       top: -120px;
@@ -223,6 +218,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+      font-size: 0.72rem;
     }
 
     .banner-text-wrap {
@@ -249,9 +245,7 @@
       text-overflow: ellipsis;
     }
 
-    /* ==========================================
-       FIXED TOP FLOATING NAVBAR DOCK
-       ========================================== */
+    /* FIXED TOP FLOATING NAVBAR DOCK */
     .top-navbar {
       position: fixed;
       top: 14px;
@@ -528,62 +522,78 @@
       background: rgba(3, 20, 17, 0.95);
       border: 1px solid #34d399;
       border-radius: 12px;
-      padding: 1px 5px;
-      font-size: 0.72rem;
+      padding: 1px 6px;
+      font-size: 0.74rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.6);
       display: inline-flex;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
       z-index: 5;
     }
 
-    /* HIGH DEFINITION MEDIA (Ultra-Clear Text / 100% Zoom) */
+    /* CONTROLLED INLINE MEDIA PREVIEW */
     .chat-media-img {
       max-width: 100%;
-      max-height: 260px;
+      width: 240px;
+      max-height: 220px;
       border-radius: 10px;
       margin-top: 4px;
       border: 1px solid rgba(52, 211, 153, 0.4);
       display: block;
       cursor: pointer;
+      object-fit: cover;
       image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
     }
 
-    .chat-media-video {
-      max-width: 100%;
-      max-height: 260px;
+    /* Video stays inside bubble container and does NOT overflow page */
+    .chat-media-video-wrap {
+      width: 100%;
+      max-width: 250px;
       border-radius: 10px;
+      overflow: hidden;
       margin-top: 4px;
-      outline: none;
       background: #000;
-      cursor: pointer;
+      border: 1px solid rgba(52, 211, 153, 0.4);
     }
 
-    /* IN-APP FULLSCREEN MEDIA VIEWER MODAL */
+    .chat-media-video-wrap video {
+      width: 100%;
+      max-height: 180px;
+      display: block;
+      outline: none;
+      object-fit: contain;
+    }
+
+    /* IN-PAGE EMBEDDED MODAL VIEWER (PHOTO / PDF) */
     .fullscreen-media-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.96);
+      background: rgba(0, 0, 0, 0.92);
       z-index: 2000;
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 16px;
+      backdrop-filter: blur(8px);
     }
-    .fullscreen-media-modal img, .fullscreen-media-modal video {
-      max-width: 100%;
-      max-height: 85vh;
+    .fullscreen-media-modal img {
+      max-width: 90vw;
+      max-height: 75vh;
       border-radius: 12px;
       object-fit: contain;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
       image-rendering: -webkit-optimize-contrast;
     }
+    .fullscreen-media-modal iframe {
+      width: 90vw;
+      height: 75vh;
+      border-radius: 12px;
+      border: 1px solid #34d399;
+      background: #fff;
+    }
 
-    /* ==========================================
-       LONG PRESS CONTEXT MENU & EMOJI BAR
-       ========================================== */
+    /* LONG PRESS CONTEXT MENU & EMOJI BAR */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
@@ -656,6 +666,74 @@
     .context-menu-btn:hover {
       background: rgba(16, 185, 129, 0.35);
       border-color: #34d399;
+    }
+
+    /* CENTERED CONFIRMATION DIALOG MODAL */
+    .custom-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.84);
+      backdrop-filter: blur(8px);
+      z-index: 2200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .custom-confirm-box {
+      background: rgba(4, 30, 25, 0.98);
+      border: 1.5px solid #34d399;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 360px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(52, 211, 153, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .custom-confirm-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #34d399;
+    }
+
+    .custom-confirm-desc {
+      font-size: 0.86rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .custom-confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .btn-cancel-dialog {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #34d399;
+      color: #34d399;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+      background: rgba(239, 68, 68, 0.3);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
     }
 
     .shared-id-card {
@@ -760,9 +838,7 @@
       color: #34d399;
     }
 
-    /* ==========================================
-       FLOATING BOTTOM NAVIGATION DOCK
-       ========================================== */
+    /* FLOATING BOTTOM NAVIGATION DOCK */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
@@ -841,7 +917,7 @@
   <div id="topNotificationBanner" onclick="handleNotificationClick()">
     <div class="banner-avatar-cluster">
       <img id="bannerSenderPhoto" class="banner-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Sender" />
-      <div class="banner-logo-badge">
+      <div class="banner-logo-badge" id="bannerEmojiBadge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff">
           <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
         </svg>
@@ -853,10 +929,10 @@
     </div>
   </div>
 
-  <!-- IN-APP FULLSCREEN MEDIA VIEWER MODAL -->
+  <!-- IN-PAGE EMBEDDED MODAL VIEWER (PHOTO / PDF) -->
   <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
     <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
-    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
+    <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close</span>
   </div>
 
   <!-- LONG PRESS MODAL: 5 EMOJIS & CONTEXT ACTIONS -->
@@ -874,8 +950,20 @@
     </div>
   </div>
 
+  <!-- CENTERED CONFIRMATION DIALOG MODAL -->
+  <div class="custom-confirm-overlay" id="customConfirmModal">
+    <div class="custom-confirm-box" onclick="event.stopPropagation()">
+      <div class="custom-confirm-title" id="customConfirmTitle">Confirm Action</div>
+      <div class="custom-confirm-desc" id="customConfirmDesc">Are you sure you want to delete this message?</div>
+      <div class="custom-confirm-actions">
+        <button class="btn-cancel-dialog" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn-confirm-delete" id="customConfirmYesBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container">
-    <!-- FIXED TOP FLOATING NAVBAR DOCK (DIRECT HTML LINKS) -->
+    <!-- FIXED TOP FLOATING NAVBAR DOCK -->
     <header class="top-navbar">
       <a href="home.html" class="app-logo-badge">
         <div class="top-logo-icon">
@@ -931,12 +1019,12 @@
           </div>
         </div>
 
-        <!-- Attachment Menu (Cloudinary for Photos/Videos/PDFs/Files) -->
+        <!-- Attachment Menu -->
         <div class="attach-menu" id="attachMenu">
           <button class="attach-option" onclick="document.getElementById('cameraCaptureInput').click()">📷 Open Camera (Ultra HD)</button>
           <button class="attach-option" onclick="document.getElementById('filePhotoInput').click()">🖼️ Photo Gallery (High Resolution)</button>
-          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (HD Cloud)</button>
-          <button class="attach-option" onclick="document.getElementById('fileDocInput').click()">📁 PDF / Document (Cloud Compressed)</button>
+          <button class="attach-option" onclick="document.getElementById('fileVideoInput').click()">🎥 Send Video (Controlled Size)</button>
+          <button class="attach-option" onclick="document.getElementById('fileDocInput').click()">📁 PDF / Document (Embedded)</button>
           <button class="attach-option" onclick="promptSendLink()">🔗 Send Web Link</button>
           <button class="attach-option" onclick="promptShareStudentID()">🪪 Share Student ID Card</button>
         </div>
@@ -957,7 +1045,7 @@
       </div>
     </div>
 
-    <!-- FLOATING BOTTOM NAVIGATION DOCK (DIRECT HTML LINKS) -->
+    <!-- FLOATING BOTTOM NAVIGATION DOCK -->
     <div class="bottom-nav">
       <a href="home.html" class="nav-item">
         <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -975,9 +1063,7 @@
   </div>
 
   <script>
-    // ==========================================
-    // 0. SERVICE WORKER FOR BACKGROUND NOTIFICATIONS
-    // ==========================================
+    // 0. SERVICE WORKER FOR REAL BACKGROUND OS NOTIFICATIONS
     const swCode = `
       self.addEventListener('notificationclick', function(event) {
         event.notification.close();
@@ -1009,9 +1095,7 @@
       Notification.requestPermission();
     }
 
-    // ==========================================
     // JS CAPSULE ANIMATION CONTROLLER
-    // ==========================================
     function triggerCapsuleIntroAnimation() {
       const overlay = document.getElementById('capsuleSplashOverlay');
       const leftShell = document.getElementById('capShellLeft');
@@ -1042,9 +1126,7 @@
 
     window.addEventListener('DOMContentLoaded', triggerCapsuleIntroAnimation);
 
-    // ==========================================
-    // SECURITY GUARDS (Anti-Inspect & Fullscreen API)
-    // ==========================================
+    // SECURITY GUARDS
     document.addEventListener('contextmenu', (e) => e.preventDefault());
     document.addEventListener('keydown', function (e) {
       if (
@@ -1061,37 +1143,11 @@
       (function () { return false; }['constructor']('debugger')['call']());
     }, 1000);
 
-    // Fullscreen API (Double click/tap toggle)
-    document.addEventListener('dblclick', function(e) {
-      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'VIDEO'].includes(e.target.tagName)) return;
-      
-      const doc = window.document;
-      const docEl = doc.documentElement;
-
-      const req = docEl.requestFullscreen || 
-                  docEl.mozRequestFullScreen || 
-                  docEl.webkitRequestFullScreen || 
-                  docEl.msRequestFullscreen;
-
-      const exit = doc.exitFullscreen || 
-                   doc.mozCancelFullScreen || 
-                   doc.webkitExitFullscreen || 
-                   doc.msExitFullscreen;
-
-      if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        if (req) req.call(docEl).catch(() => {});
-      } else {
-        if (exit) exit.call(doc);
-      }
-    });
-
-    // ==========================================
-    // 0. CLOUDINARY CONFIGURATION (ULTRA HD & TEXT PRESERVATION)
-    // ==========================================
+    // CLOUDINARY CONFIGURATION
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
 
-    // STRICT SECURITY & AUTH GUARD
+    // STRICT AUTH GUARD
     (function () {
       const isLoggedIn = localStorage.getItem('isLoggedIn');
       const userAccount = localStorage.getItem('userAccount');
@@ -1100,7 +1156,7 @@
       }
     })();
 
-    // 1. FIREBASE CONFIG
+    // FIREBASE INITIALIZATION
     const firebaseConfig = {
       apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
       authDomain: "d-pharma-class-group.firebaseapp.com",
@@ -1119,7 +1175,6 @@
     let myStudentDocId = "";
     let acceptedChatsListCache = [];
 
-    // 2. STRICT FIREBASE AUTH GUARD
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         localStorage.removeItem('isLoggedIn');
@@ -1151,9 +1206,7 @@
       loadConversations();
     });
 
-    // ==========================================
-    // 3. SOUND & SMART NOTIFICATION ENGINE (HOME/DPG)
-    // ==========================================
+    // SOUND & REAL DUAL NOTIFICATION ENGINE
     let audioCtx = null;
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'chats.html';
@@ -1207,9 +1260,10 @@
       } catch (e) {}
     }
 
-    function sendSmartNotification({ title, message, photo, redirectUrl = 'chats.html' }) {
+    function sendSmartNotification({ title, message, photo, emojiBadge = '', redirectUrl = 'chats.html' }) {
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
+      // 1. Background OS Notification when app is minimized or tab hidden
       if (document.hidden) {
         if ('Notification' in window && Notification.permission === 'granted') {
           navigator.serviceWorker.ready.then(registration => {
@@ -1227,16 +1281,28 @@
         return;
       }
 
+      // 2. In-App Floating Card Notification
       const banner = document.getElementById('topNotificationBanner');
       const bannerTitle = document.getElementById('bannerTitle');
       const bannerSub = document.getElementById('bannerSub');
       const bannerPhoto = document.getElementById('bannerSenderPhoto');
+      const badgeBox = document.getElementById('bannerEmojiBadge');
 
       bannerTitle.innerText = title;
       bannerSub.innerText = message;
       bannerPhoto.src = photo || defaultPhoto;
-      currentBannerRedirectUrl = redirectUrl;
 
+      if (emojiBadge) {
+        badgeBox.innerHTML = `<span style="font-size:12px; line-height:1;">${emojiBadge}</span>`;
+      } else {
+        badgeBox.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+          </svg>
+        `;
+      }
+
+      currentBannerRedirectUrl = redirectUrl;
       banner.classList.add('show');
       triggerNotificationAlert();
 
@@ -1254,7 +1320,7 @@
       }
     }
 
-    // 4. DEVICE-BOUND E2EE ENGINE
+    // DEVICE E2EE KEY
     function getDeviceKey() {
       let key = localStorage.getItem('_dp_device_e2e_key');
       if (!key) {
@@ -1288,9 +1354,7 @@
       }
     }
 
-    // ==========================================
-    // 5. INCOMING REQUESTS & SINGLE ACCEPTANCE ENGINE
-    // ==========================================
+    // INCOMING REQUESTS
     function listenIncomingRequests() {
       if (!loggedAccount) return;
       const cleanMyAccount = loggedAccount.trim().toLowerCase();
@@ -1331,24 +1395,20 @@
         });
     }
 
-    // SINGLE ACCEPTANCE: एक यूज़र के Accept दबाते ही दोनों के लिए चैट परमानेंट लाइव हो जाएगी
     async function acceptChatRequest(reqDocId, senderAccount, senderUid) {
       try {
         const cleanMyAccount = loggedAccount.trim().toLowerCase();
         const cleanSender = senderAccount.trim().toLowerCase();
 
-        // 1. रिक्वेस्ट को accepted मार्क करें
         await db.collection('chatRequests').doc(reqDocId).update({
           status: 'accepted',
           acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 2. फिक्स और यूनीक रूम आईडी बनाएँ (A और B दोनों के लिए एक समान)
         const idA = cleanMyAccount.replace(/[^a-zA-Z0-9]/g, '_');
         const idB = cleanSender.replace(/[^a-zA-Z0-9]/g, '_');
         const roomId = [idA, idB].sort().join('___');
 
-        // 3. 'friendships' में participants ऐरे और user1/user2 दोनों रखें
         await db.collection('friendships').doc(roomId).set({
           user1: cleanMyAccount,
           user2: cleanSender,
@@ -1358,23 +1418,18 @@
           establishedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        // 4. मुख्य चैट्स डॉक्युमेंट को एक्टिवेट करें
         await db.collection('chats').doc(roomId).set({
           participants: [currentUser.uid, cleanMyAccount, cleanSender],
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        alert("Chat Request Accepted! दोनों के लिए बातचीत शुरू हो चुकी है।");
         loadConversations();
       } catch (err) {
         console.error("Accept error:", err);
-        alert("Error accepting request: " + err.message);
       }
     }
 
-    // ==========================================
-    // 6. CONVERSATIONS MANAGEMENT (FIREBASE REAL DATA MATCH & STATE CONTROL)
-    // ==========================================
+    // CONVERSATIONS MANAGEMENT
     let activeChatRoomId = null;
     let targetUserData = null;
     let msgListenerUnsub = null;
@@ -1388,7 +1443,6 @@
       try {
         const cleanMyAccount = loggedAccount.trim().toLowerCase();
 
-        // दोनों तरह से चेक करें: 1. participants ऐरे 2. user1/user2 बैकवर्ड कम्पैटिबिलिटी
         const [qParts, q1, q2] = await Promise.all([
           db.collection('friendships').where('participants', 'array-contains', cleanMyAccount).get(),
           db.collection('friendships').where('user1', '==', cleanMyAccount).get(),
@@ -1397,7 +1451,6 @@
 
         const peerAccounts = new Set();
 
-        // participants ऐरे से निकालें
         qParts.forEach(d => {
           const parts = d.data().participants || [];
           parts.forEach(p => {
@@ -1406,7 +1459,6 @@
           });
         });
 
-        // user1 और user2 से निकालें
         q1.forEach(d => {
           const u2 = (d.data().user2 || '').trim().toLowerCase();
           if (u2 && u2 !== cleanMyAccount) peerAccounts.add(u2);
@@ -1431,7 +1483,6 @@
           let photoUrl = defaultPhoto;
           let peerUid = "";
 
-          // Firebase 'students' कलेक्शन से सटीक केस-इंसेंसिटिव डेटा फेच
           let sSnap = await db.collection('students').where('email', '==', peer).get();
 
           if (!sSnap.empty) {
@@ -1455,7 +1506,6 @@
 
         renderFilteredAcceptedChats(acceptedChatsListCache);
 
-        // केवल तभी ऑटो-ओपन करें जब URL में '#chat' हो और activeChatPeer मौजूद हो (यानी चैट के अंदर रिफ्रेश हुआ हो)
         const savedActivePeer = sessionStorage.getItem('activeChatPeer');
         if (window.location.hash === '#chat' && savedActivePeer) {
           const found = acceptedChatsListCache.find(x => x.peer === savedActivePeer.toLowerCase());
@@ -1463,13 +1513,12 @@
             openActiveChat(found.peer, found.name, found.photo, found.peerUid, found.enroll);
           }
         } else {
-          // अगर बाहर रिफ्रेश किया है तो चैट विंडो बंद रहेगी
           exitActiveChat(false);
         }
 
       } catch (err) {
         console.error("Error loading conversations:", err);
-        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.8rem; padding:10px;'>Failed to load chats.</p>";
+        friendsList.innerHTML = "<p style='color:#fca5a5; font-size:0.8rem; padding:10px;'>Failed to load chats. Please pull to refresh.</p>";
       }
     }
 
@@ -1522,13 +1571,11 @@
     async function openActiveChat(peerAccount, peerName, peerPhoto, peerUid = "", peerEnroll = "") {
       const cleanPeer = (peerAccount || '').trim().toLowerCase();
       
-      // स्टेट व URL हैश सेट करें
       sessionStorage.setItem('activeChatPeer', cleanPeer);
       if (window.location.hash !== '#chat') {
         window.location.hash = 'chat';
       }
 
-      // अगर डेटा अधूरा हो तो रीयल-टाइम Firestore से फेच करें
       if (!peerName || peerName === cleanPeer || peerEnroll === "N/A" || !peerEnroll) {
         try {
           const snap = await db.collection('students').where('email', '==', cleanPeer).get();
@@ -1556,7 +1603,6 @@
       const idB = cleanPeer.replace(/[^a-zA-Z0-9]/g, '_');
       activeChatRoomId = [idA, idB].sort().join('___');
 
-      // हेडर में रियल नेम, एनरोलमेंट और फ़ोटो सेट करें
       const nameEl = document.getElementById('chatTargetName');
       const statusEl = document.getElementById('chatTargetStatus');
       const avatarEl = document.getElementById('chatTargetAvatar');
@@ -1586,9 +1632,7 @@
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true }).catch(() => {});
 
-      // 5-Day Server Cleanup Trigger on Chat Open
       cleanOldServerMessages(activeChatRoomId);
-
       listenMessages();
     }
 
@@ -1606,16 +1650,13 @@
       listenIncomingRequests();
     }
 
-    // बैक बटन हैंडलर
     window.addEventListener('popstate', () => {
       if (window.location.hash !== '#chat') {
         exitActiveChat(false);
       }
     });
 
-    // ==========================================
-    // 7. ATTACHMENT & MEDIA HANDLING (CLOUDINARY ULTRA HD & CLOUD COMPRESS)
-    // ==========================================
+    // ATTACHMENT & MEDIA HANDLING
     function toggleAttachMenu() {
       const menu = document.getElementById('attachMenu');
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
@@ -1652,7 +1693,6 @@
         if (data.secure_url) {
           let finalMediaUrl = data.secure_url;
 
-          // ULTRA HD 100% ZOOM TEXT PRESERVATION FOR IMAGES
           if (fileType === 'image') {
             finalMediaUrl = finalMediaUrl.replace('/upload/', '/upload/q_auto:best,f_auto,dpr_2.0,fl_preserve_transparency/');
           }
@@ -1710,6 +1750,8 @@
         cipher: cipher,
         deviceKey: currentDeviceKey,
         reaction: "",
+        reactions: {},
+        reactedUsers: {},
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -1723,9 +1765,7 @@
       input.value = '';
     });
 
-    // ==========================================
-    // 5-DAY AUTO-DELETE SERVER CLEANUP ENGINE (SAVES TO LOCAL CACHE)
-    // ==========================================
+    // 5-DAY AUTO-DELETE SERVER CLEANUP
     function getLocalCacheKey(roomId) {
       return `_dp_chat_cache_${roomId}`;
     }
@@ -1770,15 +1810,31 @@
       }
     }
 
-    // ==========================================
-    // LONG PRESS CONTEXT MENU & EMOJI REACTIONS
-    // ==========================================
+    // LONG PRESS CONTEXT MENU & CENTERED CONFIRMATION
     let contextTarget = {
       docId: "",
       type: "text",
       content: "",
       isMe: false
     };
+
+    function showCustomConfirmation(title, desc, onConfirm) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('customConfirmTitle').innerText = title;
+      document.getElementById('customConfirmDesc').innerText = desc;
+      const yesBtn = document.getElementById('customConfirmYesBtn');
+
+      yesBtn.onclick = () => {
+        closeConfirmModal();
+        if (onConfirm) onConfirm();
+      };
+
+      modal.style.display = 'flex';
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    }
 
     function openUniversalContextMenu(docId, type, content, isMe) {
       playBeepSound(1200, 0.2);
@@ -1790,56 +1846,51 @@
       const isMedia = ['image', 'video', 'file'].includes(type);
 
       if (isMedia) {
-        // Media Action 1: Download
         const dlBtn = document.createElement('button');
         dlBtn.className = 'context-menu-btn';
         dlBtn.innerText = '📥 Download Media';
         dlBtn.onclick = () => downloadMediaContent(content);
         container.appendChild(dlBtn);
 
-        // Media Action 2: Share Link
         const shBtn = document.createElement('button');
         shBtn.className = 'context-menu-btn';
         shBtn.innerText = '🔗 Share Link';
         shBtn.onclick = () => shareMediaLink(content);
         container.appendChild(shBtn);
 
-        // Media Action 3: Unsend (Sender) or Delete (Receiver)
         const delBtn = document.createElement('button');
         delBtn.className = 'context-menu-btn';
         if (isMe) {
           delBtn.innerText = '🗑️ Unsend Message';
           delBtn.style.color = '#fca5a5';
           delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
-          delBtn.onclick = () => deleteOrUnsendMessage(docId, true);
+          delBtn.onclick = () => triggerDeleteModal(docId, true);
         } else {
           delBtn.innerText = '🗑️ Delete Message';
           delBtn.style.color = '#fca5a5';
           delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
-          delBtn.onclick = () => deleteOrUnsendMessage(docId, false);
+          delBtn.onclick = () => triggerDeleteModal(docId, false);
         }
         container.appendChild(delBtn);
       } else {
-        // Text Action 1: Copy
         const cpBtn = document.createElement('button');
         cpBtn.className = 'context-menu-btn';
         cpBtn.innerText = '📋 Copy Text';
         cpBtn.onclick = () => copyTextContent(content);
         container.appendChild(cpBtn);
 
-        // Text Action 2: Unsend (Sender) or Delete (Receiver)
         const delBtn = document.createElement('button');
         delBtn.className = 'context-menu-btn';
         if (isMe) {
           delBtn.innerText = '🗑️ Unsend Text';
           delBtn.style.color = '#fca5a5';
           delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
-          delBtn.onclick = () => deleteOrUnsendMessage(docId, true);
+          delBtn.onclick = () => triggerDeleteModal(docId, true);
         } else {
           delBtn.innerText = '🗑️ Delete Text';
           delBtn.style.color = '#fca5a5';
           delBtn.style.borderColor = 'rgba(239,68,68,0.4)';
-          delBtn.onclick = () => deleteOrUnsendMessage(docId, false);
+          delBtn.onclick = () => triggerDeleteModal(docId, false);
         }
         container.appendChild(delBtn);
       }
@@ -1852,21 +1903,47 @@
       contextTarget = { docId: "", type: "text", content: "", isMe: false };
     }
 
+    // PERMANENT LOCKED EMOJI REACTION (Cannot change or delete)
     async function applyEmojiReaction(emoji) {
       if (!contextTarget.docId || !activeChatRoomId) return;
+      closeContextMenu();
+
+      const myId = (loggedAccount || '').trim().toLowerCase();
+      const msgRef = db.collection('chats').doc(activeChatRoomId).collection('messages').doc(contextTarget.docId);
+
       try {
-        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(contextTarget.docId).update({
-          reaction: emoji
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(msgRef);
+          if (!doc.exists) return;
+
+          const data = doc.data();
+          const currentReactedUsers = data.reactedUsers || {};
+          const currentReactions = data.reactions || {};
+
+          // If user already reacted, reaction is locked
+          if (currentReactedUsers[myId]) return;
+
+          currentReactedUsers[myId] = emoji;
+          currentReactions[emoji] = (currentReactions[emoji] || 0) + 1;
+
+          transaction.update(msgRef, {
+            reaction: emoji,
+            reactions: currentReactions,
+            reactedUsers: currentReactedUsers,
+            lastReaction: {
+              emoji: emoji,
+              userEmail: myId,
+              timestamp: Date.now()
+            }
+          });
         });
       } catch (e) {
         console.error("Emoji error:", e);
       }
-      closeContextMenu();
     }
 
     function copyTextContent(text) {
       navigator.clipboard.writeText(text);
-      alert("Text copied to clipboard!");
       closeContextMenu();
     }
 
@@ -1885,22 +1962,23 @@
     function shareMediaLink(url) {
       if (!url) return;
       navigator.clipboard.writeText(url);
-      alert("Link copied securely to clipboard!");
       closeContextMenu();
     }
 
-    async function deleteOrUnsendMessage(docId, isUnsend) {
-      if (!docId || !activeChatRoomId) return;
-      const actionName = isUnsend ? "unsend" : "delete";
-      if (!confirm(`Are you sure you want to ${actionName} this message?`)) return;
-
-      try {
-        await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(docId).delete();
-        alert(`Message ${actionName}ed successfully!`);
-      } catch (err) {
-        alert("Failed to delete message: " + err.message);
-      }
+    function triggerDeleteModal(docId, isUnsend) {
       closeContextMenu();
+      const actionName = isUnsend ? "unsend" : "delete";
+      showCustomConfirmation(
+        `${isUnsend ? 'Unsend' : 'Delete'} Message`,
+        `Are you sure you want to permanently ${actionName} this message?`,
+        async () => {
+          try {
+            await db.collection('chats').doc(activeChatRoomId).collection('messages').doc(docId).delete();
+          } catch (err) {
+            console.error("Failed to delete message:", err);
+          }
+        }
+      );
     }
 
     function attachUniversalLongPress(element, docId, type, content, isMe) {
@@ -1918,6 +1996,7 @@
       element.ontouchend = cancelPress;
     }
 
+    // EMBEDDED MODAL VIEWER FOR PHOTO / PDF (NOT FULLSCREEN OVERFLOW)
     function openMediaModal(url, type) {
       const container = document.getElementById('mediaModalContentContainer');
       container.innerHTML = '';
@@ -1925,12 +2004,10 @@
         const img = document.createElement('img');
         img.src = url;
         container.appendChild(img);
-      } else if (type === 'video') {
-        const vid = document.createElement('video');
-        vid.src = url;
-        vid.controls = true;
-        vid.autoplay = true;
-        container.appendChild(vid);
+      } else if (type === 'pdf') {
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        container.appendChild(iframe);
       }
       document.getElementById('mediaModalOverlay').style.display = 'flex';
     }
@@ -1940,9 +2017,7 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    // ==========================================
-    // 8. REALTIME MESSAGES ENGINE (FIREBASE FIRESTORE & LOCAL PRESERVATION)
-    // ==========================================
+    // REALTIME MESSAGES ENGINE
     let isInitialLoad = true;
 
     function listenMessages() {
@@ -1959,6 +2034,21 @@
               const data = change.doc.data();
               const isMe = data.sender === loggedAccount || data.senderId === currentUser?.uid;
               if (!isMe) hasNewIncomingMsg = true;
+            }
+            if (change.type === 'modified' && !isInitialLoad) {
+              const data = change.doc.data();
+              if (data.lastReaction) {
+                const r = data.lastReaction;
+                if (r.userEmail && r.userEmail.toLowerCase() !== loggedAccount) {
+                  sendSmartNotification({
+                    title: `${targetUserData ? targetUserData.name : 'User'} Reacted`,
+                    message: `Reacted with ${r.emoji}`,
+                    photo: targetUserData?.photo,
+                    emojiBadge: r.emoji,
+                    redirectUrl: 'chats.html'
+                  });
+                }
+              }
             }
           });
 
@@ -1978,16 +2068,16 @@
 
           localCached.forEach(localM => {
             if (!currentDocIds.has(localM.id)) {
-              renderSingleMessageBubble(box, localM.id, localM.sender, localM.clearText, localM.reaction, localM.isMe, true);
+              renderSingleMessageBubble(box, localM.id, localM.sender, localM.clearText, localM.reactions || {}, localM.isMe, true);
             }
           });
 
-          // 2. Render Server Live Messages & Persist locally
+          // 2. Render Server Live Messages
           snap.forEach((doc) => {
             const m = doc.data();
             const docId = doc.id;
             const isMe = m.sender === loggedAccount || m.senderId === currentUser?.uid;
-            const messageReaction = m.reaction || "";
+            const reactionsMap = m.reactions || {};
 
             let clearText = null;
             if (isMe) {
@@ -2003,12 +2093,12 @@
                 id: docId,
                 sender: m.sender,
                 clearText: clearText,
-                reaction: messageReaction,
+                reactions: reactionsMap,
                 isMe: isMe
               });
             }
 
-            renderSingleMessageBubble(box, docId, m.sender, clearText, messageReaction, isMe, false);
+            renderSingleMessageBubble(box, docId, m.sender, clearText, reactionsMap, isMe, false);
           });
 
           box.scrollTop = box.scrollHeight;
@@ -2026,7 +2116,7 @@
         });
     }
 
-    function renderSingleMessageBubble(box, docId, sender, clearText, messageReaction, isMe, isLocalOnly) {
+    function renderSingleMessageBubble(box, docId, sender, clearText, reactionsMap, isMe, isLocalOnly) {
       const bubble = document.createElement('div');
       bubble.className = `msg-bubble ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
 
@@ -2049,24 +2139,36 @@
             bubble.appendChild(img);
             attachUniversalLongPress(bubble, docId, 'image', msgData, isMe);
           } else if (msgType === 'video') {
+            // INLINE CONTROLLED VIDEO PLAYING INSIDE CHAT BUBBLE
+            const vWrap = document.createElement('div');
+            vWrap.className = 'chat-media-video-wrap';
             const vid = document.createElement('video');
             vid.src = msgData;
-            vid.className = 'chat-media-video';
             vid.controls = true;
-            bubble.appendChild(vid);
+            vid.playsInline = true;
+            vid.preload = 'metadata';
+            vWrap.appendChild(vid);
+            bubble.appendChild(vWrap);
             attachUniversalLongPress(bubble, docId, 'video', msgData, isMe);
           } else if (msgType === 'file') {
             const fileName = parsed.fileName || "Download Document";
+            const isPdf = msgData.toLowerCase().includes('.pdf') || fileName.toLowerCase().endsWith('.pdf');
             bubble.innerHTML = `
               <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:1.3rem;">📄</span>
                 <div>
                   <strong style="font-size:0.86rem; color:#ffffff;">${fileName}</strong>
-                  <div style="font-size:0.7rem; color:#34d399;">Cloud PDF / Document (Tap to view)</div>
+                  <div style="font-size:0.7rem; color:#34d399;">${isPdf ? 'PDF (Tap to view inside page)' : 'Document (Tap to open)'}</div>
                 </div>
               </div>
             `;
-            bubble.onclick = () => window.open(msgData, '_blank');
+            bubble.onclick = () => {
+              if (isPdf) {
+                openMediaModal(msgData, 'pdf');
+              } else {
+                window.open(msgData, '_blank');
+              }
+            };
             attachUniversalLongPress(bubble, docId, 'file', msgData, isMe);
           } else if (msgType === 'link') {
             bubble.innerHTML = `<a href="${msgData}" target="_blank" style="color:#38bdf8; text-decoration:underline;">🔗 ${msgData}</a>`;
@@ -2085,11 +2187,20 @@
             attachUniversalLongPress(bubble, docId, 'text', `Student Card: ${card.name} (${card.enroll})`, isMe);
           }
 
-          if (messageReaction) {
-            const rBadge = document.createElement('div');
-            rBadge.className = 'msg-reaction-tag';
-            rBadge.innerText = messageReaction;
-            bubble.appendChild(rBadge);
+          // RENDER REALTIME REACTION COUNTERS
+          if (reactionsMap && Object.keys(reactionsMap).length > 0) {
+            let pillsHtml = '';
+            for (const [em, count] of Object.entries(reactionsMap)) {
+              if (count > 0) {
+                pillsHtml += `<span style="display:inline-flex; align-items:center; gap:2px;">${em} <small>${count}</small></span> `;
+              }
+            }
+            if (pillsHtml) {
+              const rBadge = document.createElement('div');
+              rBadge.className = 'msg-reaction-tag';
+              rBadge.innerHTML = pillsHtml;
+              bubble.appendChild(rBadge);
+            }
           }
 
           if (isLocalOnly) {
@@ -2107,7 +2218,7 @@
       box.appendChild(bubble);
     }
 
-    // 9. BACKGROUND ANIMATION
+    // BACKGROUND ANIMATION
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65"/><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1"/></g></svg>`,
       `<svg viewBox="0 0 32 32"><g transform="rotate(25 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#0f172a" opacity="0.75"/><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#10b981" opacity="0.7"/><rect x="9.5" y="15" width="13" height="2" fill="#34d399" opacity="0.7" rx="1"/></g></svg>`,
