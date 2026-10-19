@@ -27,9 +27,7 @@
       position: relative;
     }
 
-    /* =========================================================
-        FIXED TOP FLOATING NAVBAR (MATCHING BOTTOM NAV DOCK THEME)
-        ========================================================= */
+    /* FIXED TOP FLOATING NAVBAR DOCK */
     .top-navbar {
       position: fixed;
       top: 14px;
@@ -448,14 +446,6 @@
       background: rgba(16, 185, 129, 0.45);
     }
 
-    .btn-partner {
-      background: rgba(245, 158, 11, 0.25);
-      border: 1px solid #f59e0b;
-      color: #fbbf24;
-      padding: 5px 9px;
-      font-size: 0.72rem;
-    }
-
     /* Notice Creator Panel */
     .glass-card {
       background: rgba(6, 43, 37, 0.7);
@@ -749,50 +739,6 @@
       object-fit: contain;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
       transition: transform 0.25s ease;
-    }
-
-    /* Long Press Context Menu */
-    .context-menu-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 1100;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(5px);
-    }
-
-    .context-menu-box {
-      background: rgba(6, 43, 37, 0.98);
-      border: 1px solid #34d399;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 380px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-    }
-
-    .context-menu-btn {
-      background: rgba(3, 20, 17, 0.9);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: #ffffff;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: 0.2s;
-    }
-
-    .context-menu-btn:hover {
-      background: rgba(16, 185, 129, 0.35);
-      border-color: #34d399;
     }
 
     /* CONFIRMATION DIALOG MODAL */
@@ -1102,16 +1048,6 @@
     <span style="color: #94a3b8; font-size: 0.8rem; margin-top: 12px;">Tap outside to close</span>
   </div>
 
-  <!-- Context Menu -->
-  <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
-    <div class="context-menu-box" onclick="event.stopPropagation()">
-      <h4 style="color: #34d399; font-size: 0.95rem; text-align: center; margin-bottom: 4px;">Media Options</h4>
-      <button class="context-menu-btn" onclick="downloadCurrentMedia()">📥 Download Cloud Media</button>
-      <button class="context-menu-btn" onclick="shareCurrentMedia()">🔗 Copy / Internal Share</button>
-      <button class="context-menu-btn" style="color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="closeContextMenu()">Cancel</button>
-    </div>
-  </div>
-
   <!-- CONFIRMATION DIALOG MODAL -->
   <div class="custom-confirm-overlay" id="customConfirmModal">
     <div class="custom-confirm-box" onclick="event.stopPropagation()">
@@ -1176,7 +1112,7 @@
         <div id="storyImageWrap"></div>
         <div id="storyLinkWrap" style="margin-top:10px;"></div>
 
-        <!-- REACTIONS CLUSTER -->
+        <!-- REACTIONS CLUSTER WITH BALLOON & SNAP-BACK -->
         <div class="notice-reaction-cluster" id="noticeReactionCluster" style="display:none;">
           <div class="notice-emoji-bar">
             <button class="notice-emoji-btn" onclick="reactToCurrentNotice('❤️')">❤️</button>
@@ -1332,10 +1268,9 @@
     let currentBannerRedirectUrl = 'home.html';
 
     function sendSmartNotification({ title, message, photo, emojiBadge = '', redirectUrl = 'home.html' }) {
-      // यदि यूजर अभी होम पेज पर है, तो नोटिस या होम से जुड़े अपडेट का इन-ऐप पॉप-अप नहीं दिखाना है
       const isCurrentPageHome = window.location.pathname.endsWith('home.html') || window.location.pathname === '/' || window.location.pathname === '';
       if (isCurrentPageHome && (title.toLowerCase().includes('notice') || title.toLowerCase().includes('d-pharma'))) {
-        return; // होम पेज पर होने पर इन-ऐप नोटिफिकेशन बैनਰ ब्लॉक कर दिया गया
+        return;
       }
 
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
@@ -1381,7 +1316,6 @@
       window.location.href = currentBannerRedirectUrl;
     }
 
-    // AUDIO & HAPTIC
     let audioCtx = null;
 
     function triggerTapFeedback() {
