@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- ज़ूम पूरी तरह ब्लॉक करने के लिए viewport सेटिंग्स -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>D Pharma Portal - Home</title>
   <!-- PWA Manifest Link -->
@@ -503,14 +502,14 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* Story Card Wrapper */
+    /* Story Card Wrapper - Optimized to prevent unnecessary vertical overflow */
     .story-card-wrapper {
       position: relative;
       background: linear-gradient(180deg, rgba(8, 48, 41, 0.95) 0%, rgba(2, 20, 17, 0.98) 100%);
       border: 1.5px solid rgba(52, 211, 153, 0.4);
       border-radius: 24px;
-      padding: 18px;
-      min-height: 500px;
+      padding: 16px;
+      max-height: calc(100vh - 220px);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
       display: flex;
       flex-direction: column;
@@ -520,11 +519,11 @@
     .story-progress-bar {
       display: flex;
       gap: 5px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .story-progress-segment {
-      height: 3.5px;
+      height: 3px;
       flex: 1;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 2px;
@@ -538,7 +537,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .story-author {
@@ -548,8 +547,8 @@
     }
 
     .story-avatar {
-      width: 46px;
-      height: 46px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       border: 2px solid #34d399;
       object-fit: cover;
@@ -558,13 +557,13 @@
     }
 
     .story-author-details h4 {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #ffffff;
       margin-bottom: 2px;
     }
 
     .story-author-details span {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: #34d399;
       display: block;
     }
@@ -573,9 +572,9 @@
       background: rgba(239, 68, 68, 0.2);
       border: 1px solid #ef4444;
       color: #fca5a5;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.76rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
       font-weight: 700;
       cursor: pointer;
       transition: 0.2s;
@@ -593,45 +592,46 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 10px 4px;
+      padding: 5px 2px;
+      overflow-y: auto;
     }
 
     .story-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: #34d399;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .story-desc {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #e2e8f0;
-      line-height: 1.5;
+      line-height: 1.4;
       white-space: pre-wrap;
-      max-height: 160px;
+      max-height: 130px;
       overflow-y: auto;
-      margin-bottom: 14px;
-      padding: 0 10px;
+      margin-bottom: 10px;
+      padding: 0 8px;
     }
 
     .story-image-full {
       max-width: 100%;
-      max-height: 260px;
-      border-radius: 14px;
+      max-height: 200px;
+      border-radius: 12px;
       border: 1px solid rgba(52, 211, 153, 0.35);
       object-fit: contain;
       cursor: pointer;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
     }
 
     .story-video-full {
       max-width: 100%;
-      max-height: 260px;
-      border-radius: 14px;
+      max-height: 200px;
+      border-radius: 12px;
       border: 1px solid rgba(52, 211, 153, 0.35);
       outline: none;
       background: #000;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
       cursor: pointer;
     }
 
@@ -641,8 +641,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      margin-top: 8px;
     }
 
     .notice-emoji-bar {
@@ -652,15 +652,15 @@
       background: rgba(2, 18, 14, 0.88);
       border: 1.5px solid rgba(52, 211, 153, 0.45);
       border-radius: 30px;
-      padding: 5px 12px;
-      gap: 10px;
+      padding: 4px 10px;
+      gap: 8px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     }
 
     .notice-emoji-btn {
       background: transparent;
       border: none;
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       cursor: pointer;
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       padding: 2px 4px;
@@ -677,22 +677,24 @@
 
     .notice-reaction-pills-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       justify-content: center;
       touch-action: pan-x pan-y;
+      max-height: 50px;
+      overflow-y: auto;
     }
 
     .notice-reaction-pill {
       background: rgba(3, 20, 17, 0.95);
       border: 1.5px solid rgba(52, 211, 153, 0.5);
       border-radius: 20px;
-      padding: 4px 10px;
-      font-size: 0.78rem;
+      padding: 3px 8px;
+      font-size: 0.75rem;
       color: #34d399;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       font-weight: 700;
       position: relative;
       cursor: pointer;
@@ -706,8 +708,8 @@
     }
 
     .pill-avatar {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       object-fit: cover;
       border: 1px solid #34d399;
@@ -816,19 +818,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 15px;
-      padding-top: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px solid rgba(52, 211, 153, 0.15);
     }
 
     .arrow-btn {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: rgba(16, 185, 129, 0.2);
       border: 1px solid #34d399;
       color: #34d399;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -981,14 +983,6 @@
       border: 1px solid #34d399;
       box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
     }
-
-    .fullscreen-hint {
-      text-align: center;
-      font-size: 0.72rem;
-      color: #64748b;
-      margin-top: 10px;
-      letter-spacing: 0.5px;
-    }
   </style>
 
   <!-- Firebase SDKs -->
@@ -1103,7 +1097,7 @@
           <img id="storyAuthorPhoto" class="story-avatar protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Author" />
           <div class="story-author-details">
             <h4 id="storyAuthorName">Authority</h4>
-            <span id="storyTime">Checking notices...</span>
+            <span id="storyTime">Official Notice</span>
           </div>
         </div>
         <div id="devDeleteWrap"></div>
@@ -1113,7 +1107,7 @@
         <div class="story-title" id="storyTitle">Notice Board</div>
         <div class="story-desc" id="storyDesc">Loading updates...</div>
         <div id="storyImageWrap"></div>
-        <div id="storyLinkWrap" style="margin-top:10px;"></div>
+        <div id="storyLinkWrap" style="margin-top:8px;"></div>
 
         <!-- REACTIONS CLUSTER WITH BALLOON & SNAP-BACK -->
         <div class="notice-reaction-cluster" id="noticeReactionCluster" style="display:none;">
@@ -1134,8 +1128,6 @@
         <button class="arrow-btn" id="nextStoryBtn" onclick="navigateStory(1)">▶</button>
       </div>
     </div>
-
-    <div class="fullscreen-hint">💻 Right-Click (PC) or Hold 1s (Phone) on notice to toggle Fullscreen</div>
   </div>
 
   <!-- Profile Modal -->
@@ -1176,20 +1168,26 @@
 
   <script>
     // =========================================================
-    // ZOOM BLOCKER (डबल टैप और पिंच ज़ूम पूरी तरह बंद)
+    // DOUBLE CLICK FULLSCREEN (पेज फिट मोड - ज़ूम बंद)
     // =========================================================
     document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A'].includes(e.target.tagName)) return;
       e.preventDefault();
+      togglePageFullscreen();
     }, { passive: false });
 
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(e) {
-      const now = (new Date()).getTime();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
+    function togglePageFullscreen() {
+      triggerTapFeedback();
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
       }
-      lastTouchEnd = now;
-    }, false);
+    }
 
     // =========================================================
     // SERVICE WORKER & 3D SPLASH
@@ -1241,44 +1239,6 @@
         Notification.requestPermission();
       }
     });
-
-    // =========================================================
-    // FULLSCREEN SHORTCUT: RIGHT-CLICK (PC) & LONG-PRESS (PHONE)
-    // =========================================================
-    const storyBox = document.getElementById('storyNoticeBox');
-    let longPressTimer = null;
-
-    storyBox.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      toggleNoticeFullscreen();
-    });
-
-    storyBox.addEventListener('touchstart', () => {
-      longPressTimer = setTimeout(() => {
-        toggleNoticeFullscreen();
-      }, 1000);
-    });
-
-    storyBox.addEventListener('touchend', () => {
-      clearTimeout(longPressTimer);
-    });
-
-    storyBox.addEventListener('touchmove', () => {
-      clearTimeout(longPressTimer);
-    });
-
-    function toggleNoticeFullscreen() {
-      triggerTapFeedback();
-      const doc = window.document;
-      const docEl = storyBox;
-      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
-      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
-      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
-        if (req) req.call(docEl).catch(() => {});
-      } else {
-        if (exit) exit.call(doc);
-      }
-    }
 
     // =========================================================
     // SMART NOTIFICATION ENGINE (SUPPRESSES IN-APP NOTIFICATIONS ON HOME PAGE)
@@ -1592,7 +1552,7 @@
       }
 
       if (notice.link) {
-        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:underline;">🔗 Open Attached Link</a>`;
+        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.8rem; text-decoration:underline;">🔗 Open Attached Link</a>`;
       } else {
         document.getElementById('storyLinkWrap').innerHTML = '';
       }
