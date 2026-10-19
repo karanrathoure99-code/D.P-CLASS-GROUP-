@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- ज़ूम पूरी तरह ब्लॉक करने के लिए user-scalable=no और maximum-scale=1.0 जोड़ दिया गया है -->
+  <!-- ज़ूम पूरी तरह ब्लॉक करने के लिए viewport सेटिंग्स -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>D Pharma Portal - Home</title>
   <!-- PWA Manifest Link -->
@@ -17,7 +17,6 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
-      /* पेज को ज़ूम होने से रोकने के लिए टच एक्शन लॉक */
       touch-action: manipulation;
     }
 
@@ -28,7 +27,6 @@
       padding-bottom: 110px;
       overflow-x: hidden;
       position: relative;
-      /* मोबाइल ब्राउज़र में डबल-टैप ज़ूम रोकने के लिए */
       touch-action: pan-x pan-y;
     }
 
@@ -1705,6 +1703,108 @@
       }
     }
 
+    // CLOUDINARY UPLOAD & PUBLISH NOTICE (ASLI LOGIC RESTORED)
+    async function uploadFileToCloudinary(file) {
+      const isVideo = file.type.startsWith('video');
+      const resourceType = isVideo ? 'video' : 'image';
+
+      if (isVideo && file.size > 50 * 1024 * 1024) {
+        throw new Error(`Video ${file.name} exceeds 50MB limit.`);
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.secure_url) {
+        return {
+          url: data.secure_url,
+          public_id: data.public_id,
+          type: resourceType
+        };
+      } else {
+        throw new Error(data.error?.message || "Cloudinary Upload Failed");
+      }
+    }
+
+    async function publishNotice() {
+      if (!authUser) return;
+      const isDev = authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
+      const isTeacher = currentUserData && currentUserData.role === 'teacher';
+
+      if (!isDev && !isTeacher) {
+        alert("Unauthorized! Only Verified Teachers & Developers can publish notices.");
+        return;
+      }
+
+      const title = document.getElementById('noticeTitle').value.trim();
+      const content = document.getElementById('noticeContent').value.trim();
+      let link = document.getElementById('noticeLink').value.trim();
+      const files = document.getElementById('noticeMedia').files;
+
+      if (!title || !content) {
+        alert("Please enter Title and Description.");
+        return;
+      }
+
+      if (link && !link.startsWith('http://') && !link.startsWith('https://')) {
+        link = 'https://' + link;
+      }
+
+      if (files.length > 10) {
+        alert("Limit reached: Max 10 media files allowed!");
+        return;
+      }
+
+      const btn = document.getElementById('btnPublish');
+      btn.innerText = "Uploading to Cloudinary...";
+      btn.disabled = true;
+
+      try {
+        const mediaList = [];
+        for (let i = 0; i < files.length; i++) {
+          btn.innerText = `Uploading Cloud Media (${i + 1}/${files.length})...`;
+          const uploadResult = await uploadFileToCloudinary(files[i]);
+          mediaList.push(uploadResult);
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+
+        await db.collection('notices').add({
+          title,
+          content,
+          link,
+          media: mediaList,
+          images: mediaList.map(m => m.url),
+          postedBy: currentUserData ? currentUserData.name : 'Authority',
+          authorPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+          reactions: {},
+          reactedUsers: {},
+          userProfiles: {}
+        });
+
+        alert("Notice published successfully (5-day active period)!");
+        document.getElementById('noticeTitle').value = '';
+        document.getElementById('noticeContent').value = '';
+        document.getElementById('noticeLink').value = '';
+        document.getElementById('noticeMedia').value = '';
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        btn.innerText = "Publish Notice";
+        btn.disabled = false;
+      }
+    }
+
     function openImageModal(url, type) {
       const container = document.getElementById('modalMediaContainer');
       container.innerHTML = `<img src="${url}" style="max-width:100%; max-height:85vh; border-radius:12px;" alt="Media" />`;
@@ -1807,10 +1907,6 @@
       });
       box.style.display = 'block';
     });
-
-    async function publishNotice() {
-      alert("Notice publishing logic active!");
-    }
   </script>
 </body>
 </html>
