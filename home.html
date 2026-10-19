@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ज़ूम पूरी तरह ब्लॉक करने के लिए user-scalable=no और maximum-scale=1.0 जोड़ दिया गया है -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>D Pharma Portal - Home</title>
   <!-- PWA Manifest Link -->
   <link rel="manifest" href="manifest.json">
@@ -16,6 +17,8 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      /* पेज को ज़ूम होने से रोकने के लिए टच एक्शन लॉक */
+      touch-action: manipulation;
     }
 
     body {
@@ -25,6 +28,8 @@
       padding-bottom: 110px;
       overflow-x: hidden;
       position: relative;
+      /* मोबाइल ब्राउज़र में डबल-टैप ज़ूम रोकने के लिए */
+      touch-action: pan-x pan-y;
     }
 
     /* FIXED TOP FLOATING NAVBAR DOCK */
@@ -1172,6 +1177,22 @@
   </div>
 
   <script>
+    // =========================================================
+    // ZOOM BLOCKER (डबल टैप और पिंच ज़ूम पूरी तरह बंद)
+    // =========================================================
+    document.addEventListener('dblclick', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
     // =========================================================
     // SERVICE WORKER & 3D SPLASH
     // =========================================================
