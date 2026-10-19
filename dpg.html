@@ -1409,11 +1409,16 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // SMART NOTIFICATION ENGINE (IN-APP & BACKGROUND OS TRAY)
+    // SMART NOTIFICATION ENGINE (SUPPRESSES IN-APP NOTIFICATIONS ON DPG PAGE)
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
     function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
+      const isCurrentPageDpg = window.location.pathname.endsWith('dpg.html') || window.location.pathname === '/' || window.location.pathname === '';
+      if (isCurrentPageDpg && (title.toLowerCase().includes('group') || title.toLowerCase().includes('dpg') || title.toLowerCase().includes('message'))) {
+        return; // DPG पेज पर होने पर इन-ऐप बैनर ब्लॉक कर दिया गया है
+      }
+
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
       if (document.hidden) {
