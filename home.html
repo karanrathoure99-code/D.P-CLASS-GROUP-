@@ -1073,7 +1073,7 @@
   <div class="app-wrapper">
     <!-- Search Results View -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.80rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
+      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
       <div id="usersList"></div>
     </div>
 
@@ -1445,7 +1445,7 @@
             document.getElementById('navProfilePic').src = currentUserData.photo;
             document.getElementById('modalProfileImg').src = currentUserData.photo;
           }
-          if (currentUserData.role === 'teacher') {
+          if (currentUserData.role === 'teacher' || currentUserData.role === 'developer') {
             document.getElementById('createNoticePanel').style.display = 'block';
           }
         }
@@ -1875,7 +1875,7 @@
     }
 
     // =========================================================
-    // SEND CHAT REQUEST & TOGGLE FACULTY ROLE (DEVELOPER POWERS)
+    // SEND CHAT REQUEST & LIVE TOGGLE FACULTY ROLE (NO REFRESH)
     // =========================================================
     async function sendChatRequest(targetUserId, targetName, targetPhoto) {
       if (!authUser) return;
@@ -1908,14 +1908,39 @@
       }
     }
 
-    async function toggleFacultyRole(docId, isCurrentlyTeacher) {
+    async function toggleFacultyRole(docId, isCurrentlyTeacher, btnElement) {
       if (!authUser || authUser.email.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
       triggerTapFeedback();
       const newRole = isCurrentlyTeacher ? 'student' : 'teacher';
+      
       try {
         await db.collection('students').doc(docId).update({ role: newRole });
-        alert(`User role updated successfully to: ${newRole.toUpperCase()}`);
-        window.location.reload();
+        
+        // बिना पेज रिफ्रेश किए लोकल डेटा और UI को तुरंत अपडेट करें
+        if (window.cachedStudents) {
+          const target = window.cachedStudents.find(u => u.id === docId);
+          if (target) target.role = newRole;
+        }
+
+        // बटन का टेक्स्ट और onclick लॉजिक लाइव बदलें
+        if (btnElement) {
+          if (newRole === 'teacher') {
+            btnElement.innerText = 'Remove Faculty';
+            btnElement.setAttribute('onclick', `event.stopPropagation(); toggleFacultyRole('${docId}', true, this)`);
+          } else {
+            btnElement.innerText = '🎓 Set Faculty';
+            btnElement.setAttribute('onclick', `event.stopPropagation(); toggleFacultyRole('${docId}', false, this)`);
+          }
+        }
+
+        // अगर खुद करंट यूजर की फैकल्टी बदली है तो नोटिस पैनल तुरंत शो/हाइड करें
+        if (currentUserData && currentUserData.uid === docId) {
+          currentUserData.role = newRole;
+          localStorage.setItem('cachedUserObj', JSON.stringify(currentUserData));
+          document.getElementById('createNoticePanel').style.display = (newRole === 'teacher' || authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase()) ? 'block' : 'none';
+        }
+
+        alert(`User role successfully updated to: ${newRole.toUpperCase()}`);
       } catch (err) {
         alert("Error updating role: " + err.message);
       }
@@ -1948,7 +1973,7 @@
         let facultyActionBtn = '';
         if (isDevUser && data.id !== authUser.uid) {
           facultyActionBtn = `
-            <button class="btn-action btn-partner" onclick="event.stopPropagation(); toggleFacultyRole('${data.id}', ${isTeacher})">
+            <button class="btn-action btn-partner" onclick="event.stopPropagation(); toggleFacultyRole('${data.id}', ${isTeacher}, this)">
               ${isTeacher ? 'Remove Faculty' : '🎓 Set Faculty'}
             </button>
           `;
