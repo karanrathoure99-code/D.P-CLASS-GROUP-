@@ -455,6 +455,14 @@
       background: rgba(16, 185, 129, 0.45);
     }
 
+    .btn-partner {
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+      padding: 5px 9px;
+      font-size: 0.72rem;
+    }
+
     /* Notice Creator Panel */
     .glass-card {
       background: rgba(6, 43, 37, 0.7);
@@ -509,7 +517,7 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* RESTORED ORIGINAL NORMAL NOTICE BOARD SIZE */
+    /* NORMAL NOTICE BOARD SIZE */
     .story-card-wrapper {
       position: relative;
       background: linear-gradient(180deg, rgba(8, 48, 41, 0.95) 0%, rgba(2, 20, 17, 0.98) 100%);
@@ -1065,7 +1073,7 @@
   <div class="app-wrapper">
     <!-- Search Results View -->
     <div id="searchResultsBox" class="search-results-box">
-      <div style="font-size: 0.8rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
+      <div style="font-size: 0.80rem; color: #a7f3d0; margin-bottom: 8px;">SEARCH RESULTS:</div>
       <div id="usersList"></div>
     </div>
 
@@ -1692,7 +1700,7 @@
       }
     }
 
-    // CLOUDINARY UPLOAD & PUBLISH NOTICE (ASLI LOGIC RESTORED)
+    // CLOUDINARY UPLOAD & PUBLISH NOTICE
     async function uploadFileToCloudinary(file) {
       const isVideo = file.type.startsWith('video');
       const resourceType = isVideo ? 'video' : 'image';
@@ -1866,6 +1874,53 @@
       } catch (e) {}
     }
 
+    // =========================================================
+    // SEND CHAT REQUEST & TOGGLE FACULTY ROLE (DEVELOPER POWERS)
+    // =========================================================
+    async function sendChatRequest(targetUserId, targetName, targetPhoto) {
+      if (!authUser) return;
+      triggerTapFeedback();
+      try {
+        const qSnap = await db.collection('chatRequests')
+          .where('fromUid', '==', authUser.uid)
+          .where('toId', '==', targetUserId)
+          .get();
+
+        if (!qSnap.empty) {
+          alert("Chat request already sent!");
+          window.location.href = `chats.html?to=${targetUserId}`;
+          return;
+        }
+
+        await db.collection('chatRequests').add({
+          fromUid: authUser.uid,
+          fromName: currentUserData ? currentUserData.name : 'User',
+          fromPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
+          toId: targetUserId,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert(`Chat request sent to ${targetName}!`);
+        window.location.href = `chats.html?to=${targetUserId}`;
+      } catch (err) {
+        alert("Failed to send request: " + err.message);
+      }
+    }
+
+    async function toggleFacultyRole(docId, isCurrentlyTeacher) {
+      if (!authUser || authUser.email.toLowerCase() !== DEVELOPER_ID.toLowerCase()) return;
+      triggerTapFeedback();
+      const newRole = isCurrentlyTeacher ? 'student' : 'teacher';
+      try {
+        await db.collection('students').doc(docId).update({ role: newRole });
+        alert(`User role updated successfully to: ${newRole.toUpperCase()}`);
+        window.location.reload();
+      } catch (err) {
+        alert("Error updating role: " + err.message);
+      }
+    }
+
     document.getElementById('userSearchInput').addEventListener('input', (e) => {
       const q = e.target.value.trim().toLowerCase();
       const box = document.getElementById('searchResultsBox');
@@ -1882,15 +1937,32 @@
         box.style.display = 'block';
         return;
       }
+
+      const isDevUser = authUser && authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
+
       matched.slice(0, 8).forEach(data => {
+        const isTeacher = data.role === 'teacher';
         const card = document.createElement('div');
         card.className = 'user-card';
+
+        let facultyActionBtn = '';
+        if (isDevUser && data.id !== authUser.uid) {
+          facultyActionBtn = `
+            <button class="btn-action btn-partner" onclick="event.stopPropagation(); toggleFacultyRole('${data.id}', ${isTeacher})">
+              ${isTeacher ? 'Remove Faculty' : '🎓 Set Faculty'}
+            </button>
+          `;
+        }
+
         card.innerHTML = `
           <div class="user-info-left" onclick="window.location.href='profile.html?uid=${data.id}'">
             <img class="user-avatar-sm protected-img" src="${data.photo || ''}" />
-            <div><strong style="font-size:0.86rem; color:#fff;">${data.name}</strong><div style="font-size:0.72rem; color:#34d399;">${data.enroll || ''}</div></div>
+            <div><strong style="font-size:0.86rem; color:#fff;">${data.name}</strong><div style="font-size:0.72rem; color:#34d399;">${data.enroll || ''} ${isTeacher ? '• [Faculty]' : ''}</div></div>
           </div>
-          <button class="btn-action" onclick="window.location.href='chats.html?to=${data.id}'">Chat</button>
+          <div class="action-btns">
+            ${facultyActionBtn}
+            <button class="btn-action" onclick="sendChatRequest('${data.id}', '${data.name}', '${data.photo || ''}')">Chat Request</button>
+          </div>
         `;
         list.appendChild(card);
       });
