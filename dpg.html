@@ -35,7 +35,7 @@
       color: #ffffff;
     }
 
-    /* 3D CAPSULE CRACK OVERLAY */
+    /* 3D CAPSULE CRACK OVERLAY (FAST ANIMATION) */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -46,7 +46,7 @@
       align-items: center;
       justify-content: center;
       pointer-events: all;
-      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .capsule-wrapper-3d {
@@ -68,7 +68,7 @@
       box-shadow: 0 0 35px 15px #10b981, 0 0 60px 30px rgba(52, 211, 153, 0.6);
       opacity: 0;
       transform: scale(0.2);
-      transition: all 0.55s ease-out;
+      transition: all 0.35s ease-out;
       z-index: 1;
     }
 
@@ -77,7 +77,7 @@
       height: 74px;
       position: absolute;
       top: 13px;
-      transition: transform 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.55s ease;
+      transition: transform 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.35s ease;
       box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.7);
       z-index: 2;
     }
@@ -128,7 +128,7 @@
       padding: 6px 16px;
       border-radius: 20px;
       border: 1px solid rgba(52, 211, 153, 0.35);
-      transition: opacity 0.35s ease;
+      transition: opacity 0.25s ease;
     }
 
     .cracked + .capsule-badge-label {
@@ -672,22 +672,25 @@
       border-color: #34d399;
     }
 
-    /* Live Emoji Reactions Display on Message */
+    /* Clean Emoji Reactions Display on Message (No Profile Pics inside reaction) */
     .msg-reactions-row {
       display: flex;
-      gap: 4px;
+      gap: 5px;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 6px;
     }
     .reaction-pill {
-      background: rgba(2, 18, 14, 0.85);
+      background: rgba(2, 18, 14, 0.92);
       border: 1px solid rgba(52, 211, 153, 0.5);
-      border-radius: 12px;
-      padding: 2px 6px;
-      font-size: 0.72rem;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #34d399;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .msg-img-preview {
@@ -1268,7 +1271,7 @@
       } catch(err) {}
     }
 
-    // 3D CAPSULE CRACK CONTROLLER
+    // 3D CAPSULE CRACK CONTROLLER (FAST SPEED)
     window.addEventListener('DOMContentLoaded', () => {
       const splash = document.getElementById('capsuleSplashOverlay');
       const wrapper = document.getElementById('capsuleWrapper');
@@ -1276,14 +1279,14 @@
       setTimeout(() => {
         wrapper.classList.add('cracked');
         triggerTapFeedback();
-      }, 320);
+      }, 150);
 
       setTimeout(() => {
         if (splash) {
           splash.style.opacity = '0';
-          setTimeout(() => splash.style.display = 'none', 450);
+          setTimeout(() => splash.style.display = 'none', 300);
         }
-      }, 1050);
+      }, 550);
 
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
@@ -1413,7 +1416,6 @@
     function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
-      // Jab user app ke bahar ho (minimized ya tab switch)
       if (document.hidden) {
         if ('Notification' in window && Notification.permission === 'granted') {
           if (navigator.serviceWorker && navigator.serviceWorker.controller) {
@@ -1446,7 +1448,6 @@
         return;
       }
 
-      // Jab user app ke andar ho (In-App Banner)
       const banner = document.getElementById('topNotificationBanner');
       const bannerTitle = document.getElementById('bannerTitle');
       const bannerSub = document.getElementById('bannerSub');
@@ -2136,7 +2137,7 @@
       activePublicId = "";
     }
 
-    // EMOJI REACTION HANDLER WITH INSTANT SYNC
+    // EMOJI REACTION HANDLER WITH INSTANT SERVER SYNC (NO PROFILE PIC, CLEAN COUNTERS)
     async function addReactionToMessage(emoji) {
       if (!activeMsgDocId || !activeGroupId) return;
       triggerTapFeedback();
@@ -2159,7 +2160,12 @@
             currentList.push(userIdentifier);
           }
 
-          reactions[emoji] = currentList;
+          if (currentList.length > 0) {
+            reactions[emoji] = currentList;
+          } else {
+            delete reactions[emoji];
+          }
+
           transaction.update(msgRef, { reactions: reactions });
         });
       } catch (err) {
@@ -2323,7 +2329,7 @@
               bubble.appendChild(fileLink);
             }
 
-            // Real-Time Emoji Reaction Display
+            // Real-Time Emoji Reaction Display (Clean Count Pills, No Profile Pictures)
             if (m.reactions && Object.keys(m.reactions).length > 0) {
               const reactRow = document.createElement('div');
               reactRow.className = 'msg-reactions-row';
