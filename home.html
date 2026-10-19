@@ -642,9 +642,7 @@
       cursor: pointer;
     }
 
-    /* =========================================================
-        REACTION CLUSTER WITH BALLOON & SNAP-BACK ANIMATION
-        ========================================================= */
+    /* REACTION CLUSTER WITH BALLOON & SNAP-BACK ANIMATION */
     .notice-reaction-cluster {
       width: 100%;
       display: flex;
@@ -797,7 +795,7 @@
       border-color: #34d399;
     }
 
-    /* CENTERED CONFIRMATION DIALOG MODAL */
+    /* CONFIRMATION DIALOG MODAL */
     .custom-confirm-overlay {
       position: fixed;
       inset: 0;
@@ -1138,4 +1136,726 @@
     <div id="createNoticePanel" class="glass-card">
       <h3 style="color:#34d399; font-size:1rem; margin-bottom:10px;">📢 Post Official Notice (5-Day Auto-Expiring Media)</h3>
       <input type="text" id="noticeTitle" class="input-field-custom" placeholder="Notice Title / Topic..." />
-      <textarea id="noticeContent" class="input-field-custom
+      <textarea id="noticeContent" class="input-field-custom" rows="3" placeholder="Full notice description / notes..."></textarea>
+      <input type="text" id="noticeLink" class="input-field-custom" placeholder="Optional external link (https://...)" />
+      
+      <label style="font-size:0.8rem; color:#a7f3d0; display:block; margin:6px 0 2px;">Attach Media (Photos / Videos, Max 10):</label>
+      <input type="file" id="noticeMedia" class="input-field-custom" accept="image/*,video/*" multiple />
+      
+      <button onclick="publishNotice()" id="btnPublish" class="btn-action" style="width:100%; padding:10px; margin-top:6px; font-weight:700; justify-content:center;">Publish Notice</button>
+    </div>
+
+    <!-- Official Notice Board Brand -->
+    <div class="notice-board-brand">
+      <div class="notice-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+          <path d="M21 7.2l-2.1-2.1c-.4-.4-1-.4-1.4 0l-3.3 3.3c-1.3-.6-2.7-.9-4.2-.9-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-1.5-.3-2.9-.9-4.2l3.3-3.3c.4-.4.4-1 0-1.4l-1.4-.4zM12 20c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.1 0 2.2.3 3.1.8l-1.9 1.9c-.4.4-.4 1 0 1.4s1 .4 1.4 0l2.6-2.6c.5.9.8 2 .8 3.5 0 3.3-2.7 6-6 6zm-1-9h2v2h-2zm-3 3h8v2H8zm2 3h4v2h-4z"/>
+        </svg>
+      </div>
+      <span style="font-size: 0.88rem; font-weight: 800; color: #34d399; letter-spacing: 0.5px;">OFFICIAL ℞ NOTICE BOARD</span>
+    </div>
+
+    <!-- Story Viewer Box -->
+    <div class="story-card-wrapper" id="storyNoticeBox">
+      <div class="story-progress-bar" id="storyProgress"></div>
+
+      <div class="story-header">
+        <div class="story-author">
+          <img id="storyAuthorPhoto" class="story-avatar protected-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Author" />
+          <div class="story-author-details">
+            <h4 id="storyAuthorName">Authority</h4>
+            <span id="storyTime">Checking notices...</span>
+          </div>
+        </div>
+        <div id="devDeleteWrap"></div>
+      </div>
+
+      <div class="story-content-body">
+        <div class="story-title" id="storyTitle">Notice Board</div>
+        <div class="story-desc" id="storyDesc">Loading updates...</div>
+        <div id="storyImageWrap"></div>
+        <div id="storyLinkWrap" style="margin-top:10px;"></div>
+
+        <!-- REACTIONS CLUSTER -->
+        <div class="notice-reaction-cluster" id="noticeReactionCluster" style="display:none;">
+          <div class="notice-emoji-bar">
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('❤️')">❤️</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('👍')">👍</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('😂')">😂</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('🤔')">🤔</button>
+            <button class="notice-emoji-btn" onclick="reactToCurrentNotice('😡')">😡</button>
+          </div>
+          <div class="notice-reaction-pills-row" id="noticeReactionPills"></div>
+        </div>
+      </div>
+
+      <div class="story-footer-nav">
+        <button class="arrow-btn" id="prevStoryBtn" onclick="navigateStory(-1)">◀</button>
+        <span id="storyCounter" style="font-size:0.8rem; color:#94a3b8; font-weight:600;">0 / 0</span>
+        <button class="arrow-btn" id="nextStoryBtn" onclick="navigateStory(1)">▶</button>
+      </div>
+    </div>
+
+    <div class="fullscreen-hint">💻 Right-Click (PC) or Hold 1s (Phone) on notice to toggle Fullscreen</div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal" onclick="handleProfileBackdropClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <img id="modalProfileImg" class="modal-photo protected-img" src="" alt="Profile" />
+      <h3 id="modalName" style="margin-bottom: 4px;">Student Name</h3>
+      <p id="modalRoleBadge" style="font-size: 0.75rem; color: #34d399; margin-bottom: 14px;">VERIFIED ID</p>
+      
+      <div class="profile-field"><span>Enrollment:</span> <span id="modalEnroll" style="color:#fff;">-</span></div>
+      <div class="profile-field"><span>Email:</span> <span id="modalEmail" style="color:#fff;">-</span></div>
+      <div class="profile-field"><span>Phone:</span> <span id="modalPhone" style="color:#fff;">-</span></div>
+
+      <div class="modal-btn-row">
+        <button onclick="triggerTapFeedback(); goToMyProfile();" class="btn-view-profile">
+          <span>My Profile</span> <span>➔</span>
+        </button>
+        <button onclick="triggerTapFeedback(); logoutUser();" class="btn-logout">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Dock -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="navWithFeedback('home.html')">
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>HOME</span>
+    </div>
+    <div class="nav-item" onclick="navWithFeedback('dpg.html')">
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+      <span>D.P.G</span>
+    </div>
+    <div class="nav-item" onclick="navWithFeedback('chats.html')">
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      <span>CHATS</span>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // SERVICE WORKER & 3D SPLASH
+    // =========================================================
+    const swCode = `
+      self.addEventListener('notificationclick', function(event) {
+        event.notification.close();
+        event.waitUntil(
+          clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            for (let i = 0; i < clientList.length; i++) {
+              let client = clientList[i];
+              if (client.url && 'focus' in client) {
+                return client.focus();
+              }
+            }
+            if (clients.openWindow) {
+              return clients.openWindow(event.notification.data ? event.notification.data.url : 'home.html');
+            }
+          })
+        );
+      });
+    `;
+
+    if ('serviceWorker' in navigator) {
+      try {
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(() => {});
+      } catch(err) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const splash = document.getElementById('capsuleSplashOverlay');
+      const wrapper = document.getElementById('capsuleWrapper');
+      
+      setTimeout(() => {
+        wrapper.classList.add('cracked');
+        triggerTapFeedback();
+      }, 320);
+
+      setTimeout(() => {
+        if (splash) {
+          splash.style.opacity = '0';
+          setTimeout(() => splash.style.display = 'none', 450);
+        }
+      }, 1050);
+
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    });
+
+    // =========================================================
+    // FULLSCREEN SHORTCUT: RIGHT-CLICK (PC) & LONG-PRESS (PHONE)
+    // =========================================================
+    const storyBox = document.getElementById('storyNoticeBox');
+    let longPressTimer = null;
+
+    storyBox.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      toggleNoticeFullscreen();
+    });
+
+    storyBox.addEventListener('touchstart', () => {
+      longPressTimer = setTimeout(() => {
+        toggleNoticeFullscreen();
+      }, 1000);
+    });
+
+    storyBox.addEventListener('touchend', () => {
+      clearTimeout(longPressTimer);
+    });
+
+    storyBox.addEventListener('touchmove', () => {
+      clearTimeout(longPressTimer);
+    });
+
+    function toggleNoticeFullscreen() {
+      triggerTapFeedback();
+      const doc = window.document;
+      const docEl = storyBox;
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    }
+
+    // =========================================================
+    // SMART NOTIFICATION ENGINE (SUPPRESSES IN-APP NOTIFICATIONS ON HOME PAGE)
+    // =========================================================
+    let bannerHideTimer = null;
+    let currentBannerRedirectUrl = 'home.html';
+
+    function sendSmartNotification({ title, message, photo, emojiBadge = '', redirectUrl = 'home.html' }) {
+      // यदि यूजर अभी होम पेज पर है, तो नोटिस या होम से जुड़े अपडेट का इन-ऐप पॉप-अप नहीं दिखाना है
+      const isCurrentPageHome = window.location.pathname.endsWith('home.html') || window.location.pathname === '/' || window.location.pathname === '';
+      if (isCurrentPageHome && (title.toLowerCase().includes('notice') || title.toLowerCase().includes('d-pharma'))) {
+        return; // होम पेज पर होने पर इन-ऐप नोटिफिकेशन बैनਰ ब्लॉक कर दिया गया
+      }
+
+      const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      if (document.hidden) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: message,
+              icon: photo || defaultPhoto,
+              badge: photo || defaultPhoto,
+              vibrate: [100, 50, 100],
+              data: { url: redirectUrl }
+            });
+          }).catch(() => {
+            new Notification(title, { body: message, icon: photo || defaultPhoto });
+          });
+        }
+        return;
+      }
+
+      const banner = document.getElementById('topNotificationBanner');
+      document.getElementById('bannerTitle').innerText = title;
+      document.getElementById('bannerSub').innerText = message;
+      document.getElementById('bannerSenderPhoto').src = photo || defaultPhoto;
+
+      const badgeContainer = document.getElementById('bannerEmojiBadge');
+      if (emojiBadge) {
+        badgeContainer.innerHTML = `<span style="font-size:12px; line-height:1;">${emojiBadge}</span>`;
+      }
+
+      currentBannerRedirectUrl = redirectUrl;
+      banner.classList.add('show');
+      triggerNotificationAlert();
+
+      clearTimeout(bannerHideTimer);
+      bannerHideTimer = setTimeout(() => banner.classList.remove('show'), 4000);
+    }
+
+    function handleNotificationClick() {
+      triggerTapFeedback();
+      document.getElementById('topNotificationBanner').classList.remove('show');
+      window.location.href = currentBannerRedirectUrl;
+    }
+
+    // AUDIO & HAPTIC
+    let audioCtx = null;
+
+    function triggerTapFeedback() {
+      try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) {}
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        const t = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(850, t);
+        osc.frequency.exponentialRampToValueAtTime(1250, t + 0.05);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      } catch (e) {}
+    }
+
+    function triggerNotificationAlert() {
+      try { if (navigator.vibrate) navigator.vibrate([40, 60, 100]); } catch (e) {}
+    }
+
+    function navWithFeedback(targetUrl) {
+      triggerTapFeedback();
+      if (targetUrl === 'home.html' && window.location.pathname.endsWith('home.html')) return;
+      setTimeout(() => { window.location.href = targetUrl; }, 70);
+    }
+
+    const CLOUDINARY_CLOUD_NAME = "glkgivxq";
+    const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
+    const CLOUDINARY_API_KEY = "282264657557848";
+    const CLOUDINARY_API_SECRET = "D6Q6z5A5lK2LQsc8NIUlPAaQsZU";
+    const DEVELOPER_ID = "karanrathoure6271@gmail.com";
+
+    document.addEventListener('keydown', function (e) {
+      if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode === 85)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    const cachedProfile = localStorage.getItem('cachedUserObj');
+    let currentUserData = cachedProfile ? JSON.parse(cachedProfile) : null;
+    let authUser = null;
+
+    if (currentUserData && currentUserData.photo) {
+      document.getElementById('navProfilePic').src = currentUserData.photo;
+      document.getElementById('modalProfileImg').src = currentUserData.photo;
+    }
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQ2XpoeeKwVmIZ2wp8H3D2xzTY49nhxAI",
+      authDomain: "d-pharma-class-group.firebaseapp.com",
+      projectId: "d-pharma-class-group",
+      storageBucket: "d-pharma-class-group.firebasestorage.app",
+      messagingSenderId: "870561978483",
+      appId: "1:870561978483:web:095681d6185f43cd6d7206",
+      measurementId: "G-VQ12Y4NLRJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let activeNotices = JSON.parse(localStorage.getItem('portal_notices_cache')) || [];
+    let currentStoryIndex = 0;
+    let activeMediaUrl = "";
+
+    if (activeNotices.length > 0) renderCurrentStory();
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('login.html');
+        return;
+      }
+
+      authUser = user;
+      const userEmail = (user.email || '').toLowerCase();
+      const isDev = userEmail === DEVELOPER_ID.toLowerCase();
+
+      if (isDev) {
+        currentUserData = {
+          uid: user.uid,
+          name: "Karan Rathoure (Dev)",
+          email: DEVELOPER_ID,
+          role: "developer",
+          enroll: "DEV-ROOT",
+          phone: "Verified Admin",
+          photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
+        };
+        localStorage.setItem('cachedUserObj', JSON.stringify(currentUserData));
+        document.getElementById('createNoticePanel').style.display = 'block';
+      } else {
+        let docSnap = await db.collection('students').doc(user.uid).get();
+        if (!docSnap.exists) {
+          const qSnap = await db.collection('students').where('email', '==', userEmail).limit(1).get();
+          if (!qSnap.empty) docSnap = qSnap.docs[0];
+        }
+
+        if (docSnap && docSnap.exists) {
+          currentUserData = docSnap.data();
+          currentUserData.uid = docSnap.id;
+          localStorage.setItem('cachedUserObj', JSON.stringify(currentUserData));
+          if (currentUserData.photo) {
+            document.getElementById('navProfilePic').src = currentUserData.photo;
+            document.getElementById('modalProfileImg').src = currentUserData.photo;
+          }
+          if (currentUserData.role === 'teacher') {
+            document.getElementById('createNoticePanel').style.display = 'block';
+          }
+        }
+      }
+
+      preloadStudentsForFastSearch();
+      loadStoryNoticesRealtime();
+      listenIncomingChatMessages(user.uid);
+    });
+
+    function listenIncomingChatMessages(currentUserId) {
+      db.collection('chatRequests')
+        .where('toId', '==', currentUserId)
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+              const reqData = change.doc.data();
+              sendSmartNotification({
+                title: "New Message Received",
+                message: `You have a new message from ${reqData.fromName || 'User'}`,
+                photo: reqData.fromPhoto || '',
+                redirectUrl: `chats.html?to=${reqData.fromUid}`
+              });
+            }
+          });
+        });
+    }
+
+    let isInitialNoticeLoad = true;
+
+    function loadStoryNoticesRealtime() {
+      db.collection('notices').orderBy('createdAt', 'desc').limit(20).onSnapshot((snap) => {
+        let freshList = [];
+        let hasNewNoticeAdded = false;
+        let newestNoticeAuthor = 'Authority';
+
+        snap.docChanges().forEach((change) => {
+          if (change.type === 'added' && !isInitialNoticeLoad) {
+            hasNewNoticeAdded = true;
+            newestNoticeAuthor = change.doc.data().postedBy || 'Authority';
+          }
+          if (change.type === 'modified' && !isInitialNoticeLoad) {
+            const modData = change.doc.data();
+            if (modData.lastReaction) {
+              const r = modData.lastReaction;
+              const myIdentifier = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+              if (r.userEmail && r.userEmail.toLowerCase() !== myIdentifier) {
+                sendSmartNotification({
+                  title: `${r.userName || 'Student'} Reacted`,
+                  message: `${r.userName || 'Student'} reacted with ${r.emoji} on "${modData.title || 'Notice'}"`,
+                  photo: r.userPhoto || '',
+                  emojiBadge: r.emoji,
+                  redirectUrl: 'home.html'
+                });
+              }
+            }
+          }
+        });
+
+        snap.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          freshList.push(data);
+        });
+
+        activeNotices = freshList;
+        localStorage.setItem('portal_notices_cache', JSON.stringify(activeNotices));
+
+        if (hasNewNoticeAdded) {
+          sendSmartNotification({
+            title: "New Notice Published",
+            message: `You have a new notice from ${newestNoticeAuthor}`,
+            redirectUrl: 'home.html'
+          });
+        }
+
+        if (currentStoryIndex >= activeNotices.length) {
+          currentStoryIndex = Math.max(0, activeNotices.length - 1);
+        }
+        
+        renderCurrentStory();
+        isInitialNoticeLoad = false;
+      });
+    }
+
+    function renderCurrentStory() {
+      const isDev = authUser && authUser.email.toLowerCase() === DEVELOPER_ID.toLowerCase();
+
+      if (activeNotices.length === 0) {
+        document.getElementById('storyProgress').innerHTML = '<div class="story-progress-segment active"></div>';
+        document.getElementById('storyAuthorName').innerText = "Notice Board";
+        document.getElementById('storyTitle').innerText = "No Active Notices";
+        document.getElementById('storyDesc').innerText = "There are no active notices right now.";
+        document.getElementById('storyImageWrap').innerHTML = '';
+        document.getElementById('storyLinkWrap').innerHTML = '';
+        document.getElementById('devDeleteWrap').innerHTML = '';
+        document.getElementById('noticeReactionCluster').style.display = 'none';
+        document.getElementById('storyCounter').innerText = "0 / 0";
+        return;
+      }
+
+      const notice = activeNotices[currentStoryIndex];
+
+      let bars = '';
+      for (let i = 0; i < activeNotices.length; i++) {
+        bars += `<div class="story-progress-segment ${i <= currentStoryIndex ? 'active' : ''}"></div>`;
+      }
+      document.getElementById('storyProgress').innerHTML = bars;
+
+      document.getElementById('storyAuthorName').innerText = notice.postedBy || "Authority";
+      document.getElementById('storyAuthorPhoto').src = notice.authorPhoto || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+      if (isDev) {
+        document.getElementById('devDeleteWrap').innerHTML = `<button class="btn-delete-notice" onclick="openCustomConfirmModal('${notice.id}')">🗑 Delete</button>`;
+      } else {
+        document.getElementById('devDeleteWrap').innerHTML = '';
+      }
+
+      document.getElementById('storyTitle').innerText = notice.title || "";
+      document.getElementById('storyDesc').innerText = notice.content || "";
+
+      const mediaList = notice.media || [];
+      if (mediaList.length > 0) {
+        const item = mediaList[0];
+        activeMediaUrl = item.url;
+        const imgWrap = document.getElementById('storyImageWrap');
+
+        if (item.type === 'video' || item.url.match(/\.(mp4|webm|ogg|mov)$/i)) {
+          imgWrap.innerHTML = `<video src="${activeMediaUrl}" class="story-video-full" id="activeStoryMedia" controls playsinline></video>`;
+        } else {
+          imgWrap.innerHTML = `<img src="${activeMediaUrl}" class="story-image-full" id="activeStoryMedia" alt="Notice" />`;
+        }
+
+        document.getElementById('activeStoryMedia').onclick = () => {
+          triggerTapFeedback();
+          openImageModal(activeMediaUrl, item.type);
+        };
+      } else {
+        document.getElementById('storyImageWrap').innerHTML = '';
+      }
+
+      if (notice.link) {
+        document.getElementById('storyLinkWrap').innerHTML = `<a href="${notice.link}" target="_blank" style="color:#38bdf8; font-size:0.82rem; text-decoration:underline;">🔗 Open Attached Link</a>`;
+      } else {
+        document.getElementById('storyLinkWrap').innerHTML = '';
+      }
+
+      renderNoticeReactions(notice);
+
+      document.getElementById('storyCounter').innerText = `${currentStoryIndex + 1} / ${activeNotices.length}`;
+      document.getElementById('prevStoryBtn').disabled = currentStoryIndex === 0;
+      document.getElementById('nextStoryBtn').disabled = currentStoryIndex === activeNotices.length - 1;
+    }
+
+    function renderNoticeReactions(notice) {
+      const cluster = document.getElementById('noticeReactionCluster');
+      const pillsContainer = document.getElementById('noticeReactionPills');
+      cluster.style.display = 'flex';
+      pillsContainer.innerHTML = '';
+
+      const reactedUsers = notice.reactedUsers || {};
+      const userProfiles = notice.userProfiles || {};
+      const myId = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+
+      const emojiBtns = cluster.querySelectorAll('.notice-emoji-btn');
+      emojiBtns.forEach(btn => {
+        const em = btn.innerText.trim();
+        if (reactedUsers[myId] === em) {
+          btn.classList.add('locked-reacted');
+        } else {
+          btn.classList.remove('locked-reacted');
+        }
+      });
+
+      for (const [userId, reactionInfo] of Object.entries(userProfiles)) {
+        const pill = document.createElement('div');
+        pill.className = 'notice-reaction-pill';
+        const userAvatar = reactionInfo.photo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        
+        pill.innerHTML = `
+          <img class="pill-avatar protected-img" src="${userAvatar}" alt="User" />
+          <span>${reactionInfo.emoji}</span>
+        `;
+
+        pill.addEventListener('touchstart', (e) => {
+          e.stopPropagation();
+          triggerTapFeedback();
+          pill.style.transform = `translate(${Math.random() * 40 - 20}px, ${Math.random() * -30 - 15}px) scale(1.15) rotate(${Math.random() * 20 - 10}deg)`;
+        });
+
+        pill.addEventListener('touchend', () => {
+          pill.style.transform = 'translate(0px, 0px) scale(1) rotate(0deg)';
+        });
+
+        pillsContainer.appendChild(pill);
+      }
+    }
+
+    async function reactToCurrentNotice(emoji) {
+      if (!activeNotices || activeNotices.length === 0) return;
+      const notice = activeNotices[currentStoryIndex];
+      if (!notice || !notice.id) return;
+
+      const myId = (currentUserData ? (currentUserData.email || currentUserData.uid) : '').toLowerCase();
+      if (!myId) return;
+
+      const reactedUsers = notice.reactedUsers || {};
+      if (reactedUsers[myId]) {
+        triggerTapFeedback();
+        return;
+      }
+
+      triggerTapFeedback();
+      const noticeRef = db.collection('notices').doc(notice.id);
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(noticeRef);
+          if (!doc.exists) return;
+
+          const data = doc.data();
+          const currentReactions = data.reactions || {};
+          const currentReactedUsers = data.reactedUsers || {};
+          const currentUserProfiles = data.userProfiles || {};
+
+          if (currentReactedUsers[myId]) return;
+
+          currentReactions[emoji] = (currentReactions[emoji] || 0) + 1;
+          currentReactedUsers[myId] = emoji;
+          currentUserProfiles[myId] = {
+            name: currentUserData ? currentUserData.name : 'Student',
+            photo: currentUserData && currentUserData.photo ? currentUserData.photo : '',
+            emoji: emoji
+          };
+
+          transaction.update(noticeRef, {
+            reactions: currentReactions,
+            reactedUsers: currentReactedUsers,
+            userProfiles: currentUserProfiles,
+            lastReaction: {
+              emoji: emoji,
+              userName: currentUserData ? currentUserData.name : 'Student',
+              userPhoto: currentUserData && currentUserData.photo ? currentUserData.photo : '',
+              userEmail: myId,
+              timestamp: Date.now()
+            }
+          });
+        });
+      } catch (err) {
+        console.error("Reaction failed:", err);
+      }
+    }
+
+    function openImageModal(url, type) {
+      const container = document.getElementById('modalMediaContainer');
+      container.innerHTML = `<img src="${url}" style="max-width:100%; max-height:85vh; border-radius:12px;" alt="Media" />`;
+      document.getElementById('imageModalOverlay').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModalOverlay').style.display = 'none';
+      document.getElementById('modalMediaContainer').innerHTML = '';
+    }
+
+    function openCustomConfirmModal(noticeId) {
+      triggerTapFeedback();
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('customConfirmYesBtn').onclick = async () => {
+        closeCustomConfirmModal();
+        await db.collection('notices').doc(noticeId).delete();
+      };
+      modal.style.display = 'flex';
+    }
+
+    function closeCustomConfirmModal() {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    }
+
+    function navigateStory(dir) {
+      triggerTapFeedback();
+      const newIndex = currentStoryIndex + dir;
+      if (newIndex >= 0 && newIndex < activeNotices.length) {
+        currentStoryIndex = newIndex;
+        renderCurrentStory();
+      }
+    }
+
+    function openProfileModal() {
+      if (!currentUserData) return;
+      document.getElementById('modalName').innerText = currentUserData.name || 'Student';
+      document.getElementById('modalEnroll').innerText = currentUserData.enroll || 'N/A';
+      document.getElementById('modalEmail').innerText = currentUserData.email || 'N/A';
+      document.getElementById('modalPhone').innerText = currentUserData.phone || 'N/A';
+      if (currentUserData.photo) {
+        document.getElementById('modalProfileImg').src = currentUserData.photo;
+      }
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function handleProfileBackdropClick(e) {
+      if (e.target.id === 'profileModal') {
+        document.getElementById('profileModal').style.display = 'none';
+      }
+    }
+
+    function goToMyProfile() {
+      if (currentUserData && (currentUserData.uid || authUser)) {
+        window.location.href = `profile.html?uid=${currentUserData.uid || authUser.uid}`;
+      }
+    }
+
+    async function logoutUser() {
+      localStorage.clear();
+      sessionStorage.clear();
+      try { await auth.signOut(); } catch(e) {}
+      window.location.replace('login.html');
+    }
+
+    async function preloadStudentsForFastSearch() {
+      try {
+        const snap = await db.collection('students').get();
+        window.cachedStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch (e) {}
+    }
+
+    document.getElementById('userSearchInput').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const box = document.getElementById('searchResultsBox');
+      const list = document.getElementById('usersList');
+      if (!q) {
+        list.innerHTML = '';
+        box.style.display = 'none';
+        return;
+      }
+      const matched = (window.cachedStudents || []).filter(u => (u.name || '').toLowerCase().includes(q) || (u.enroll || '').toLowerCase().includes(q));
+      list.innerHTML = '';
+      if (matched.length === 0) {
+        list.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; padding:8px;">No student found.</div>';
+        box.style.display = 'block';
+        return;
+      }
+      matched.slice(0, 8).forEach(data => {
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML = `
+          <div class="user-info-left" onclick="window.location.href='profile.html?uid=${data.id}'">
+            <img class="user-avatar-sm protected-img" src="${data.photo || ''}" />
+            <div><strong style="font-size:0.86rem; color:#fff;">${data.name}</strong><div style="font-size:0.72rem; color:#34d399;">${data.enroll || ''}</div></div>
+          </div>
+          <button class="btn-action" onclick="window.location.href='chats.html?to=${data.id}'">Chat</button>
+        `;
+        list.appendChild(card);
+      });
+      box.style.display = 'block';
+    });
+
+    async function publishNotice() {
+      alert("Notice publishing logic active!");
+    }
+  </script>
+</body>
+</html>
