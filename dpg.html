@@ -2294,7 +2294,7 @@
         });
     }
 
-    // FAST DISPATCH WITH TYPE-SPECIFIC SMART COMPRESSION (IMAGES, VIDEOS, AND 15-20MB PDF/DOC LIMITS)
+    // FIREBASE 1GB SAFE & CLOUDINARY 25GB BALANCED DISPATCH
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2319,13 +2319,12 @@
           formData.append("file", selectedMediaFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
           
-          // Type-specific smart compression & size balancing (15-20MB limit constraint)
+          // Separate Type-Specific Compression to utilize 25GB Cloudinary while keeping Firebase 1GB light
           if (selectedMediaType === 'image') {
             formData.append("transformation", "q_auto:good,w_1200,f_auto");
           } else if (selectedMediaType === 'video') {
             formData.append("transformation", "q_auto:good,vc_auto,w_1280");
           } else if (selectedMediaType === 'raw') {
-            // PDF/Raw documents optimization to prevent exceeding cloud limits
             formData.append("resource_type", "auto");
           }
 
