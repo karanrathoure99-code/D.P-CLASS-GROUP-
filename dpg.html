@@ -1829,7 +1829,6 @@
           const storageKey = `cleared_chat_${userKey}_${activeGroupId}`;
           localStorage.setItem(storageKey, Date.now().toString());
           document.getElementById('chatMessages').innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>';
-          alert("Chat cleared successfully!");
         }
       );
     }
@@ -2071,13 +2070,19 @@
       });
     }
 
+    // GLOBAL UNSEND ENGINE (DELETES FROM FIREBASE & CLOUDINARY IMMEDIATELY)
     async function executeUnsend() {
       if (!activeMsgDocId || !activeGroupId) return;
       try {
-        if (activePublicId) {
-          await deleteFromCloudinaryDirect(activePublicId, activeResourceType);
+        const msgRef = db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId);
+        const docSnap = await msgRef.get();
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          if (data.cloudinaryPublicId) {
+            await deleteFromCloudinaryDirect(data.cloudinaryPublicId, data.resourceType || 'image');
+          }
         }
-        await db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId).delete();
+        await msgRef.delete();
       } catch (err) {}
     }
 
@@ -2294,7 +2299,6 @@
         });
     }
 
-    // FIREBASE 1GB SAFE & CLOUDINARY 25GB BALANCED DISPATCH
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2319,7 +2323,6 @@
           formData.append("file", selectedMediaFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
           
-          // Separate Type-Specific Compression to utilize 25GB Cloudinary while keeping Firebase 1GB light
           if (selectedMediaType === 'image') {
             formData.append("transformation", "q_auto:good,w_1200,f_auto");
           } else if (selectedMediaType === 'video') {
