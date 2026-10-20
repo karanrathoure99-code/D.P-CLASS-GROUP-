@@ -6,7 +6,7 @@
   <title>D.P.G - Groups Portal</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- 1. IMMEDIATE AUTH GUARD -->
+  <!-- 1. IMMEDIATE AUTH GUARD (STRICT LOGIN CHECK) -->
   <script>
     (function () {
       const role = localStorage.getItem('userRole');
@@ -720,9 +720,6 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .video-play-overlay:hover {
-      background: rgba(0,0,0,0.15);
-    }
     .play-icon-circle {
       width: 44px;
       height: 44px;
@@ -988,7 +985,7 @@
     .nav-item.active {
       color: #ffffff;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
-      border: 1px solid #34d399;
+      border: 1.5px solid #34d399;
     }
   </style>
 
@@ -1117,12 +1114,13 @@
       <!-- VIEW 3: Group & Chat Stream -->
       <section id="viewInsideGroup">
         <div class="group-subnav">
-          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 50%;">
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 45%;">
             <h3 id="currentGroupName" style="color:#34d399; font-size:1rem; font-weight:800; overflow:hidden; text-overflow:ellipsis;">Group Name</h3>
             <p id="currentGroupBio" style="font-size:0.72rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis;"></p>
           </div>
           
           <div class="group-nav-actions">
+            <button class="btn-glass" onclick="openClearChatConfirmation()" style="padding:5px 10px; font-size:0.75rem;">🧹 Clear Chat</button>
             <button class="btn-glass" onclick="openMembersModal()">👥 Members</button>
             <button id="btnToggleAddMember" class="btn-emerald" style="display:none; font-size:0.78rem; padding:6px 12px;" onclick="toggleAddStudentBar()">+ Add</button>
             <button class="nav-btn" onclick="exitGroupView()">❮ Exit</button>
@@ -1206,7 +1204,6 @@
   </div>
 
   <script>
-    // DOUBLE CLICK FULLSCREEN MODE (ZOOM BLOCKER)
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'LABEL'].includes(e.target.tagName)) return;
       e.preventDefault();
@@ -1420,7 +1417,7 @@
 
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
-    }, 1000);
+    }, 1500);
 
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
@@ -1827,6 +1824,23 @@
       document.getElementById('customConfirmModal').style.display = 'none';
     }
 
+    // CLEAR GROUP CHAT LOCALLY (WHATSAPP STYLE)
+    function openClearChatConfirmation() {
+      triggerTapFeedback();
+      if (!activeGroupId) return;
+      showCustomConfirmation(
+        "Clear Chat",
+        "Are you sure you want to clear all chat messages for yourself?",
+        () => {
+          const userKey = currentUser ? (currentUser.email || 'user') : 'user';
+          const storageKey = `cleared_chat_${userKey}_${activeGroupId}`;
+          localStorage.setItem(storageKey, Date.now().toString());
+          document.getElementById('chatMessages').innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>';
+          alert("Chat cleared successfully!");
+        }
+      );
+    }
+
     async function removeMemberFromGroup(memberId, memberName) {
       if (!isDeveloper || !activeGroupId) return;
       showCustomConfirmation("Remove Member", `Are you sure you want to remove ${memberName}?`, async () => {
@@ -1918,7 +1932,6 @@
 
     function openMediaModal(url, type) {
       triggerTapFeedback();
-      // Small preview video ko pause kar do agar chal rahi ho
       const activeVideos = document.querySelectorAll('video');
       activeVideos.forEach(v => v.pause());
 
@@ -2122,8 +2135,22 @@
             return;
           }
 
+          const userKey = currentUser ? (currentUser.email || 'user') : 'user';
+          const clearedTimestamp = parseInt(localStorage.getItem(`cleared_chat_${userKey}_${groupId}`) || '0');
+
+          let hasRenderedAny = false;
+
           snap.forEach((doc) => {
             const m = doc.data();
+            
+            if (m.timestamp) {
+              const msgTime = m.timestamp.toMillis ? m.timestamp.toMillis() : m.timestamp.seconds * 1000;
+              if (msgTime <= clearedTimestamp) {
+                return;
+              }
+            }
+
+            hasRenderedAny = true;
             const docId = doc.id;
             const isMine = (m.senderEmail || '').toLowerCase() === (currentUser.email || '').toLowerCase();
             const senderPhoto = m.senderPhoto || 'https://via.placeholder.com/150';
@@ -2203,7 +2230,11 @@
                 hbProg.style.width = '0%';
               };
 
-              vid.ondblclick = () => openMediaModal(m.video, 'video');
+              vid.ondblclick = () => {
+                vid.pause();
+                overlay.style.display = 'flex';
+                openMediaModal(m.video, 'video');
+              };
 
               vidContainer.appendChild(vid);
               vidContainer.appendChild(overlay);
@@ -2243,6 +2274,10 @@
             wrapper.appendChild(bubble);
             box.appendChild(wrapper);
           });
+
+          if (!hasRenderedAny) {
+            box.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin:auto;">No messages posted yet.</p>';
+          }
 
           box.scrollTop = box.scrollHeight;
 
