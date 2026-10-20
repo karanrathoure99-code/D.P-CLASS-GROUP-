@@ -37,7 +37,7 @@
       touch-action: pan-x pan-y;
     }
 
-    /* 3D CAPSULE CRACK OVERLAY (FIXED & FAST SPEED) */
+    /* 3D CAPSULE CRACK OVERLAY (SMOOTH & FAST) */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -1161,9 +1161,7 @@
   </div>
 
   <script>
-    // OBFUSCATED SECURE SCRIPT ENGINE
-    (function(_0x1b42,_0x3a21){const _0x4d22=function(_0x2e8f,_0x103a){while(--_0x103a){_0x1b42['push'](_0x1b42['shift']());}};_0x4d22(++_0x3a21,_0x3a21);}(_0x2035,0x1b8));function _0x2035(){return['value','activeGroupId','currentUser','firestore','groups','messages','collection','where','get','exists','data','update','add','serverTimestamp','FieldValue','cloud_name','upload_preset','apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','measurementId','initializeApp','auth','onAuthStateChanged','replace','localStorage','setItem','getItem','removeItem','style','display','innerHTML','innerText','createElement','appendChild','removeChild','click','target','stopPropagation','preventDefault','vibrate','AudioContext','webkitAudioContext','createOscillator','createGain','connect','destination','type','sine','frequency','setValueAtTime','exponentialRampToValueAtTime','gain','start','stop','currentTime','hidden','Notification','permission','requestPermission','ready','showNotification','matchAll','openWindow','push','shift'];}
-
+    // DOUBLE CLICK FULLSCREEN MODE (ZOOM BLOCKER)
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'LABEL'].includes(e.target.tagName)) return;
       e.preventDefault();
@@ -1204,6 +1202,17 @@
       }
     });
 
+    ['touchstart', 'touchend', 'click'].forEach(evt => {
+      window.addEventListener(evt, () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }, { once: false, passive: true });
+    });
+
     let audioCtx = null;
 
     function triggerTapFeedback() {
@@ -1216,13 +1225,13 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.type = 'sine';
-        const t = audioCtx.currentTime;
-        osc.frequency.setValueAtTime(850, t);
-        osc.frequency.exponentialRampToValueAtTime(1250, t + 0.05);
-        gain.gain.setValueAtTime(0.18, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
-        osc.start(t);
-        osc.stop(t + 0.07);
+        const startTime = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(850, startTime);
+        osc.frequency.exponentialRampToValueAtTime(1250, startTime + 0.05);
+        gain.gain.setValueAtTime(0.18, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.07);
+        osc.start(startTime);
+        osc.stop(startTime + 0.07);
       } catch (e) {}
     }
 
@@ -2101,7 +2110,6 @@
               img.src = m.image;
               img.className = 'msg-img-preview';
               img.ondblclick = () => openMediaModal(m.image, 'image');
-              img.onclick = () => openMediaModal(m.image, 'image');
               bubble.appendChild(img);
             }
 
@@ -2110,7 +2118,6 @@
               vid.src = m.video;
               vid.className = 'msg-video-preview';
               vid.ondblclick = () => openMediaModal(m.video, 'video');
-              vid.onclick = () => openMediaModal(m.video, 'video');
               bubble.appendChild(vid);
             }
 
