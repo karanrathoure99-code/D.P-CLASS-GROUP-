@@ -37,7 +37,7 @@
       touch-action: pan-x pan-y;
     }
 
-    /* 3D CAPSULE CRACK OVERLAY (SMOOTH & FAST) */
+    /* 3D CAPSULE CRACK OVERLAY (FAST SPEED) */
     #capsuleSplashOverlay {
       position: fixed;
       inset: 0;
@@ -693,17 +693,62 @@
       border: 1px solid rgba(52, 211, 153, 0.3);
       object-fit: contain;
     }
-    .msg-video-preview {
-      max-width: 200px;
-      max-height: 160px;
-      border-radius: 10px;
+
+    /* CUSTOM VIDEO PREVIEW WITH HEARTBEAT PROGRESS BAR */
+    .video-container-custom {
+      position: relative;
+      max-width: 220px;
       margin-top: 6px;
-      display: block;
-      background: #000;
-      outline: none;
-      cursor: pointer;
+      border-radius: 10px;
+      overflow: hidden;
       border: 1px solid rgba(52, 211, 153, 0.3);
+      background: #000;
+    }
+    .msg-video-preview {
+      width: 100%;
+      max-height: 160px;
+      display: block;
       object-fit: contain;
+    }
+    .video-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .video-play-overlay:hover {
+      background: rgba(0,0,0,0.15);
+    }
+    .play-icon-circle {
+      width: 44px;
+      height: 44px;
+      background: rgba(16, 185, 129, 0.85);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(52, 211, 153, 0.8);
+      color: #fff;
+      font-size: 1.1rem;
+      padding-left: 2px;
+    }
+    .video-heartbeat-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .video-heartbeat-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10b981, #34d399, #ec4899);
+      box-shadow: 0 0 8px #34d399;
+      transition: width 0.1s linear;
     }
 
     .msg-time {
@@ -1195,7 +1240,7 @@
           splash.style.opacity = '0';
           setTimeout(() => splash.style.display = 'none', 300);
         }
-      }, 550);
+      }, 500);
 
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
@@ -2110,15 +2155,57 @@
               img.src = m.image;
               img.className = 'msg-img-preview';
               img.ondblclick = () => openMediaModal(m.image, 'image');
+              img.onclick = () => openMediaModal(m.image, 'image');
               bubble.appendChild(img);
             }
 
             if (m.video) {
+              const vidContainer = document.createElement('div');
+              vidContainer.className = 'video-container-custom';
+
               const vid = document.createElement('video');
               vid.src = m.video;
               vid.className = 'msg-video-preview';
+              vid.preload = 'metadata';
+
+              const overlay = document.createElement('div');
+              overlay.className = 'video-play-overlay';
+              overlay.innerHTML = `<div class="play-icon-circle">▶</div>`;
+
+              const hbBar = document.createElement('div');
+              hbBar.className = 'video-heartbeat-bar';
+              const hbProg = document.createElement('div');
+              hbProg.className = 'video-heartbeat-progress';
+              hbBar.appendChild(hbProg);
+
+              vid.ontimeupdate = () => {
+                if (vid.duration) {
+                  const pct = (vid.currentTime / vid.duration) * 100;
+                  hbProg.style.width = pct + '%';
+                }
+              };
+
+              overlay.onclick = () => {
+                if (vid.paused) {
+                  vid.play();
+                  overlay.style.display = 'none';
+                } else {
+                  vid.pause();
+                  overlay.style.display = 'flex';
+                }
+              };
+
+              vid.onended = () => {
+                overlay.style.display = 'flex';
+                hbProg.style.width = '0%';
+              };
+
               vid.ondblclick = () => openMediaModal(m.video, 'video');
-              bubble.appendChild(vid);
+
+              vidContainer.appendChild(vid);
+              vidContainer.appendChild(overlay);
+              vidContainer.appendChild(hbBar);
+              bubble.appendChild(vidContainer);
             }
 
             if (m.fileUrl) {
