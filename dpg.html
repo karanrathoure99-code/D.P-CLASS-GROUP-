@@ -165,7 +165,7 @@
       z-index: 2;
       width: 100%;
       height: 100%;
-      display: none;
+      display: flex;
       flex-direction: column;
     }
 
@@ -832,7 +832,7 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     }
 
-    /* LONG PRESS CONTEXT MENU (WITH 5 EMOJIS & OPTIONS) */
+    /* LONG PRESS CONTEXT MENU */
     .context-menu-overlay {
       position: fixed;
       inset: 0;
@@ -857,7 +857,6 @@
       box-shadow: 0 15px 35px rgba(0,0,0,0.85);
     }
 
-    /* 5 EMOJIS FLOATING DOCK */
     .emoji-reaction-bar {
       display: flex;
       justify-content: space-around;
@@ -981,24 +980,11 @@
       transform: scale(0.92);
     }
 
-    .nav-item svg {
-      transition: transform 0.2s ease;
-    }
-
-    .nav-item:hover svg {
-      transform: translateY(-2px);
-    }
-
     .nav-item.active {
       color: #ffffff;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
       border: 1px solid #34d399;
       box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
-    }
-
-    .nav-item:not(.active):hover {
-      color: #34d399;
-      background: rgba(16, 185, 129, 0.15);
     }
   </style>
 
@@ -1026,7 +1012,7 @@
     <span style="color: #94a3b8; font-size: 0.82rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
   </div>
 
-  <!-- LONG PRESS CONTEXT MENU (5 EMOJIS + OPTIONS) -->
+  <!-- LONG PRESS CONTEXT MENU -->
   <div class="context-menu-overlay" id="contextMenuOverlay" onclick="closeContextMenu()">
     <div class="context-menu-box" onclick="event.stopPropagation()">
       <div class="emoji-reaction-bar">
@@ -1037,8 +1023,8 @@
         <button class="emoji-btn" onclick="addReactionToMessage('😡')">😡</button>
       </div>
 
-      <button class="context-menu-btn" onclick="copyCurrentMessageText()">📋 Copy Message / Chat</button>
-      <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
+      <button class="context-menu-btn" onclick="copyCurrentMessageText()">📋 Copy Chat</button>
+      <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media</button>
       <button class="context-menu-btn" id="shareMenuBtn" style="display:none;" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="triggerUnsendConfirmation()">🗑️ Unsend Message</button>
       <button class="context-menu-btn" style="color: #94a3b8; border-color: rgba(148,163,184,0.3);" onclick="closeContextMenu()">Cancel</button>
@@ -1057,7 +1043,7 @@
     </div>
   </div>
 
-  <div id="secureAppWrapper" style="display:flex;">
+  <div id="secureAppWrapper">
     <!-- TOP BAR -->
     <header class="top-navbar">
       <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.href='home.html';">
@@ -1216,6 +1202,26 @@
   </div>
 
   <script>
+    // DOUBLE CLICK FULLSCREEN MODE (ZOOM BLOCKER)
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'LABEL'].includes(e.target.tagName)) return;
+      e.preventDefault();
+      togglePageFullscreen();
+    }, { passive: false });
+
+    function togglePageFullscreen() {
+      triggerTapFeedback();
+      const doc = window.document;
+      const docEl = doc.documentElement;
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (req) req.call(docEl).catch(() => {});
+      } else {
+        if (exit) exit.call(doc);
+      }
+    }
+
     // INLINE SERVICE WORKER FOR BACKGROUND NOTIFICATIONS
     const swCode = `
       self.addEventListener('notificationclick', function(event) {
@@ -1240,9 +1246,7 @@
       try {
         const blob = new Blob([swCode], { type: 'application/javascript' });
         const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(() => {
-          navigator.serviceWorker.register('sw.js').catch(() => {});
-        });
+        navigator.serviceWorker.register(swUrl).catch(() => {});
       } catch(err) {}
     }
 
@@ -1384,7 +1388,7 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // SMART NOTIFICATION ENGINE
+    // SMART NOTIFICATION ENGINE (SUPPRESSES DPG NOTIFICATIONS WHEN ON DPG PAGE)
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
@@ -1579,6 +1583,7 @@
       }
 
       currentUser = user || { email: verifiedEmail };
+      document.getElementById('secureAppWrapper').style.display = 'flex';
 
       renderGroupsList();
       triggerAutoCleanupExpired();
@@ -2119,12 +2124,11 @@
     }
 
     function copyCurrentMessageText() {
-      if (!activeMsgText && !activeMediaUrl) return;
-      const contentToCopy = activeMsgText ? activeMsgText : activeMediaUrl;
-      navigator.clipboard.writeText(contentToCopy).then(() => {
-        alert("Message copied to clipboard!");
+      if (!activeMsgText) return;
+      navigator.clipboard.writeText(activeMsgText).then(() => {
+        alert("Chat copied to clipboard!");
       }).catch(() => {
-        alert("Failed to copy message.");
+        alert("Failed to copy chat.");
       });
       closeContextMenu();
     }
@@ -2145,7 +2149,6 @@
 
           let reactions = doc.data().reactions || {};
 
-          // Check if user already reacted
           let alreadyReacted = false;
           for (const [em, users] of Object.entries(reactions)) {
             if (users && users.includes(userIdentifier)) {
@@ -2155,7 +2158,7 @@
           }
 
           if (alreadyReacted) {
-            return; // Permanently locked, cannot change or remove
+            return; // Permanently locked
           }
 
           let currentList = reactions[emoji] || [];
@@ -2212,7 +2215,7 @@
       }
     }
 
-    // 1.2 SECOND LONG PRESS LISTENER (TEXT & MEDIA)
+    // 1.2 SECOND LONG PRESS LISTENER
     function attachGlobalLongPress(element, docId, msgText, mediaUrl, publicId, resType, mine) {
       let pressTimer = null;
       let isMoved = false;
@@ -2307,6 +2310,7 @@
               const img = document.createElement('img');
               img.src = m.image;
               img.className = 'msg-img-preview';
+              img.ondblclick = () => openMediaModal(m.image, 'image');
               img.onclick = () => openMediaModal(m.image, 'image');
               bubble.appendChild(img);
             }
@@ -2315,6 +2319,7 @@
               const vid = document.createElement('video');
               vid.src = m.video;
               vid.className = 'msg-video-preview';
+              vid.ondblclick = () => openMediaModal(m.video, 'video');
               vid.onclick = () => openMediaModal(m.video, 'video');
               bubble.appendChild(vid);
             }
