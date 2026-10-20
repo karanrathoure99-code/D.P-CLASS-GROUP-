@@ -6,7 +6,7 @@
   <title>D.P.G - Groups Portal</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- 1. IMMEDIATE AUTH GUARD (STRICT LOGIN CHECK) -->
+  <!-- 1. IMMEDIATE AUTH GUARD -->
   <script>
     (function () {
       const role = localStorage.getItem('userRole');
@@ -672,7 +672,7 @@
     }
     .reaction-pill {
       background: rgba(2, 18, 14, 0.92);
-      border: 1px solid rgba(52, 211, 153, 0.5);
+      border: 1.5px solid rgba(52, 211, 153, 0.6);
       border-radius: 14px;
       padding: 3px 8px;
       font-size: 0.75rem;
@@ -681,6 +681,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .msg-img-preview {
@@ -904,7 +905,7 @@
       text-align: center;
     }
 
-    /* CENTERED CONFIRMATION MODAL */
+    /* CENTERED CONFIRMATION BOX MODAL */
     .custom-confirm-overlay {
       position: fixed;
       inset: 0;
@@ -1396,16 +1397,9 @@
 
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'LABEL', 'A'].includes(e.target.tagName)) return;
-      const doc = window.document;
-      const docEl = doc.documentElement;
-      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
-      const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
-      if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
-        if (req) req.call(docEl).catch(() => {});
-      } else {
-        if (exit) exit.call(doc);
-      }
-    });
+      e.preventDefault();
+      togglePageFullscreen();
+    }, { passive: false });
 
     document.addEventListener('contextmenu', (e) => e.preventDefault());
     document.addEventListener('keydown', function (e) {
@@ -1417,7 +1411,7 @@
 
     setInterval(function () {
       (function () { return false; }['constructor']('debugger')['call']());
-    }, 1500);
+    }, 2500);
 
     const colorfulMedicines = [
       `<svg viewBox="0 0 32 32"><g transform="rotate(-30 16 16)"><path d="M10 16 C10 11.5 12.5 8 16 8 C19.5 8 22 11.5 22 16 Z" fill="#ef4444" opacity="0.65" /><path d="M10 16 C10 20.5 12.5 24 16 24 C19.5 24 22 20.5 22 16 Z" fill="#ffffff" opacity="0.65" /><rect x="9.5" y="15" width="13" height="2" fill="#b91c1c" opacity="0.6" rx="1" /></g></svg>`,
@@ -1824,7 +1818,6 @@
       document.getElementById('customConfirmModal').style.display = 'none';
     }
 
-    // CLEAR GROUP CHAT LOCALLY (WHATSAPP STYLE)
     function openClearChatConfirmation() {
       triggerTapFeedback();
       if (!activeGroupId) return;
@@ -2046,16 +2039,23 @@
       } catch (err) {}
     }
 
-    function downloadCurrentMedia() {
+    async function downloadCurrentMedia() {
       if (!activeMediaUrl) return;
-      const a = document.createElement('a');
-      a.href = activeMediaUrl;
-      a.download = 'DPharma_' + Date.now();
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
       closeContextMenu();
+      try {
+        const response = await fetch(activeMediaUrl);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'DPharma_Media_' + Date.now();
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (err) {
+        window.open(activeMediaUrl, '_blank');
+      }
     }
 
     function shareCurrentMedia() {
@@ -2294,6 +2294,7 @@
         });
     }
 
+    // FAST DISPATCH WITH TYPE-SPECIFIC SMART COMPRESSION (IMAGES, VIDEOS, AND 15-20MB PDF/DOC LIMITS)
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2317,6 +2318,16 @@
           const formData = new FormData();
           formData.append("file", selectedMediaFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+          
+          // Type-specific smart compression & size balancing (15-20MB limit constraint)
+          if (selectedMediaType === 'image') {
+            formData.append("transformation", "q_auto:good,w_1200,f_auto");
+          } else if (selectedMediaType === 'video') {
+            formData.append("transformation", "q_auto:good,vc_auto,w_1280");
+          } else if (selectedMediaType === 'raw') {
+            // PDF/Raw documents optimization to prevent exceeding cloud limits
+            formData.append("resource_type", "auto");
+          }
 
           const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileTypeFolder}/upload`, {
             method: "POST",
