@@ -25,6 +25,7 @@
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       -webkit-user-select: none;
       user-select: none;
+      touch-action: manipulation;
     }
 
     html, body {
@@ -33,6 +34,7 @@
       overflow: hidden;
       background: radial-gradient(circle at center, #05241f 0%, #020f0d 100%);
       color: #ffffff;
+      touch-action: pan-x pan-y;
     }
 
     /* 3D CAPSULE CRACK OVERLAY (FAST SPEED) */
@@ -810,7 +812,7 @@
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
 
-    /* MEDIA FULLSCREEN VIEWER */
+    /* IN-APP MEDIA FULLSCREEN VIEWER */
     .fullscreen-media-modal {
       position: fixed;
       inset: 0;
@@ -998,29 +1000,6 @@
       color: #34d399;
       background: rgba(16, 185, 129, 0.15);
     }
-
-    #securityLoader {
-      position: fixed;
-      inset: 0;
-      background: #020f0d;
-      z-index: 99998;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      color: #34d399;
-      font-weight: 700;
-    }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(52, 211, 153, 0.2);
-      border-top-color: #34d399;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1039,14 +1018,9 @@
     <div class="capsule-badge-label">D-PHARMA PORTAL</div>
   </div>
 
-  <div id="securityLoader">
-    <div class="spinner"></div>
-    <span>Connecting D.P.G Portal...</span>
-  </div>
-
   <div class="rain-container" id="rainContainer"></div>
 
-  <!-- FULLSCREEN MEDIA VIEWER -->
+  <!-- FULLSCREEN IN-APP MEDIA VIEWER -->
   <div class="fullscreen-media-modal" id="mediaModalOverlay" onclick="closeMediaModal()">
     <div id="mediaModalContentContainer" style="display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"></div>
     <span style="color: #94a3b8; font-size: 0.82rem; margin-top: 14px; cursor:pointer;" onclick="closeMediaModal()">✕ Close Fullscreen</span>
@@ -1063,6 +1037,7 @@
         <button class="emoji-btn" onclick="addReactionToMessage('😡')">😡</button>
       </div>
 
+      <button class="context-menu-btn" onclick="copyCurrentMessageText()">📋 Copy Message / Chat</button>
       <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media / File</button>
       <button class="context-menu-btn" id="shareMenuBtn" style="display:none;" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="triggerUnsendConfirmation()">🗑️ Unsend Message</button>
@@ -1082,7 +1057,7 @@
     </div>
   </div>
 
-  <div id="secureAppWrapper">
+  <div id="secureAppWrapper" style="display:flex;">
     <!-- TOP BAR -->
     <header class="top-navbar">
       <div class="app-logo-badge" onclick="triggerTapFeedback(); window.location.href='home.html';">
@@ -1409,14 +1384,14 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // SMART NOTIFICATION ENGINE (SUPPRESSES IN-APP NOTIFICATIONS ON DPG PAGE)
+    // SMART NOTIFICATION ENGINE
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
     function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
       const isCurrentPageDpg = window.location.pathname.endsWith('dpg.html') || window.location.pathname === '/' || window.location.pathname === '';
       if (isCurrentPageDpg) {
-        return; // DPG page par hone par DPG page ke andar in-app notification banner nahi dikhega
+        return;
       }
 
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
@@ -1604,8 +1579,6 @@
       }
 
       currentUser = user || { email: verifiedEmail };
-      document.getElementById('securityLoader').style.display = 'none';
-      document.getElementById('secureAppWrapper').style.display = 'flex';
 
       renderGroupsList();
       triggerAutoCleanupExpired();
@@ -2073,8 +2046,9 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // FULLSCREEN & CONTEXT MENU ENGINE (1.2 SEC LONG PRESS)
+    // IN-APP FULLSCREEN MEDIA & CONTEXT MENU ENGINE (1.2 SEC LONG PRESS)
     let activeMediaUrl = "";
+    let activeMsgText = "";
     let activeMsgDocId = "";
     let activePublicId = "";
     let activeResourceType = "image";
@@ -2106,9 +2080,10 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    function openMessageContextMenu(docId, mediaUrl, publicId, resType, mine) {
+    function openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine) {
       playBeepSound(1200, 0.2);
       activeMsgDocId = docId;
+      activeMsgText = msgText || "";
       activeMediaUrl = mediaUrl || "";
       activePublicId = publicId || "";
       activeResourceType = resType || "image";
@@ -2138,11 +2113,23 @@
     function closeContextMenu() {
       document.getElementById('contextMenuOverlay').style.display = 'none';
       activeMsgDocId = "";
+      activeMsgText = "";
       activeMediaUrl = "";
       activePublicId = "";
     }
 
-    // EMOJI REACTION HANDLER WITH INSTANT SERVER SYNC
+    function copyCurrentMessageText() {
+      if (!activeMsgText && !activeMediaUrl) return;
+      const contentToCopy = activeMsgText ? activeMsgText : activeMediaUrl;
+      navigator.clipboard.writeText(contentToCopy).then(() => {
+        alert("Message copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy message.");
+      });
+      closeContextMenu();
+    }
+
+    // EMOJI REACTION HANDLER (PERMANENT LOCK: ONCE REACTED, CANNOT CHANGE OR REMOVE)
     async function addReactionToMessage(emoji) {
       if (!activeMsgDocId || !activeGroupId) return;
       triggerTapFeedback();
@@ -2157,19 +2144,25 @@
           if (!doc.exists) return;
 
           let reactions = doc.data().reactions || {};
-          let currentList = reactions[emoji] || [];
 
-          if (currentList.includes(userIdentifier)) {
-            currentList = currentList.filter(u => u !== userIdentifier);
-          } else {
+          // Check if user already reacted
+          let alreadyReacted = false;
+          for (const [em, users] of Object.entries(reactions)) {
+            if (users && users.includes(userIdentifier)) {
+              alreadyReacted = true;
+              break;
+            }
+          }
+
+          if (alreadyReacted) {
+            return; // Permanently locked, cannot change or remove
+          }
+
+          let currentList = reactions[emoji] || [];
+          if (!currentList.includes(userIdentifier)) {
             currentList.push(userIdentifier);
           }
-
-          if (currentList.length > 0) {
-            reactions[emoji] = currentList;
-          } else {
-            delete reactions[emoji];
-          }
+          reactions[emoji] = currentList;
 
           transaction.update(msgRef, { reactions: reactions });
         });
@@ -2220,14 +2213,14 @@
     }
 
     // 1.2 SECOND LONG PRESS LISTENER (TEXT & MEDIA)
-    function attachGlobalLongPress(element, docId, mediaUrl, publicId, resType, mine) {
+    function attachGlobalLongPress(element, docId, msgText, mediaUrl, publicId, resType, mine) {
       let pressTimer = null;
       let isMoved = false;
 
       const start = () => {
         isMoved = false;
         pressTimer = setTimeout(() => {
-          openMessageContextMenu(docId, mediaUrl, publicId, resType, mine);
+          openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine);
         }, 1200);
       };
 
@@ -2294,9 +2287,10 @@
             const mediaUrl = m.image || m.video || m.fileUrl || "";
             const publicId = m.cloudinaryPublicId || "";
             const resType = m.resourceType || "image";
+            const msgText = m.text || "";
 
             // Attach 1.2s long press on bubble
-            attachGlobalLongPress(bubble, docId, mediaUrl, publicId, resType, isMine);
+            attachGlobalLongPress(bubble, docId, msgText, mediaUrl, publicId, resType, isMine);
 
             const nameDiv = document.createElement('div');
             nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:800; margin-bottom:2px;";
@@ -2334,7 +2328,7 @@
               bubble.appendChild(fileLink);
             }
 
-            // Real-Time Emoji Reaction Display
+            // Real-Time Emoji Reaction Display (Count Pills)
             if (m.reactions && Object.keys(m.reactions).length > 0) {
               const reactRow = document.createElement('div');
               reactRow.className = 'msg-reactions-row';
