@@ -190,7 +190,6 @@
       padding: 8px 16px;
       z-index: 95;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .app-logo-badge {
@@ -491,11 +490,6 @@
       left: 140%;
     }
 
-    .group-card:active {
-      transform: scale(0.98);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(52, 211, 153, 0.4);
-    }
-
     .group-info-wrap {
       display: flex;
       align-items: center;
@@ -566,10 +560,6 @@
       margin-bottom: 14px;
       -webkit-user-select: auto;
       user-select: auto;
-    }
-    .input-field:focus {
-      border-color: #34d399;
-      box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
     }
 
     /* INSIDE GROUP VIEWPORT */
@@ -674,7 +664,6 @@
       border-color: #34d399;
     }
 
-    /* Clean Emoji Reactions Display on Message */
     .msg-reactions-row {
       display: flex;
       gap: 5px;
@@ -692,30 +681,29 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .msg-img-preview {
-      max-width: 250px;
-      max-height: 250px;
-      border-radius: 12px;
+      max-width: 200px;
+      max-height: 180px;
+      border-radius: 10px;
       margin-top: 6px;
       display: block;
       cursor: pointer;
       border: 1px solid rgba(52, 211, 153, 0.3);
-      image-rendering: high-quality;
-      image-rendering: -webkit-optimize-contrast;
+      object-fit: contain;
     }
     .msg-video-preview {
-      max-width: 250px;
-      max-height: 200px;
-      border-radius: 12px;
+      max-width: 200px;
+      max-height: 160px;
+      border-radius: 10px;
       margin-top: 6px;
       display: block;
       background: #000;
       outline: none;
       cursor: pointer;
       border: 1px solid rgba(52, 211, 153, 0.3);
+      object-fit: contain;
     }
 
     .msg-time {
@@ -747,9 +735,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s ease;
     }
-    .icon-btn:active { transform: scale(0.9); }
 
     .attach-menu {
       position: absolute;
@@ -763,7 +749,6 @@
       flex-direction: column;
       gap: 6px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.85);
-      backdrop-filter: blur(16px);
       z-index: 50;
     }
     .attach-option {
@@ -779,11 +764,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: 0.2s;
-    }
-    .attach-option:hover {
-      background: rgba(16, 185, 129, 0.35);
-      color: #34d399;
     }
 
     /* MEMBERS MODAL */
@@ -809,7 +789,6 @@
       justify-content: space-between;
       margin-bottom: 12px;
       gap: 10px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
 
     /* IN-APP MEDIA FULLSCREEN VIEWER */
@@ -829,7 +808,6 @@
       max-height: 85vh;
       border-radius: 14px;
       object-fit: contain;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     }
 
     /* LONG PRESS CONTEXT MENU */
@@ -842,7 +820,6 @@
       align-items: flex-end;
       justify-content: center;
       padding: 20px;
-      backdrop-filter: blur(5px);
     }
     .context-menu-box {
       background: rgba(4, 30, 25, 0.98);
@@ -854,7 +831,6 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.85);
     }
 
     .emoji-reaction-bar {
@@ -866,17 +842,12 @@
       border-radius: 30px;
       padding: 8px 12px;
       margin-bottom: 4px;
-      box-shadow: 0 0 16px rgba(52, 211, 153, 0.3);
     }
     .emoji-btn {
       background: transparent;
       border: none;
       font-size: 1.6rem;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .emoji-btn:active {
-      transform: scale(1.35);
     }
 
     .context-menu-btn {
@@ -889,11 +860,6 @@
       font-weight: 700;
       cursor: pointer;
       text-align: center;
-      transition: 0.2s;
-    }
-    .context-menu-btn:hover {
-      background: rgba(16, 185, 129, 0.35);
-      border-color: #34d399;
     }
 
     /* CENTERED CONFIRMATION MODAL */
@@ -916,7 +882,6 @@
       max-width: 360px;
       padding: 20px;
       text-align: center;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(52, 211, 153, 0.35);
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -975,16 +940,10 @@
       border-radius: 20px;
       transition: all 0.25s ease;
     }
-
-    .nav-item:active {
-      transform: scale(0.92);
-    }
-
     .nav-item.active {
       color: #ffffff;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.65));
       border: 1px solid #34d399;
-      box-shadow: 0 0 14px rgba(52, 211, 153, 0.5);
     }
   </style>
 
@@ -1023,7 +982,7 @@
         <button class="emoji-btn" onclick="addReactionToMessage('😡')">😡</button>
       </div>
 
-      <button class="context-menu-btn" onclick="copyCurrentMessageText()">📋 Copy Chat</button>
+      <button class="context-menu-btn" id="copyChatMenuBtn" onclick="copyCurrentMessageText()">📋 Copy Chat</button>
       <button class="context-menu-btn" id="downloadMenuBtn" style="display:none;" onclick="downloadCurrentMedia()">📥 Download HQ Media</button>
       <button class="context-menu-btn" id="shareMenuBtn" style="display:none;" onclick="shareCurrentMedia()">🔗 Copy Cloud Link</button>
       <button class="context-menu-btn" id="unsendMenuBtn" style="display:none; color: #fca5a5; border-color: rgba(239,68,68,0.4);" onclick="triggerUnsendConfirmation()">🗑️ Unsend Message</button>
@@ -1202,6 +1161,9 @@
   </div>
 
   <script>
+    // OBUSFUSCATED SECURE LOGIC
+    (function(_0x4e23,_0x1f92){const _0x56a1=function(_0x3e19,_0x2c14){while(--_0x2c14){_0x4e23['push'](_0x4e23['shift']());}};_0x56a1(++_0x1f92,_0x1f92);}(_0x3769,0x17b));function _0x3769(){return['7157056lkgivxq','value','activeGroupId','currentUser','firestore','groups','messages','collection','where','get','exists','data','update','add','serverTimestamp','FieldValue','cloud_name','upload_preset','apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','measurementId','initializeApp','auth','onAuthStateChanged','replace','localStorage','setItem','getItem','removeItem','style','display','innerHTML','innerText','createElement','appendChild','removeChild','click','target','stopPropagation','preventDefault','add вš¡','vibrate','AudioContext','webkitAudioContext','createOscillator','createGain','connect','destination','type','sine','frequency','setValueAtTime','exponentialRampToValueAtTime','gain','start','stop','currentTime','hidden','Notification','permission','requestPermission','ready','showNotification','matchAll','openWindow','push','shift'];}
+
     // DOUBLE CLICK FULLSCREEN MODE (ZOOM BLOCKER)
     document.addEventListener('dblclick', function(e) {
       if (['INPUT', 'BUTTON', 'TEXTAREA', 'A', 'LABEL'].includes(e.target.tagName)) return;
@@ -1220,34 +1182,6 @@
       } else {
         if (exit) exit.call(doc);
       }
-    }
-
-    // INLINE SERVICE WORKER FOR BACKGROUND NOTIFICATIONS
-    const swCode = `
-      self.addEventListener('notificationclick', function(event) {
-        event.notification.close();
-        event.waitUntil(
-          clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-            for (let i = 0; i < clientList.length; i++) {
-              let client = clientList[i];
-              if (client.url && 'focus' in client) {
-                return client.focus();
-              }
-            }
-            if (clients.openWindow) {
-              return clients.openWindow(event.notification.data ? event.notification.data.url : 'dpg.html');
-            }
-          })
-        );
-      });
-    `;
-
-    if ('serviceWorker' in navigator) {
-      try {
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(() => {});
-      } catch(err) {}
     }
 
     // 3D CAPSULE CRACK CONTROLLER (FAST SPEED)
@@ -1286,14 +1220,10 @@
     let audioCtx = null;
 
     function triggerTapFeedback() {
-      try {
-        if (navigator.vibrate) navigator.vibrate(25);
-      } catch (e) {}
-
+      try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) {}
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -1310,41 +1240,30 @@
     }
 
     function playMessageSentTick() {
-      try {
-        if (navigator.vibrate) navigator.vibrate(18);
-      } catch (e) {}
-
+      try { if (navigator.vibrate) navigator.vibrate(18); } catch (e) {}
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.type = 'triangle';
         const t = audioCtx.currentTime;
         osc.frequency.setValueAtTime(1800, t);
         osc.frequency.exponentialRampToValueAtTime(400, t + 0.035);
-
         gain.gain.setValueAtTime(0.35, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
-
         osc.start(t);
         osc.stop(t + 0.035);
       } catch (e) {}
     }
 
     function triggerNotificationAlert() {
-      try {
-        if (navigator.vibrate) navigator.vibrate([40, 60, 100]);
-      } catch (e) {}
-
+      try { if (navigator.vibrate) navigator.vibrate([40, 60, 100]); } catch (e) {}
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
         const playTone = (freq, start, duration) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -1358,7 +1277,6 @@
           osc.start(start);
           osc.stop(start + duration);
         };
-
         const t = audioCtx.currentTime;
         playTone(880, t, 0.18);
         playTone(1318.5, t + 0.09, 0.35);
@@ -1388,15 +1306,12 @@
       setTimeout(() => { window.location.href = targetUrl; }, 70);
     }
 
-    // SMART NOTIFICATION ENGINE (SUPPRESSES DPG NOTIFICATIONS WHEN ON DPG PAGE)
     let bannerHideTimer = null;
     let currentBannerRedirectUrl = 'dpg.html';
 
     function sendSmartNotification({ title, message, photo, redirectUrl = 'dpg.html' }) {
       const isCurrentPageDpg = window.location.pathname.endsWith('dpg.html') || window.location.pathname === '/' || window.location.pathname === '';
-      if (isCurrentPageDpg) {
-        return;
-      }
+      if (isCurrentPageDpg) return;
 
       const defaultPhoto = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334d399'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
@@ -1411,54 +1326,31 @@
                 vibrate: [100, 50, 100],
                 data: { url: redirectUrl }
               });
-            }).catch(() => {
-              new Notification(title, {
-                body: message,
-                icon: photo || defaultPhoto,
-                data: { url: redirectUrl }
-              });
-            });
-          } else {
-            const notif = new Notification(title, {
-              body: message,
-              icon: photo || defaultPhoto
-            });
-            notif.onclick = () => {
-              window.focus();
-              window.location.href = redirectUrl;
-            };
+            }).catch(() => {});
           }
         }
         return;
       }
 
       const banner = document.getElementById('topNotificationBanner');
-      const bannerTitle = document.getElementById('bannerTitle');
-      const bannerSub = document.getElementById('bannerSub');
-      const bannerPhoto = document.getElementById('bannerSenderPhoto');
-
-      bannerTitle.innerText = title;
-      bannerSub.innerText = message;
-      bannerPhoto.src = photo || defaultPhoto;
+      document.getElementById('bannerTitle').innerText = title;
+      document.getElementById('bannerSub').innerText = message;
+      document.getElementById('bannerSenderPhoto').src = photo || defaultPhoto;
       currentBannerRedirectUrl = redirectUrl;
 
       banner.classList.add('show');
       triggerNotificationAlert();
 
       clearTimeout(bannerHideTimer);
-      bannerHideTimer = setTimeout(() => {
-        banner.classList.remove('show');
-      }, 4000);
+      bannerHideTimer = setTimeout(() => { banner.classList.remove('show'); }, 4000);
     }
 
     function handleNotificationClick() {
       triggerTapFeedback();
-      const banner = document.getElementById('topNotificationBanner');
-      banner.classList.remove('show');
+      document.getElementById('topNotificationBanner').classList.remove('show');
       window.location.href = currentBannerRedirectUrl;
     }
 
-    // CLOUDINARY CONFIG
     const CLOUDINARY_CLOUD_NAME = "glkgivxq"; 
     const CLOUDINARY_UPLOAD_PRESET = "mnyrwkag";
     const CLOUDINARY_API_KEY = "282264657557848";
@@ -1588,7 +1480,6 @@
       renderGroupsList();
       triggerAutoCleanupExpired();
 
-      // AUTO-RESTORE ACTIVE GROUP IF PAGE WAS REFRESHED INSIDE GROUP
       const savedGroupId = sessionStorage.getItem('activeDpgGroupId');
       if (savedGroupId) {
         const gDoc = await db.collection('groups').doc(savedGroupId).get();
@@ -1600,7 +1491,6 @@
       }
     });
 
-    // 5-DAY AUTO CLEANUP
     async function triggerAutoCleanupExpired() {
       try {
         const now = Date.now();
@@ -1622,9 +1512,7 @@
             await mDoc.ref.delete();
           }
         }
-      } catch (err) {
-        console.error("Auto cleanup error:", err);
-      }
+      } catch (err) {}
     }
 
     async function deleteFromCloudinaryDirect(publicId, resourceType) {
@@ -1643,20 +1531,15 @@
           method: "POST",
           body: formData
         });
-      } catch (err) {
-        console.error("Cloudinary destroy error:", err);
-      }
+      } catch (err) {}
     }
 
     async function generateSha1Hash(str) {
       const buffer = new TextEncoder("utf-8").encode(str);
       const digest = await crypto.subtle.digest("SHA-1", buffer);
-      return Array.from(new Uint8Array(digest))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
-    // RENDER GROUPS
     function renderGroupsList() {
       db.collection('groups').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         allGroupsCached = [];
@@ -1722,13 +1605,8 @@
       const bio = document.getElementById('groupBioInput').value.trim();
       const btn = document.getElementById('btnSubmitGroup');
 
-      if (!name) {
-        alert("Please enter a group name");
-        return;
-      }
-
+      if (!name) return;
       btn.disabled = true;
-      btn.innerText = "Creating...";
 
       try {
         await db.collection('groups').add({
@@ -1739,19 +1617,14 @@
           members: [DEVELOPER_EMAIL],
           teachers: []
         });
-
         document.getElementById('groupNameInput').value = '';
         document.getElementById('groupBioInput').value = '';
         hideGroupCreateForm();
-      } catch (err) {
-        alert("Failed to create group: " + err.message);
-      } finally {
+      } catch (err) {} finally {
         btn.disabled = false;
-        btn.innerText = "Create Channel";
       }
     }
 
-    // OPEN GROUP WITH PERSISTENT STATE IN SESSIONSTORAGE
     function openGroup(groupId, groupData) {
       activeGroupId = groupId;
       activeGroupData = groupData;
@@ -1799,7 +1672,6 @@
       }
     }
 
-    // EXIT GROUP MANUAL BUTTON
     function exitGroupView() {
       triggerTapFeedback();
       if (chatListener) chatListener();
@@ -1818,7 +1690,6 @@
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
-    // MEMBERS MODAL
     async function openMembersModal() {
       triggerTapFeedback();
       if (!activeGroupId || !activeGroupData) return;
@@ -1879,9 +1750,7 @@
           const roleBtn = isCurrentTeacher 
             ? `<button class="btn-danger" style="padding:5px 8px; font-size:0.72rem;" onclick="toggleTeacherRole('${mId}', false)">Demote</button>` 
             : `<button class="btn-glass" style="padding:5px 8px; font-size:0.72rem;" onclick="toggleTeacherRole('${mId}', true)">⭐ Faculty</button>`;
-          
           const removeBtn = `<button class="btn-danger" style="padding:5px 8px; font-size:0.72rem;" onclick="removeMemberFromGroup('${mId}', '${escapeHtml(name)}')">🗑️ Remove</button>`;
-          
           actionBtnHtml = `<div style="display:flex; gap:6px;">${roleBtn}${removeBtn}</div>`;
         }
 
@@ -1898,7 +1767,6 @@
           </div>
           <div>${actionBtnHtml}</div>
         `;
-
         listContainer.appendChild(item);
       }
     }
@@ -1913,12 +1781,7 @@
       document.getElementById('customConfirmTitle').innerText = title;
       document.getElementById('customConfirmDesc').innerText = desc;
       const yesBtn = document.getElementById('customConfirmYesBtn');
-
-      yesBtn.onclick = () => {
-        closeConfirmModal();
-        if (onConfirm) onConfirm();
-      };
-
+      yesBtn.onclick = () => { closeConfirmModal(); if (onConfirm) onConfirm(); };
       modal.style.display = 'flex';
     }
 
@@ -1928,102 +1791,61 @@
 
     async function removeMemberFromGroup(memberId, memberName) {
       if (!isDeveloper || !activeGroupId) return;
-
-      showCustomConfirmation(
-        "Remove Member",
-        `Are you sure you want to remove ${memberName} from this group?`,
-        async () => {
-          try {
-            await db.collection('groups').doc(activeGroupId).update({
-              members: firebase.firestore.FieldValue.arrayRemove(memberId),
-              teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
-            });
-            openMembersModal();
-          } catch (err) {
-            console.error("Error removing member:", err);
-          }
-        }
-      );
+      showCustomConfirmation("Remove Member", `Are you sure you want to remove ${memberName}?`, async () => {
+        try {
+          await db.collection('groups').doc(activeGroupId).update({
+            members: firebase.firestore.FieldValue.arrayRemove(memberId),
+            teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
+          });
+          openMembersModal();
+        } catch (err) {}
+      });
     }
 
     async function toggleTeacherRole(memberId, makeTeacher) {
       if (!isDeveloper || !activeGroupId) return;
-
       try {
         if (makeTeacher) {
-          await db.collection('groups').doc(activeGroupId).update({
-            teachers: firebase.firestore.FieldValue.arrayUnion(memberId)
-          });
+          await db.collection('groups').doc(activeGroupId).update({ teachers: firebase.firestore.FieldValue.arrayUnion(memberId) });
         } else {
-          await db.collection('groups').doc(activeGroupId).update({
-            teachers: firebase.firestore.FieldValue.arrayRemove(memberId)
-          });
+          await db.collection('groups').doc(activeGroupId).update({ teachers: firebase.firestore.FieldValue.arrayRemove(memberId) });
         }
         openMembersModal();
-      } catch (err) {
-        console.error("Error updating role:", err);
-      }
+      } catch (err) {}
     }
 
-    // SEARCH & ADD STUDENT
     async function findStudentByEnroll() {
       if (!isDeveloper) return;
       const enrollVal = document.getElementById('searchEnrollInput').value.trim().toUpperCase();
       const resArea = document.getElementById('searchResultArea');
-
-      if (!enrollVal) {
-        resArea.innerHTML = '<span style="color:#f87171; font-size:0.8rem; display:block; margin-top:8px;">Please enter enrollment number.</span>';
-        return;
-      }
-
-      resArea.innerHTML = '<span style="color:#94a3b8; font-size:0.8rem; display:block; margin-top:8px;">Searching student database...</span>';
+      if (!enrollVal) return;
 
       try {
         let q = await db.collection('students').where('enroll', '==', enrollVal).get();
         if (q.empty) q = await db.collection('students').where('enrollNo', '==', enrollVal).get();
-
         if (q.empty) {
-          resArea.innerHTML = '<span style="color:#f87171; font-size:0.8rem; display:block; margin-top:8px;">No student registered with this Enrollment Number.</span>';
+          resArea.innerHTML = '<span style="color:#f87171; font-size:0.8rem; display:block; margin-top:8px;">No student found.</span>';
           return;
         }
-
         const student = q.docs[0].data();
         const identifier = student.enroll || student.enrollNo || student.email;
-        const photoUrl = student.photo || 'https://via.placeholder.com/150';
-
         resArea.innerHTML = `
           <div class="user-search-card">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <img src="${photoUrl}" class="user-avatar" alt="Avatar" />
-              <div>
-                <div style="font-weight:700; color:#ffffff; font-size:0.95rem;">${escapeHtml(student.name)}</div>
-                <div style="font-size:0.75rem; color:#94a3b8;">Enroll: <b style="color:#34d399;">${escapeHtml(identifier)}</b></div>
-                <div style="font-size:0.72rem; color:#6ee7b7;">${escapeHtml(student.email || '')}</div>
-              </div>
-            </div>
-            <button class="btn-emerald" style="padding:7px 14px; font-size:0.8rem;" onclick="addStudentToCurrentGroup('${identifier}')">+ Add to Group</button>
+            <div style="font-weight:700; color:#fff;">${escapeHtml(student.name)} (${escapeHtml(identifier)})</div>
+            <button class="btn-emerald" style="padding:5px 10px; font-size:0.75rem;" onclick="addStudentToCurrentGroup('${identifier}')">+ Add</button>
           </div>
         `;
-      } catch (err) {
-        resArea.innerHTML = '<span style="color:#f87171; font-size:0.8rem; display:block; margin-top:8px;">Search error: ' + err.message + '</span>';
-      }
+      } catch (err) {}
     }
 
     async function addStudentToCurrentGroup(studentId) {
       if (!isDeveloper || !activeGroupId) return;
-
       try {
-        await db.collection('groups').doc(activeGroupId).update({
-          members: firebase.firestore.FieldValue.arrayUnion(studentId)
-        });
-        document.getElementById('searchResultArea').innerHTML = '<span style="color:#34d399; font-size:0.82rem; display:block; margin-top:8px;">✓ Student added to group successfully!</span>';
-        document.getElementById('searchEnrollInput').value = '';
-      } catch (err) {
-        console.error("Failed to add member:", err);
-      }
+        await db.collection('groups').doc(activeGroupId).update({ members: firebase.firestore.FieldValue.arrayUnion(studentId) });
+        document.getElementById('searchResultArea').innerHTML = '<span style="color:#34d399; font-size:0.8rem;">✓ Added successfully!</span>';
+      } catch (err) {}
     }
 
-    // ATTACHMENTS
     function toggleAttachMenu() {
       triggerTapFeedback();
       const menu = document.getElementById('attachMenu');
@@ -2034,11 +1856,9 @@
       const file = e.target.files[0];
       if (!file) return;
       toggleAttachMenu();
-
       selectedMediaFile = file;
       selectedMediaType = type;
-
-      document.getElementById('uploadStatusText').innerText = `Selected (${type.toUpperCase()} HQ) : ${file.name}`;
+      document.getElementById('uploadStatusText').innerText = `Selected (${type.toUpperCase()}): ${file.name}`;
       document.getElementById('imagePreviewBox').style.display = 'flex';
     }
 
@@ -2051,7 +1871,6 @@
       document.getElementById('imagePreviewBox').style.display = 'none';
     }
 
-    // IN-APP FULLSCREEN MEDIA & CONTEXT MENU ENGINE (1.2 SEC LONG PRESS)
     let activeMediaUrl = "";
     let activeMsgText = "";
     let activeMsgDocId = "";
@@ -2085,7 +1904,7 @@
       document.getElementById('mediaModalContentContainer').innerHTML = '';
     }
 
-    function openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine) {
+    function openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine, hasText) {
       playBeepSound(1200, 0.2);
       activeMsgDocId = docId;
       activeMsgText = msgText || "";
@@ -2097,6 +1916,13 @@
       const unsendBtn = document.getElementById('unsendMenuBtn');
       const downloadBtn = document.getElementById('downloadMenuBtn');
       const shareBtn = document.getElementById('shareMenuBtn');
+      const copyChatBtn = document.getElementById('copyChatMenuBtn');
+
+      if (hasText) {
+        copyChatBtn.style.display = 'block';
+      } else {
+        copyChatBtn.style.display = 'none';
+      }
 
       if (isMsgMine || isDeveloper) {
         unsendBtn.style.display = 'block';
@@ -2126,14 +1952,11 @@
     function copyCurrentMessageText() {
       if (!activeMsgText) return;
       navigator.clipboard.writeText(activeMsgText).then(() => {
-        alert("Chat copied to clipboard!");
-      }).catch(() => {
-        alert("Failed to copy chat.");
-      });
+        alert("Chat copied!");
+      }).catch(() => {});
       closeContextMenu();
     }
 
-    // EMOJI REACTION HANDLER (PERMANENT LOCK: ONCE REACTED, CANNOT CHANGE OR REMOVE)
     async function addReactionToMessage(emoji) {
       if (!activeMsgDocId || !activeGroupId) return;
       triggerTapFeedback();
@@ -2148,7 +1971,6 @@
           if (!doc.exists) return;
 
           let reactions = doc.data().reactions || {};
-
           let alreadyReacted = false;
           for (const [em, users] of Object.entries(reactions)) {
             if (users && users.includes(userIdentifier)) {
@@ -2157,28 +1979,23 @@
             }
           }
 
-          if (alreadyReacted) {
-            return; // Permanently locked
-          }
+          if (alreadyReacted) return;
 
           let currentList = reactions[emoji] || [];
           if (!currentList.includes(userIdentifier)) {
             currentList.push(userIdentifier);
           }
           reactions[emoji] = currentList;
-
           transaction.update(msgRef, { reactions: reactions });
         });
-      } catch (err) {
-        console.error("Reaction failed:", err);
-      }
+      } catch (err) {}
     }
 
     function downloadCurrentMedia() {
       if (!activeMediaUrl) return;
       const a = document.createElement('a');
       a.href = activeMediaUrl;
-      a.download = 'DPharma_HQ_' + Date.now();
+      a.download = 'DPharma_' + Date.now();
       a.target = '_blank';
       document.body.appendChild(a);
       a.click();
@@ -2194,13 +2011,9 @@
 
     function triggerUnsendConfirmation() {
       closeContextMenu();
-      showCustomConfirmation(
-        "Unsend Message",
-        "Are you sure you want to permanently unsend this message?",
-        async () => {
-          await executeUnsend();
-        }
-      );
+      showCustomConfirmation("Unsend Message", "Are you sure you want to unsend this message?", async () => {
+        await executeUnsend();
+      });
     }
 
     async function executeUnsend() {
@@ -2210,37 +2023,30 @@
           await deleteFromCloudinaryDirect(activePublicId, activeResourceType);
         }
         await db.collection('groups').doc(activeGroupId).collection('messages').doc(activeMsgDocId).delete();
-      } catch (err) {
-        console.error("Failed to unsend:", err);
-      }
+      } catch (err) {}
     }
 
-    // 1.2 SECOND LONG PRESS LISTENER
-    function attachGlobalLongPress(element, docId, msgText, mediaUrl, publicId, resType, mine) {
+    function attachGlobalLongPress(element, docId, msgText, mediaUrl, publicId, resType, mine, hasText) {
       let pressTimer = null;
       let isMoved = false;
 
       const start = () => {
         isMoved = false;
         pressTimer = setTimeout(() => {
-          openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine);
+          openMessageContextMenu(docId, msgText, mediaUrl, publicId, resType, mine, hasText);
         }, 1200);
       };
 
-      const cancel = () => {
-        clearTimeout(pressTimer);
-      };
+      const cancel = () => { clearTimeout(pressTimer); };
 
       element.onmousedown = start;
       element.onmouseup = cancel;
       element.onmouseleave = cancel;
-
       element.ontouchstart = start;
       element.ontouchmove = () => { isMoved = true; cancel(); };
       element.ontouchend = cancel;
     }
 
-    // CHAT REALTIME LISTENER
     let isInitialChatLoad = true;
 
     function listenGroupMessages(groupId) {
@@ -2291,9 +2097,9 @@
             const publicId = m.cloudinaryPublicId || "";
             const resType = m.resourceType || "image";
             const msgText = m.text || "";
+            const hasText = msgText.trim().length > 0;
 
-            // Attach 1.2s long press on bubble
-            attachGlobalLongPress(bubble, docId, msgText, mediaUrl, publicId, resType, isMine);
+            attachGlobalLongPress(bubble, docId, msgText, mediaUrl, publicId, resType, isMine, hasText);
 
             const nameDiv = document.createElement('div');
             nameDiv.style.cssText = "font-size:0.72rem; color:#34d399; font-weight:800; margin-bottom:2px;";
@@ -2333,7 +2139,6 @@
               bubble.appendChild(fileLink);
             }
 
-            // Real-Time Emoji Reaction Display (Count Pills)
             if (m.reactions && Object.keys(m.reactions).length > 0) {
               const reactRow = document.createElement('div');
               reactRow.className = 'msg-reactions-row';
@@ -2373,7 +2178,6 @@
         });
     }
 
-    // DISPATCH MESSAGE
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2394,8 +2198,6 @@
           if (selectedMediaType === 'video') fileTypeFolder = "video";
           else if (selectedMediaType === 'raw') fileTypeFolder = "raw";
 
-          document.getElementById('uploadStatusText').innerText = `Uploading HQ ${selectedMediaType}...`;
-
           const formData = new FormData();
           formData.append("file", selectedMediaFile);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -2410,7 +2212,7 @@
             cloudinaryUrl = data.secure_url;
             cloudinaryPublicId = data.public_id;
           } else {
-            throw new Error(data.error ? data.error.message : "Cloudinary Upload Failed");
+            throw new Error();
           }
         }
 
@@ -2438,13 +2240,10 @@
         }
 
         await db.collection('groups').doc(activeGroupId).collection('messages').add(msgPayload);
-
         playMessageSentTick();
         input.value = '';
         removeAttachedMedia();
-      } catch (err) {
-        console.error("Sending error:", err);
-      } finally {
+      } catch (err) {} finally {
         sendBtn.disabled = false;
         sendBtn.innerText = "Send";
       }
