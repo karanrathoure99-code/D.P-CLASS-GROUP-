@@ -694,7 +694,7 @@
       object-fit: contain;
     }
 
-    /* CUSTOM VIDEO PREVIEW WITH HEARTBEAT PROGRESS BAR */
+    /* CUSTOM VIDEO PLAYER WITH HEARTBEAT PROGRESS BAR */
     .video-container-custom {
       position: relative;
       max-width: 220px;
@@ -1240,7 +1240,7 @@
           splash.style.opacity = '0';
           setTimeout(() => splash.style.display = 'none', 300);
         }
-      }, 500);
+      }, 550);
 
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
@@ -1918,6 +1918,10 @@
 
     function openMediaModal(url, type) {
       triggerTapFeedback();
+      // Small preview video ko pause kar do agar chal rahi ho
+      const activeVideos = document.querySelectorAll('video');
+      activeVideos.forEach(v => v.pause());
+
       const container = document.getElementById('mediaModalContentContainer');
       container.innerHTML = '';
       if (type === 'image') {
@@ -2155,7 +2159,6 @@
               img.src = m.image;
               img.className = 'msg-img-preview';
               img.ondblclick = () => openMediaModal(m.image, 'image');
-              img.onclick = () => openMediaModal(m.image, 'image');
               bubble.appendChild(img);
             }
 
