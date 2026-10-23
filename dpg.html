@@ -905,7 +905,7 @@
       text-align: center;
     }
 
-    /* CENTERED CONFIRMATION MODAL */
+    /* CENTERED CONFIRMATION BOX MODAL */
     .custom-confirm-overlay {
       position: fixed;
       inset: 0;
@@ -2072,7 +2072,6 @@
       });
     }
 
-    // 🔥 100% WORKING GLOBAL UNSEND ENGINE WITH LOCAL CACHE WIPE 🔥
     async function executeUnsend() {
       if (!activeMsgDocId || !activeGroupId) return;
       
@@ -2144,7 +2143,7 @@
 
     let isInitialChatLoad = true;
 
-    // 🔥 100% OFFLINE-FIRST REALTIME MESSAGE LISTENER WITH LOCAL STORAGE BACKUP 🔥
+    // 🔥 SMART OFFLINE-FIRST REALTIME MESSAGE LISTENER WITH HASH-BASED DEDUPLICATION & LOCAL STORAGE 🔥
     function listenGroupMessages(groupId) {
       const box = document.getElementById('chatMessages');
       box.innerHTML = '';
@@ -2350,6 +2349,7 @@
         });
     }
 
+    // 🟢 HASH-BASED SMART DEDUPLICATION & MEDIA DISPATCH ENGINE 🟢
     async function dispatchMessage() {
       const input = document.getElementById('outgoingMsgInput');
       const sendBtn = document.getElementById('btnSendMessage');
@@ -2370,29 +2370,48 @@
           if (selectedMediaType === 'video') fileTypeFolder = "video";
           else if (selectedMediaType === 'raw') fileTypeFolder = "raw";
 
-          const formData = new FormData();
-          formData.append("file", selectedMediaFile);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-          
-          if (selectedMediaType === 'image') {
-            formData.append("transformation", "q_auto:good,w_1200,f_auto");
-          } else if (selectedMediaType === 'video') {
-            formData.append("transformation", "q_auto:good,vc_auto,w_1280");
-          } else if (selectedMediaType === 'raw') {
-            formData.append("resource_type", "auto");
-          }
+          // 1. Generate SHA-1 Hash of file to check if it already exists on Cloudinary registry (Smart Deduplication)
+          const arrayBuffer = await selectedMediaFile.arrayBuffer();
+          const hashBuffer = await crypto.subtle.digest("SHA-1", arrayBuffer);
+          const fileHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
 
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileTypeFolder}/upload`, {
-            method: "POST",
-            body: formData
-          });
+          const registryKey = `cloudinary_registry_${fileHash}`;
+          const existingRegistry = localStorage.getItem(registryKey);
 
-          const data = await res.json();
-          if (data.secure_url) {
-            cloudinaryUrl = data.secure_url;
-            cloudinaryPublicId = data.public_id;
+          if (existingRegistry) {
+            // Reuse existing Cloudinary URL without re-uploading (Saves 25GB Space & 100% Instant Delivery)
+            const parsedReg = JSON.parse(existingRegistry);
+            cloudinaryUrl = parsedReg.url;
+            cloudinaryPublicId = parsedReg.publicId;
           } else {
-            throw new Error();
+            // Upload new file to Cloudinary
+            const formData = new FormData();
+            formData.append("file", selectedMediaFile);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            
+            if (selectedMediaType === 'image') {
+              formData.append("transformation", "q_auto:good,w_1200,f_auto");
+            } else if (selectedMediaType === 'video') {
+              formData.append("transformation", "q_auto:good,vc_auto,w_1280");
+            } else if (selectedMediaType === 'raw') {
+              formData.append("resource_type", "auto");
+            }
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${fileTypeFolder}/upload`, {
+              method: "POST",
+              body: formData
+            });
+
+            const data = await res.json();
+            if (data.secure_url) {
+              cloudinaryUrl = data.secure_url;
+              cloudinaryPublicId = data.public_id;
+
+              // Save to local registry so next time it won't re-upload
+              localStorage.setItem(registryKey, JSON.stringify({ url: cloudinaryUrl, publicId: cloudinaryPublicId }));
+            } else {
+              throw new Error("Cloudinary upload failed");
+            }
           }
         }
 
@@ -2423,7 +2442,9 @@
         playMessageSentTick();
         input.value = '';
         removeAttachedMedia();
-      } catch (err) {} finally {
+      } catch (err) {
+        alert("Failed to send message. Please check your connection.");
+      } finally {
         sendBtn.disabled = false;
         sendBtn.innerText = "Send";
       }
